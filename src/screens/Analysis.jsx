@@ -67,8 +67,6 @@ function Patterns({ list, legend }) {
 export function Report({ s, history }) {
   const total = s.total;
   const digitTotal = total * 4;
-  const hottest = s.digit.indexOf(Math.max(...s.digit));
-  const coldest = s.digit.indexOf(Math.min(...s.digit));
   const sorted = s.digit.map((c, d) => ({ d, c })).sort((x, y) => y.c - x.c || x.d - y.d);
   const top4 = new Set(sorted.slice(0, 4).map((r) => r.d));
   const types = Object.keys(s.types).filter((k) => s.types[k] > 0).sort((x, y) => s.types[y] - s.types[x]);
@@ -134,16 +132,6 @@ export function Report({ s, history }) {
         </Panel>
       )}
 
-      <Panel title={t('At a glance')}>
-        <div class="stats">
-          <Stat v={total} l={t('Numbers')} />
-          <Stat v={`${pct(s.withDouble, total)}%`} l={t('Have a double')} />
-          <Stat v={s.avgSum.toFixed(1)} l={t('Avg digit sum')} />
-          <Stat v={hottest} l={t('Hottest digit')} />
-          <Stat v={coldest} l={t('Coolest digit')} />
-          {history ? <Stat v={s.drawCount} l={t('Draws studied')} /> : <Stat v={s.commonSum ? s.commonSum[0] : '-'} l={t('Common sum')} />}
-        </div>
-      </Panel>
     </div>
   );
 }
