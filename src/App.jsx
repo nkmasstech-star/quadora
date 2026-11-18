@@ -117,9 +117,9 @@ export function App() {
         <nav class="nav" aria-label="Main">
           <div class="nav-inner">
             {TABS.map(({ path: p, label, Icon }) => (
-              <button key={p} class={active === p ? 'nav-item on' : 'nav-item'} aria-current={active === p ? 'page' : undefined} onClick={() => go(p)}>
+              <button key={p} class={active === p ? 'nav-item on' : 'nav-item'} aria-label={label} aria-current={active === p ? 'page' : undefined} onClick={() => go(p)}>
                 <Icon />
-                {label}
+                {active === p && <span>{label}</span>}
               </button>
             ))}
           </div>

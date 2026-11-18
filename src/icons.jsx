@@ -52,7 +52,7 @@ export const IconBell = () => (
 export const IconQ = () => (
   <svg width="24" height="24" viewBox="14 14 80 80" aria-hidden="true">
     <circle cx="45" cy="45" r="22" fill="none" stroke="currentColor" stroke-width="7" />
-    <path d="M70 54 L74 66 L86 70 L74 74 L70 86 L66 74 L54 70 L66 66 Z" fill="currentColor" style="stroke:var(--nav-bg)" stroke-width="3" />
+    <path d="M70 54 L74 66 L86 70 L74 74 L70 86 L66 74 L54 70 L66 66 Z" fill="currentColor" style="stroke:var(--icon-cut, var(--nav-bg))" stroke-width="3" />
   </svg>
 );
 export const IconTrophy = () => (

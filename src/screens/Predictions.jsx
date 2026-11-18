@@ -1,22 +1,32 @@
-import { gameById, fmtShort, todayISO } from '../data/games.js';
+import { useState } from 'preact/hooks';
+import { gameById, fmtShort, todayISO, nextDrawLabel } from '../data/games.js';
 import { IconBack, IconMenu, IconBell } from '../icons.jsx';
 import { NumberGrid, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 
-const TILES = [
-  { id: 'magnum', label: 'Magnum' },
-  { id: 'toto', label: 'Toto' },
-  { id: 'damacai', label: 'Da Ma Cai' },
-  { id: 'singapore', label: 'Singapore Pools' },
-  { id: 'gdlotto', label: 'GD Lotto' },
-  { id: 'winnings', label: 'Winnings' },
+const CARDS = [
+  { id: 'magnum', label: 'Magnum', region: 'my', letter: 'M' },
+  { id: 'toto', label: 'Toto', region: 'my', letter: 'T' },
+  { id: 'damacai', label: 'Da Ma Cai', region: 'my', letter: 'D' },
+  { id: 'singapore', label: 'Singapore', region: 'sg', letter: 'S' },
+  { id: 'gdlotto', label: 'GD Lotto', region: 'kh', letter: 'G' },
+  { id: 'winnings', label: 'Winnings', region: 'all', letter: 'W' },
 ];
+const REGION_NAME = { my: 'Malaysia', sg: 'Singapore', kh: 'Cambodia', all: 'History' };
+const FILTERS = [['all', 'All'], ['my', 'Malaysia'], ['sg', 'Singapore'], ['kh', 'Cambodia']];
 
-function Tile({ t }) {
-  const to = t.id === 'winnings' ? '/winnings' : `/prediction/${t.id}`;
+function GameCard({ c, ready }) {
+  const to = c.id === 'winnings' ? '/winnings' : `/prediction/${c.id}`;
+  const g = c.id === 'winnings' ? null : gameById(c.id);
+  const when = g ? nextDrawLabel(g) : 'Past wins';
   return (
-    <button class="img-tile" aria-label={t.label} onClick={() => go(to)}>
-      <img src={`./img/${t.id}.jpg`} alt="" width="256" height="256" />
+    <button class="gcard" onClick={() => go(to)}>
+      <div class="gcard-top">
+        <span class="ring">{c.letter}</span>
+        {c.id !== 'winnings' && <span class={ready ? 'badge ready' : 'badge'}>{ready ? 'Ready' : 'Soon'}</span>}
+      </div>
+      <div class="gcard-name">{c.label}</div>
+      <div class="gcard-sub">{REGION_NAME[c.region]} · {when}</div>
     </button>
   );
 }
@@ -34,22 +44,39 @@ function Balls({ digits }) {
 }
 
 export function Predictions({ data, toast }) {
+  const [filter, setFilter] = useState('all');
   if (data.status === 'loading' && !data.predictions) return <Loading />;
+  const games = (data.predictions && data.predictions.games) || {};
+  const ready = Object.keys(games).length;
+  const list = CARDS.filter((c) => filter === 'all' || c.region === filter);
 
   return (
-    <div class="center-screen">
+    <div>
       <div class="app-bar">
         <button class="icon-btn" aria-label="Menu" onClick={() => toast('Menu is coming soon')}><IconMenu /></button>
-        <div><div class="app-title">Quadora</div><div class="tagline">4D Predictions · Results · Analysis</div></div>
-        <button class="icon-btn" aria-label="Notifications" onClick={() => toast('Notifications are coming soon')}><IconBell /></button>
-      </div>
-      {data.demo && <div class="banner">DEMO DATA: sample numbers, not real predictions.</div>}
-
-      <div class="date-above"><span class="date-chip">{fmtShort(todayISO())}</span></div>
-      <div class="panel centered">
-        <div class="tiles">
-          {TILES.map((t) => <Tile key={t.id} t={t} />)}
+        <div>
+          <div class="app-title">Quadora</div>
+          <div class="tagline">4D Predictions · Results · Analysis</div>
         </div>
+        <button class="icon-btn bell" aria-label="Notifications" onClick={() => toast('Notifications are coming soon')}><IconBell /><i class="dot" /></button>
+      </div>
+
+      <div class="hero">
+        <div class="hero-text">
+          <div class="hero-kicker">{fmtShort(todayISO())}</div>
+          <div class="hero-title">Today's predictions</div>
+        </div>
+        <span class="hero-pill">{ready ? `${ready} ready` : 'Updates daily'}</span>
+      </div>
+
+      <div class="tabs" role="tablist">
+        {FILTERS.map(([k, l]) => (
+          <button key={k} role="tab" aria-selected={filter === k} class={filter === k ? 'tab on' : 'tab'} onClick={() => setFilter(k)}>{l}</button>
+        ))}
+      </div>
+
+      <div class="gcards">
+        {list.map((c) => <GameCard key={c.id} c={c} ready={!!games[c.id]} />)}
       </div>
     </div>
   );
