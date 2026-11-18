@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { loadAll } from './data/store.js';
+import { t, setLang as applyLang } from './i18n.js';
 import { IconQ, IconTrophy, IconSearch, IconUser } from './icons.jsx';
 import { Login } from './screens/Login.jsx';
 import { Home } from './screens/Home.jsx';
@@ -43,6 +44,10 @@ export function App() {
   const route = useRoute();
   const [data, setData] = useState({ status: 'loading', results: null, predictions: null, demo: false });
   const [toast, setToast] = useState('');
+  const [, setLangTick] = useState(0);
+  const setLang = (l) => { applyLang(l); setLangTick((n) => n + 1); };
+  useEffect(() => { applyLang(localStorage.getItem('qd_lang') || 'en'); }, []);
+  if (import.meta.env.DEV) { const q = new URLSearchParams(location.search).get('lang'); if (q) applyLang(q); }
   const [guest, setGuest] = useState(() => {
     if (import.meta.env.DEV && new URLSearchParams(location.search).has('guest')) store.set('qd_guest', '1');
     return store.get('qd_guest') === '1';
@@ -99,7 +104,7 @@ export function App() {
   if (!guest || seg[0] === 'login') {
     return (
       <div class="app">
-        <Login onGuest={enterAsGuest} toast={showToast} />
+        <Login onGuest={enterAsGuest} toast={showToast} setLang={setLang} />
         {toast && <div class="toast" role="status">{toast}</div>}
       </div>
     );
@@ -113,7 +118,7 @@ export function App() {
   else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings />; nav = false; }
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
-  else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
+  else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} setLang={setLang} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
   else if (seg[0] === 'home') screen = <Home data={data} />;
   else screen = <Predictions data={data} toast={showToast} />;
 
@@ -126,9 +131,9 @@ export function App() {
         <nav class="nav" aria-label="Main">
           <div class="nav-inner">
             {TABS.map(({ path: p, label, Icon }) => (
-              <button key={p} class={active === p ? 'nav-item on' : 'nav-item'} aria-label={label} aria-current={active === p ? 'page' : undefined} onClick={() => go(p)}>
+              <button key={p} class={active === p ? 'nav-item on' : 'nav-item'} aria-label={t(label)} aria-current={active === p ? 'page' : undefined} onClick={() => go(p)}>
                 <Icon />
-                {active === p && <span>{label}</span>}
+                {active === p && <span>{t(label)}</span>}
               </button>
             ))}
           </div>

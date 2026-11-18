@@ -300,3 +300,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .chip small { display: block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
 .boxsets { display: grid; gap: 8px; }
 .boxset { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .04em; }
+
+.langrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.langrow .chip-btn { flex: none; }
+:lang(km) *, :lang(ta) *, :lang(zh) * { letter-spacing: 0 !important; text-transform: none !important; }

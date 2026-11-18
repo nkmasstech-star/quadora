@@ -10,9 +10,9 @@ export function Tile({ rank, number, first }) {
 export function Top3({ draw }) {
   return (
     <div class="top3">
-      <Tile rank="1ST" number={draw.first} first />
-      <Tile rank="2ND" number={draw.second} />
-      <Tile rank="3RD" number={draw.third} />
+      <Tile rank={t('1ST')} number={draw.first} first />
+      <Tile rank={t('2ND')} number={draw.second} />
+      <Tile rank={t('3RD')} number={draw.third} />
     </div>
   );
 }
@@ -29,22 +29,23 @@ export function NumberGrid({ numbers }) {
 }
 
 export function Loading() {
-  return <div class="loading">Loading…</div>;
+  return <div class="loading">{t('Loading…')}</div>;
 }
 
 import { IconMenu, IconBell, IconBack } from './icons.jsx';
+import { t } from './i18n.js';
 
 export const openMenu = () => window.dispatchEvent(new Event('qd-menu'));
 
 export function AppBar({ title, tagline, go }) {
   return (
     <div class="app-bar">
-      <button class="icon-btn" aria-label="Menu" onClick={openMenu}><IconMenu /></button>
+      <button class="icon-btn" aria-label={t('Menu')} onClick={openMenu}><IconMenu /></button>
       <div>
         <div class="app-title">{title}</div>
         {tagline && <div class="tagline">{tagline}</div>}
       </div>
-      <button class="icon-btn bell" aria-label="Notifications" onClick={() => go('/notifications')}><IconBell /><i class="dot" /></button>
+      <button class="icon-btn bell" aria-label={t('Notifications')} onClick={() => go('/notifications')}><IconBell /><i class="dot" /></button>
     </div>
   );
 }
@@ -52,7 +53,7 @@ export function AppBar({ title, tagline, go }) {
 export function BackBar({ title, right }) {
   return (
     <div class="app-bar">
-      <button class="icon-btn" aria-label="Back" onClick={() => history.back()}><IconBack /></button>
+      <button class="icon-btn" aria-label={t('Back')} onClick={() => history.back()}><IconBack /></button>
       <div class="app-title" style="font-size:18px">{title}</div>
       <div style="display:flex;justify-content:flex-end">{right}</div>
     </div>
