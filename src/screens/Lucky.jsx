@@ -112,7 +112,7 @@ export function Lucky() {
       <Hero kicker={t('Just for fun')} title={t('Your lucky 4D number')} pill={left > 0 ? t('{n} free left', { n: left }) : t('Watch ad')} />
 
       <div class="chipwrap" style="margin-top:14px">
-        {GAMES.map((g) => <button key={g.id} class={game === g.id ? 'chip-btn on' : 'chip-btn'} onClick={() => setGame(g.id)}>{g.name.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto')}</button>)}
+        {GAMES.map((g) => <button key={g.id} class={game === g.id ? 'chip-btn on' : 'chip-btn'} onClick={() => { if (g.id !== game) { clearTimeout(timer.current); setGame(g.id); setDigits(null); setDone(false); setSpinning(false); } }}>{g.name.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto')}</button>)}
       </div>
 
       <div class={done ? 'lucky-stage done' : 'lucky-stage'}>
