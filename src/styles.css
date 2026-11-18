@@ -1,20 +1,20 @@
 :root {
-  --bg: #0A1020;
-  --surface: #121A2E;
-  --surface-2: #18223B;
-  --border: #26324D;
-  --border-strong: #3A4868;
-  --text: #F3F5FA;
-  --muted: #9AA6C0;
-  --faint: #7F8BA8;
+  --bg: #000000;
+  --surface: #0E0E11;
+  --surface-2: #17171B;
+  --border: #25252B;
+  --border-strong: #3A3A42;
+  --text: #F5F5F7;
+  --muted: #9A9AA5;
+  --faint: #7C7C87;
   --gold: #E8B94A;
   --gold-text: #E8B94A;
   --on-gold: #0A1020;
   --banner-bg: #2A2410;
   --banner-border: #5a4a1c;
-  --toast-bg: #1F2A47;
+  --toast-bg: #1d1d22;
   --pill-border: #6b5724;
-  --nav-bg: rgba(10, 16, 32, 0.96);
+  --nav-bg: rgba(0, 0, 0, 0.96);
   color-scheme: dark;
   --gold-soft: #F5D27A;
   --ok: #5CC8A0;
@@ -255,3 +255,14 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .drawer-item { text-align: left; padding: 14px 12px; border-radius: 12px; font-size: 15.5px; font-weight: 600; }
 .drawer-item:active { background: var(--surface-2); }
 .drawer-sep { height: 1px; background: var(--border); margin: 10px 0; }
+
+
+[data-theme='charcoal'] { --bg: #12100E; --surface: #1D1A16; --surface-2: #272320; --border: #332E27; --border-strong: #4B4438; --text: #F6F1E8; --muted: #A89F90; --faint: #8C8475; --nav-bg: rgba(18, 16, 14, 0.96); --toast-bg: #2a251f; }
+[data-theme='teal'] { --bg: #0B1519; --surface: #12232A; --surface-2: #1A303A; --border: #22404B; --border-strong: #34596A; --text: #EEF6F8; --muted: #8FB0BB; --faint: #78989F; --nav-bg: rgba(11, 21, 25, 0.96); --toast-bg: #1A303A; }
+.themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.theme-opt { text-align: left; background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 10px; }
+.theme-opt.on { border-color: var(--gold); }
+.theme-prev { height: 74px; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.theme-prev i { display: block; border-radius: 6px; }
+.theme-name { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; font-size: 14px; font-weight: 700; padding: 0 2px; }
+.theme-check { width: 20px; height: 20px; border-radius: 50%; background: var(--gold); color: var(--on-gold); display: grid; place-items: center; font-size: 12px; font-weight: 800; }

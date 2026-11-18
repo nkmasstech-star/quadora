@@ -4,6 +4,13 @@ import { IconUser, IconChevron } from '../icons.jsx';
 import { AppBar } from '../ui.jsx';
 import { go } from '../App.jsx';
 
+const THEMES = [
+  { id: 'light', name: 'Light', bg: '#F3F5FA', card: '#FFFFFF', line: '#D9DFEC', gold: '#E3A82A' },
+  { id: 'black', name: 'Black', bg: '#000000', card: '#17171B', line: '#25252B', gold: '#E8B94A' },
+  { id: 'charcoal', name: 'Charcoal', bg: '#12100E', card: '#272320', line: '#332E27', gold: '#E8B94A' },
+  { id: 'teal', name: 'Teal', bg: '#0B1519', card: '#1A303A', line: '#22404B', gold: '#E8B94A' },
+];
+
 export function Profile({ theme, setTheme, data, onSignOut, onRefresh, toast }) {
   const [open, setOpen] = useState(false);
   const updated = data.results && data.results.updated ? data.results.updated.slice(0, 16).replace('T', ' ') : 'No update yet';
@@ -22,12 +29,18 @@ export function Profile({ theme, setTheme, data, onSignOut, onRefresh, toast }) 
         <button class="hero-pill gold-pill" onClick={() => toast('Accounts arrive in the next update.')}>Log in</button>
       </div>
 
-      <div class="section-title"><h2>Appearance</h2></div>
-      <div class="rows">
-        <button class="row" role="switch" aria-checked={theme === 'dark'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-          <span style="flex:1">Dark mode</span>
-          <span class={theme === 'dark' ? 'toggle on' : 'toggle'} />
-        </button>
+      <div class="section-title"><h2>Theme</h2></div>
+      <div class="themes" role="radiogroup" aria-label="Theme">
+        {THEMES.map((t) => (
+          <button key={t.id} role="radio" aria-checked={theme === t.id} class={theme === t.id ? 'theme-opt on' : 'theme-opt'} onClick={() => setTheme(t.id)}>
+            <div class="theme-prev" style={`background:${t.bg};border:1px solid ${t.line}`}>
+              <i style={`height:12px;width:55%;background:${t.card}`} />
+              <i style={`height:18px;width:100%;background:${t.gold}`} />
+              <i style={`height:10px;width:80%;background:${t.card}`} />
+            </div>
+            <div class="theme-name"><span>{t.name}</span>{theme === t.id && <span class="theme-check">✓</span>}</div>
+          </button>
+        ))}
       </div>
 
       <div class="section-title"><h2>Data</h2></div>

@@ -49,15 +49,16 @@ export function App() {
 
   const [theme, setThemeState] = useState(() => {
     if (import.meta.env.DEV) { const t = new URLSearchParams(location.search).get('theme'); if (t) store.set('qd_theme', t); }
-    return store.get('qd_theme') === 'light' ? 'light' : 'dark';
+    const t = store.get('qd_theme'); return ['light', 'black', 'charcoal', 'teal'].includes(t) ? t : 'black';
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#F3F5FA' : '#0A1020');
+    const bg = { light: '#F3F5FA', black: '#000000', charcoal: '#12100E', teal: '#0B1519' }[theme];
+    if (meta) meta.setAttribute('content', bg);
     try {
       StatusBar.setStyle({ style: theme === 'light' ? Style.Light : Style.Dark }).catch(() => {});
-      StatusBar.setBackgroundColor({ color: theme === 'light' ? '#F3F5FA' : '#0A1020' }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: bg }).catch(() => {});
     } catch (e) { /* web */ }
   }, [theme]);
   const setTheme = (t) => { store.set('qd_theme', t); setThemeState(t); };
