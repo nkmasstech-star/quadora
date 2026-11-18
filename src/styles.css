@@ -129,3 +129,11 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 
 .toast { position: fixed; left: 50%; bottom: calc(88px + var(--safe-bottom)); transform: translateX(-50%); z-index: 20; max-width: 88%; background: #1F2A47; border: 1px solid var(--border-strong); color: var(--text); padding: 11px 16px; border-radius: 12px; font-size: 13.5px; text-align: center; }
 .loading { display: grid; place-items: center; height: 60vh; color: var(--muted); }
+
+.regions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 10px; }
+.region { padding: 11px 6px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.region.on { background: var(--gold); border-color: var(--gold); color: #0A1020; }
+.dropdown { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.dropdown button { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 13px 14px; color: var(--text); font-size: 14px; font-weight: 500; border-bottom: 1px solid var(--border); text-align: left; }
+.dropdown button:last-child { border-bottom: 0; }
+.dropdown button.on { color: var(--gold); font-weight: 700; }

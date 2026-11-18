@@ -1,12 +1,26 @@
-import { GAMES, fmtDate, fmtShort, nextDraw, nextDrawLabel } from '../data/games.js';
+import { useState } from 'preact/hooks';
+import { GAMES, gameById, fmtShort, nextDrawLabel } from '../data/games.js';
 import { latestOf } from '../data/store.js';
-import { Logo, IconChevron, IconCalendar } from '../icons.jsx';
+import { Logo, IconChevron } from '../icons.jsx';
 import { Top3, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 
+const MY = GAMES.filter((g) => g.region === 'Malaysia');
+
 export function Home({ data }) {
+  const [game, setGame] = useState('magnum');
+  const [open, setOpen] = useState(false);
   if (data.status === 'loading' && !data.results) return <Loading />;
-  const anyData = GAMES.some((g) => latestOf(data.results, g.id));
+
+  const g = gameById(game);
+  const draw = latestOf(data.results, g.id);
+  const region = g.region === 'Malaysia' ? 'my' : g.region === 'Singapore' ? 'sg' : 'gd';
+
+  const pickRegion = (r) => {
+    if (r === 'my') { setOpen(!open); if (region !== 'my') setGame('magnum'); return; }
+    setOpen(false);
+    setGame(r === 'sg' ? 'singapore' : 'gdlotto');
+  };
 
   return (
     <div>
@@ -19,65 +33,49 @@ export function Home({ data }) {
 
       {data.demo && <div class="banner">DEMO DATA: sample numbers for design preview only, not real results.</div>}
 
-      <div class="section-title" style="margin-top:4px">
-        <h2>Next draws</h2>
-        <span>Wed · Sat · Sun, GD Lotto daily</span>
-      </div>
-      <div class="filters" role="list">
-        {GAMES.map((g) => (
-          <div key={g.id} role="listitem" class="pill gold" style="padding:8px 12px;flex:none">
-            <IconCalendar />
-            <span style="color:var(--text);font-weight:600">{g.name.replace(' 4D', '').replace(' 1+3D', '')}</span>
-            <span>{nextDrawLabel(g)}</span>
-          </div>
-        ))}
+      <div class="regions">
+        <button class={region === 'my' ? 'region on' : 'region'} aria-expanded={open} onClick={() => pickRegion('my')}>
+          Malaysia <span style={open ? 'transform:rotate(-90deg);display:inline-flex' : 'transform:rotate(90deg);display:inline-flex'}><IconChevron /></span>
+        </button>
+        <button class={region === 'sg' ? 'region on' : 'region'} onClick={() => pickRegion('sg')}>Singapore</button>
+        <button class={region === 'gd' ? 'region on' : 'region'} onClick={() => pickRegion('gd')}>GD Lotto</button>
       </div>
 
-      <div class="section-title">
-        <h2>Latest results</h2>
-        <span>{data.results && data.results.updated ? `Updated ${data.results.updated.slice(0, 10)}` : ''}</span>
-      </div>
-
-      {!anyData && (
-        <div class="card">
-          <div class="empty">
-            Results will appear here after the next draw.
-            <br />
-            Pull the latest from Profile, then Refresh data.
-          </div>
+      {open && (
+        <div class="dropdown">
+          {MY.map((m) => (
+            <button key={m.id} class={game === m.id ? 'on' : ''} onClick={() => { setGame(m.id); setOpen(false); }}>
+              {m.name}
+              {game === m.id && <span>✓</span>}
+            </button>
+          ))}
         </div>
       )}
 
-      {GAMES.map((g) => {
-        const draw = latestOf(data.results, g.id);
-        if (!draw && anyData) {
-          return (
-            <button key={g.id} class="card" onClick={() => go(`/game/${g.id}`)}>
-              <div class="card-head">
-                <div>
-                  <div class="game">{g.name}</div>
-                  <div class="meta">{g.region} · Next draw {nextDrawLabel(g)}</div>
-                </div>
-              </div>
-              <div class="waiting">Waiting for the first result</div>
-            </button>
-          );
-        }
-        if (!draw) return null;
-        return (
-          <button key={g.id} class="card" onClick={() => go(`/game/${g.id}`)}>
-            <div class="card-head">
-              <div>
-                <div class="game">{g.name}</div>
-                <div class="meta">{g.region} · {fmtShort(draw.date)}{draw.drawNo ? ` · #${draw.drawNo}` : ''}</div>
-              </div>
-              <span class="spacer" />
-              <span class="chev"><IconChevron /></span>
+      <div class="section-title">
+        <h2>{g.name}</h2>
+        <span>Next draw: {nextDrawLabel(g)}</span>
+      </div>
+
+      {!draw && (
+        <div class="card" style="cursor:default">
+          <div class="empty">Results will appear here after the next draw.</div>
+        </div>
+      )}
+
+      {draw && (
+        <button class="card" onClick={() => go(`/game/${g.id}`)}>
+          <div class="card-head">
+            <div>
+              <div class="meta">{g.region} · {fmtShort(draw.date)}{draw.drawNo ? ` · #${draw.drawNo}` : ''}</div>
             </div>
-            <Top3 draw={draw} />
-          </button>
-        );
-      })}
+            <span class="spacer" />
+            <span class="chev"><IconChevron /></span>
+          </div>
+          <Top3 draw={draw} />
+          <div class="meta" style="margin-top:10px;text-align:center">Tap for all prizes</div>
+        </button>
+      )}
 
       <div class="note" style="margin-top:6px">
         Results are shown for information only. Always confirm with the official operator before acting on any number.
