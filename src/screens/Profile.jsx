@@ -69,7 +69,7 @@ export function Profile({ theme, setTheme, setLang, data, onSignOut, onRefresh, 
         {open && (
           <div class="row" style="display:block"><div class="meta" style="line-height:1.6">{t('Quadora shows lottery results and statistics for information and entertainment only. It does not sell tickets, accept bets or run any draw, and it is not affiliated with any lottery operator. Predictions are statistical guesses and are not guaranteed. You must be 18 or older.')}</div></div>
         )}
-        <div class="row"><span style="flex:1">{t('Version')}</span><span class="meta">0.1.0</span></div>
+        <div class="row"><span style="flex:1">{t('Version')}</span><span class="meta">0.1.0 · build {__BUILD__}</span></div>
       </div>
       <button class="btn text" style="margin-top:18px" onClick={onSignOut}>{t('Back to start screen')}</button>
     </div>
