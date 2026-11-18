@@ -9,7 +9,7 @@ const MY = GAMES.filter((g) => g.region === 'Malaysia');
 
 export function Home({ data }) {
   const [game, setGame] = useState('magnum');
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(import.meta.env.DEV && location.search.includes('open'));
   if (data.status === 'loading' && !data.results) return <Loading />;
 
   const g = gameById(game);
