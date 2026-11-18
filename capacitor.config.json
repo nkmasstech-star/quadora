@@ -1,0 +1,10 @@
+{
+  "appId": "com.quadora.app",
+  "appName": "Quadora",
+  "webDir": "dist",
+  "backgroundColor": "#0A1020",
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 0, "backgroundColor": "#0A1020" },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#0A1020" }
+  }
+}
