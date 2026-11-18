@@ -5,7 +5,7 @@ const ITEMS = [
   ['/predictions', 'Predictions'],
   ['/home', 'Results'],
   ['/search', 'Number search'],
-  ['/lucky', 'Lucky Pick'],
+  ['/lucky', 'Lucky Game Number'],
   ['/winnings', 'Winnings'],
   ['/profile', 'Profile and settings'],
 ];

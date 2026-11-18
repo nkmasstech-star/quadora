@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 import { GAMES, fmtShort } from '../data/games.js';
 import { BackBar, Hero, Panel } from '../ui.jsx';
 import { t } from '../i18n.js';
+import { LuckyGame } from './LuckyGame.jsx';
 
 const FREE = 2;
 const AD_BONUS = 3;
@@ -74,6 +75,7 @@ export function Lucky() {
   const [done, setDone] = useState(false);
   const [adOpen, setAdOpen] = useState(false);
   const [count, setCount] = useState(3);
+  const [playing, setPlaying] = useState(false);
   const timer = useRef(null);
 
   const left = Math.max(0, FREE + state.bonus - state.used);
@@ -81,13 +83,19 @@ export function Lucky() {
 
   const update = (fn) => { const s = load(); fn(s); persist(s); setState(s); };
 
-  const spin = () => {
+  const openGame = () => {
     if (spinning) return;
     if (left <= 0) { setAdOpen(true); setCount(3); return; }
-    const d = randomDigits(4);
-    const num = d.join('');
+    setPlaying(true);
+  };
+  const spin = openGame;
+  const consume = () => update((st) => { st.used += 1; });
+  const finishGame = (score) => {
+    setPlaying(false);
+    const num = String(Math.max(0, Math.min(9999, score))).padStart(4, '0');
+    const d = num.split('').map(Number);
     setDigits(d); setDone(false); setSpinning(true); setSpinKey((k) => k + 1);
-    update((s) => { s.used += 1; s.list.unshift({ n: num, g: game, at: Date.now() }); s.list = s.list.slice(0, 60); });
+    update((st) => { st.list.unshift({ n: num, g: game, at: Date.now() }); st.list = st.list.slice(0, 60); });
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { setSpinning(false); setDone(true); }, 1500 + 3 * 350 + 250);
   };
@@ -98,7 +106,7 @@ export function Lucky() {
     return () => clearTimeout(id);
   }, [adOpen, count]);
 
-  useEffect(() => { if (import.meta.env.DEV && location.search.includes('autospin')) spin(); }, []);
+  useEffect(() => { if (import.meta.env.DEV && location.search.includes('autospin')) finishGame(4350); }, []);
 
   const claim = () => { update((s) => { s.bonus += AD_BONUS; }); setAdOpen(false); };
   const remove = (at) => update((s) => { s.list = s.list.filter((x) => x.at !== at); });
@@ -108,8 +116,8 @@ export function Lucky() {
 
   return (
     <div data-game={game}>
-      <BackBar title={t('Lucky Pick')} />
-      <Hero kicker={t('Just for fun')} title={t('Your lucky 4D number')} pill={left > 0 ? t('{n} free left', { n: left }) : t('Watch ad')} />
+      <BackBar title={t('Lucky Game Number')} />
+      <Hero kicker={t('Just for fun')} title={t('Play for your lucky number')} pill={left > 0 ? t('{n} free left', { n: left }) : t('Watch ad')} />
 
       <div class="chipwrap" style="margin-top:14px">
         {GAMES.map((g) => <button key={g.id} class={game === g.id ? 'chip-btn on' : 'chip-btn'} onClick={() => { if (g.id !== game) { clearTimeout(timer.current); setGame(g.id); setDigits(null); setDone(false); setSpinning(false); } }}>{g.name.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto')}</button>)}
@@ -122,13 +130,13 @@ export function Lucky() {
             : <div key={i} class="reel"><div class="reel-d idle">?</div></div>))}
         </div>
         {done && <Sparks k={spinKey} />}
-        <div class="lucky-note">{done ? t('Saved to My lucky numbers') : spinning ? t('Picking your number…') : t('Tap the button to pick')}</div>
+        <div class="lucky-note">{done ? t('Saved to My lucky numbers') : spinning ? t('Revealing your number…') : t('Play the game to get your number')}</div>
       </div>
 
       <button class="btn lucky-btn" onClick={spin} disabled={spinning}>
-        {left > 0 ? (digits ? t('Pick again') : t('Pick my lucky number')) : t('Watch ad for {n} more picks', { n: AD_BONUS })}
+        {left > 0 ? (digits ? t('Play again') : t('Play to get my number')) : t('Watch ad for {n} more plays', { n: AD_BONUS })}
       </button>
-      <div class="meta" style="text-align:center;margin-top:8px">{t('{n} free picks left today', { n: left })}</div>
+      <div class="meta" style="text-align:center;margin-top:8px">{t('{n} free plays left today', { n: left })}</div>
 
       <div class="section-title"><h2>{t('My lucky numbers')}</h2><span>{shown.length}</span></div>
       {shown.length === 0 && <Panel><div class="empty">{t('No lucky numbers yet. Tap the button above!')}</div></Panel>}
@@ -141,12 +149,14 @@ export function Lucky() {
       ))}
       <div class="meta" style="margin-top:12px;line-height:1.5">{t('Random numbers for fun only. No win is guaranteed.')}</div>
 
+      {playing && <LuckyGame onStart={consume} onFinish={finishGame} onClose={() => setPlaying(false)} />}
+
       {adOpen && (
         <div class="ad-wrap">
           <div class="ad-box">
             <div class="ad-tag">{t('Ad (test)')}</div>
             <div class="ad-body">{t('A short ad will play here.')}</div>
-            <button class="btn" disabled={count > 0} onClick={claim}>{count > 0 ? t('Wait {n}s', { n: count }) : t('Claim {n} more picks', { n: AD_BONUS })}</button>
+            <button class="btn" disabled={count > 0} onClick={claim}>{count > 0 ? t('Wait {n}s', { n: count }) : t('Claim {n} more plays', { n: AD_BONUS })}</button>
             <button class="btn text" style="margin-top:6px" onClick={() => setAdOpen(false)}>{t('Close')}</button>
           </div>
         </div>

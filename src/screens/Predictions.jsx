@@ -75,7 +75,7 @@ export function Predictions({ data, toast }) {
 
       <button class="lucky-card" onClick={() => go('/lucky')}>
         <span class="aicon"><IconDice /></span>
-        <span class="atext"><b>{t('Lucky Pick')}</b><small>{t('Get your lucky 4D number')}</small></span>
+        <span class="atext"><b>{t('Lucky Game Number')}</b><small>{t('Play a quick game, your score is your number')}</small></span>
         <span class="chev"><IconChevron /></span>
       </button>
     </div>
