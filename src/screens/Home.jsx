@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { GAMES, gameById, fmtDate, nextDrawLabel, todayISO } from '../data/games.js';
 import { latestOf } from '../data/store.js';
-import { IconChevron } from '../icons.jsx';
+import { IconChevron, IconBars, IconClock } from '../icons.jsx';
 import { Top3, NumberGrid, Loading, AppBar, Hero, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 
@@ -10,11 +10,14 @@ const REGIONS = [['my', 'Malaysia'], ['sg', 'Singapore'], ['kh', 'Cambodia']];
 
 export function ResultBody({ g, draw, onHistory }) {
   return (
-    <Panel
-      title={fmtDate(draw.date)}
-      action={onHistory && <button class="step" aria-label="Older results" onClick={onHistory}><IconChevron /></button>}
-    >
-      <div class="meta" style="margin:-6px 0 12px">{g.region}{draw.drawNo ? ` · Draw #${draw.drawNo}` : ''}</div>
+    <Panel>
+      <div class="rhead">
+        {onHistory && <button class="step back-step" aria-label="Older results" onClick={onHistory}><IconChevron /></button>}
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px">{fmtDate(draw.date)}</div>
+          <div class="meta">{g.region}{draw.drawNo ? ` · Draw #${draw.drawNo}` : ''}</div>
+        </div>
+      </div>
       <Top3 draw={draw} />
       {draw.special && draw.special.length > 0 && (<div><div class="label">Special</div><NumberGrid numbers={draw.special} /></div>)}
       {draw.consolation && draw.consolation.length > 0 && (<div><div class="label">Consolation</div><NumberGrid numbers={draw.consolation} /></div>)}
@@ -49,6 +52,20 @@ export function Home({ data }) {
 
       {!draw && <Panel><div class="empty">Results will appear here after the next draw.</div></Panel>}
       {draw && <ResultBody g={g} draw={draw} onHistory={() => go(`/game/${g.id}`)} />}
+      {draw && (
+        <div class="acards">
+          <button class="acard" onClick={() => go(`/analysis/today/${g.id}`)}>
+            <span class="aicon"><IconBars /></span>
+            <span class="atext"><b>Today's result analysis</b><small>Doubles, hot digits, formats and more</small></span>
+            <span class="chev"><IconChevron /></span>
+          </button>
+          <button class="acard" onClick={() => go(`/analysis/history/${g.id}`)}>
+            <span class="aicon"><IconClock /></span>
+            <span class="atext"><b>History analysis</b><small>Patterns across all stored draws</small></span>
+            <span class="chev"><IconChevron /></span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
