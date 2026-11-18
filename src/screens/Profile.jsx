@@ -29,18 +29,17 @@ export function Profile({ theme, setTheme, data, onSignOut, onRefresh, toast }) 
         <button class="hero-pill gold-pill" onClick={() => toast('Accounts arrive in the next update.')}>Log in</button>
       </div>
 
-      <div class="section-title"><h2>Theme</h2></div>
-      <div class="themes" role="radiogroup" aria-label="Theme">
-        {THEMES.map((t) => (
-          <button key={t.id} role="radio" aria-checked={theme === t.id} class={theme === t.id ? 'theme-opt on' : 'theme-opt'} onClick={() => setTheme(t.id)}>
-            <div class="theme-prev" style={`background:${t.bg};border:1px solid ${t.line}`}>
-              <i style={`height:12px;width:55%;background:${t.card}`} />
-              <i style={`height:18px;width:100%;background:${t.gold}`} />
-              <i style={`height:10px;width:80%;background:${t.card}`} />
-            </div>
-            <div class="theme-name"><span>{t.name}</span>{theme === t.id && <span class="theme-check">✓</span>}</div>
-          </button>
-        ))}
+      <div class="rows">
+        <div class="row" role="radiogroup" aria-label="Theme">
+          <span style="flex:1">Theme</span>
+          <span class="swatches">
+            {THEMES.map((t) => (
+              <button key={t.id} role="radio" aria-checked={theme === t.id} aria-label={t.name} title={t.name} class={theme === t.id ? 'swatch on' : 'swatch'} onClick={() => setTheme(t.id)} style={`background:${t.bg};border-color:${t.line}`}>
+                <i style={`background:${t.gold}`} />
+              </button>
+            ))}
+          </span>
+        </div>
       </div>
 
       <div class="section-title"><h2>Data</h2></div>

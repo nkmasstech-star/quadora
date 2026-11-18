@@ -266,3 +266,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .theme-prev i { display: block; border-radius: 6px; }
 .theme-name { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; font-size: 14px; font-weight: 700; padding: 0 2px; }
 .theme-check { width: 20px; height: 20px; border-radius: 50%; background: var(--gold); color: var(--on-gold); display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+
+.swatches { display: flex; gap: 12px; }
+.swatch { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid; display: grid; place-items: center; box-shadow: 0 0 0 0 var(--gold); }
+.swatch i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.swatch.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gold); }
+.hero + .rows { margin-top: 14px; }
