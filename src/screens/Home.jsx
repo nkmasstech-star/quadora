@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { GAMES, gameById, fmtDate, nextDrawLabel, todayISO } from '../data/games.js';
 import { latestOf } from '../data/store.js';
-import { IconChevron, IconBars, IconClock } from '../icons.jsx';
+import { IconChevron, IconBars, IconClock, IconLock } from '../icons.jsx';
 import { Top3, NumberGrid, Loading, AppBar, Hero, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
@@ -26,7 +26,7 @@ export function ResultBody({ g, draw, onHistory }) {
   );
 }
 
-export function Home({ data }) {
+export function Home({ data, user }) {
   const [game, setGame] = useState('magnum');
   if (data.status === 'loading' && !data.results) return <Loading />;
   const g = gameById(game);
@@ -53,18 +53,18 @@ export function Home({ data }) {
 
       <div data-game={g.id} key={g.id} class="swap">
       {!draw && <Panel><div class="empty">{t('Results will appear here after the next draw.')}</div></Panel>}
-      {draw && <ResultBody g={g} draw={draw} onHistory={() => go(`/game/${g.id}`)} />}
+      {draw && <ResultBody g={g} draw={draw} onHistory={user ? () => go(`/game/${g.id}`) : () => go('/locked')} />}
       {draw && (
         <div class="acards">
-          <button class="acard" onClick={() => go(`/analysis/today/${g.id}`)}>
+          <button class="acard" onClick={() => go(user ? `/analysis/today/${g.id}` : '/locked')}>
             <span class="aicon"><IconBars /></span>
             <span class="atext"><b>{t("Today's result analysis")}</b><small>{t('Doubles, hot digits, formats and more')}</small></span>
-            <span class="chev"><IconChevron /></span>
+            <span class="chev">{user ? <IconChevron /> : <IconLock />}</span>
           </button>
-          <button class="acard" onClick={() => go(`/analysis/history/${g.id}`)}>
+          <button class="acard" onClick={() => go(user ? `/analysis/history/${g.id}` : '/locked')}>
             <span class="aicon"><IconClock /></span>
             <span class="atext"><b>{t('History analysis')}</b><small>{t('Patterns across all stored draws')}</small></span>
-            <span class="chev"><IconChevron /></span>
+            <span class="chev">{user ? <IconChevron /> : <IconLock />}</span>
           </button>
         </div>
       )}

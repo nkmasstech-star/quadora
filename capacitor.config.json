@@ -1,10 +1,10 @@
 {
   "appId": "com.quadora.app",
-  "appName": "Quadora",
+  "appName": "Quadora 4D",
   "webDir": "dist",
-  "backgroundColor": "#000000",
+  "backgroundColor": "#F3F5FA",
   "plugins": {
-    "SplashScreen": { "launchShowDuration": 0, "backgroundColor": "#000000" },
-    "StatusBar": { "style": "DARK", "backgroundColor": "#000000" }
+    "SplashScreen": { "launchShowDuration": 0, "backgroundColor": "#F3F5FA" },
+    "StatusBar": { "style": "LIGHT", "backgroundColor": "#F3F5FA" }
   }
 }

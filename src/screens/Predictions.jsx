@@ -32,16 +32,10 @@ function GameCard({ c, ready }) {
   );
 }
 
-function Balls({ digits }) {
+function Digits({ digits }) {
   const counts = {};
   digits.forEach((d) => { counts[d] = (counts[d] || 0) + 1; });
-  return (
-    <div class="balls">
-      {digits.map((d, i) => (
-        <span key={i} class={counts[d] > 1 ? 'ball dbl' : 'ball'}>{d}</span>
-      ))}
-    </div>
-  );
+  return <span class="imp-num">{digits.map((d, i) => <i key={i} class={counts[d] > 1 ? 'dbl' : ''}>{d}</i>)}</span>;
 }
 
 export function Predictions({ data, toast }) {
@@ -53,7 +47,7 @@ export function Predictions({ data, toast }) {
 
   return (
     <div>
-      <AppBar title="Quadora" tagline={t('4D Predictions · Results · Analysis')} go={go} />
+      <AppBar title="Quadora 4D" tagline={t('4D Predictions · Results · Analysis')} go={go} />
 
       <div class="hero">
         <div class="hero-text">
@@ -73,23 +67,24 @@ export function Predictions({ data, toast }) {
         {list.map((c) => <GameCard key={c.id} c={c} ready={!!games[c.id]} />)}
       </div>
 
-      <button class="lucky-card" onClick={() => go('/lucky')}>
+      {filter === 'all' && <button class="lucky-card" onClick={() => go('/lucky')}>
         <span class="aicon"><IconDice /></span>
         <span class="atext"><b>{t('Lucky Game Number')}</b><small>{t('Play a quick game, your score is your number')}</small></span>
         <span class="chev"><IconChevron /></span>
-      </button>
+      </button>}
     </div>
   );
 }
 
-export function PredictionDetail({ data, gameId }) {
+export function PredictionDetail({ data, gameId, toast }) {
   const g = gameById(gameId);
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.predictions) return <Loading />;
   const p = ((data.predictions && data.predictions.games) || {})[gameId];
+  const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
 
   return (
-    <div data-game={g.id}>
+    <div data-game={g.id} class="pd">
       <BackBar title={t('Prediction')} />
       <Hero kicker={t(g.region)} title={g.name} pill={p ? (p.forDate ? fmtShort(p.forDate) : t('Next draw')) : t('Soon')} />
 
@@ -98,25 +93,32 @@ export function PredictionDetail({ data, gameId }) {
       {p && (
         <div>
           {p.important3 && p.important3.length > 0 && (
-            <Panel title={t('Important 3 digit')}>
-              {p.important3.slice(0, 2).map((set, i) => <div key={i} class="pred-row"><Balls digits={set} /></div>)}
-            </Panel>
+            <div class="pd-card">
+              <div class="pd-title">{t('Important 3 digit')}</div>
+              <div class="imp-row">
+                {p.important3.slice(0, 2).map((set, i) => <button key={i} class="imp" onClick={() => copy(set.join(''))}><Digits digits={set} /></button>)}
+              </div>
+            </div>
           )}
           {p.chart && p.chart.length > 0 && (
-            <Panel title={t('Chart')}>
+            <div class="pd-card">
+              <div class="pd-title">{t('Chart')}</div>
               <div class="chart">{p.chart.map((d, i) => <div key={i} class="cell">{d}</div>)}</div>
-            </Panel>
+            </div>
           )}
           {p.numbers && p.numbers.length > 0 && (
-            <Panel title={t('4D numbers')}><NumberGrid numbers={p.numbers} /></Panel>
+            <div class="pd-card">
+              <div class="pd-title">{t('Prediction numbers')}</div>
+              <div class="pn-grid">{p.numbers.map((n, i) => <button key={i} class="pn" onClick={() => copy(n)}>{n}</button>)}</div>
+            </div>
           )}
           {p.top3 && p.top3.length > 0 && (
-            <Panel title={t('Top 3 picks')}>
-              <div class="nums" style="grid-template-columns:repeat(2,1fr)">
-                {p.top3.map((n, i) => <div key={i} class="chip" style="font-size:18px;padding:9px 0;border-color:var(--gold)">{n}</div>)}
-              </div>
-            </Panel>
+            <div class="pd-card top">
+              <div class="pd-title">{t('Top 3 prediction')}</div>
+              <div class="pn-grid two">{p.top3.map((n, i) => <button key={i} class="pn big" onClick={() => copy(n)}>{n}</button>)}</div>
+            </div>
           )}
+          <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:6px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>
         </div>
       )}
     </div>

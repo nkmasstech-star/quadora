@@ -37,7 +37,7 @@ import { t } from './i18n.js';
 
 export const openMenu = () => window.dispatchEvent(new Event('qd-menu'));
 
-export function AppBar({ title, tagline, go }) {
+export function AppBar({ title, tagline, go, right }) {
   return (
     <div class="app-bar">
       <button class="icon-btn" aria-label={t('Menu')} onClick={openMenu}><IconMenu /></button>
@@ -45,7 +45,7 @@ export function AppBar({ title, tagline, go }) {
         <div class="app-title">{title}</div>
         {tagline && <div class="tagline">{tagline}</div>}
       </div>
-      <button class="icon-btn bell" aria-label={t('Notifications')} onClick={() => go('/notifications')}><IconBell /><i class="dot" /></button>
+      {right || <button class="icon-btn bell" aria-label={t('Notifications')} onClick={() => go('/notifications')}><IconBell /><i class="dot" /></button>}
     </div>
   );
 }
@@ -81,5 +81,34 @@ export function Panel({ title, action, children }) {
       )}
       {children}
     </div>
+  );
+}
+
+import { createPortal } from 'preact/compat';
+import { IconLock } from './icons.jsx';
+
+export function Locked({ title, text, onLogin, onBack }) {
+  return (
+    <div class="lock">
+      <span class="lock-ic"><IconLock /></span>
+      <div class="lock-title">{title || t('Members only')}</div>
+      <div class="meta" style="line-height:1.55;max-width:290px">{text || t('Log in to unlock this. Guests can view predictions and the latest results.')}</div>
+      <button class="btn" style="margin-top:18px;max-width:260px" onClick={onLogin}>{t('Log in or sign up')}</button>
+      {onBack && <button class="btn text" style="margin-top:4px;max-width:260px" onClick={onBack}>{t('Back')}</button>}
+    </div>
+  );
+}
+
+// Bottom sheet rendered outside the animated page wrapper so it always covers the full screen.
+export function Sheet({ title, onClose, children }) {
+  return createPortal(
+    <div class="sheet-wrap">
+      <div class="sheet-scrim" onClick={onClose} />
+      <div class="sheet" role="dialog" aria-label={title}>
+        <div class="sheet-head"><div class="sheet-title">{title}</div><button class="icon-btn" aria-label={t('Close')} onClick={onClose}>×</button></div>
+        <div class="sheet-body">{children}</div>
+      </div>
+    </div>,
+    document.body
   );
 }

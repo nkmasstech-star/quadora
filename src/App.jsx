@@ -15,6 +15,10 @@ import { Community } from './screens/Community.jsx';
 import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
 import { Profile } from './screens/Profile.jsx';
+import { Settings } from './screens/Settings.jsx';
+import { Legal } from './screens/Legal.jsx';
+import { Locked } from './ui.jsx';
+import { currentUser, logOut, deleteAccount, signUp, logIn } from './data/account.js';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -47,8 +51,11 @@ export function App() {
   const route = useRoute();
   const [data, setData] = useState({ status: 'loading', results: null, predictions: null, demo: false });
   const [toast, setToast] = useState('');
-  const [member, setMemberState] = useState(() => store.get('qd_member') === '1');
-  const setMember = (v) => { if (v) store.set('qd_member', '1'); else store.del('qd_member'); setMemberState(v); };
+  const [user, setUserState] = useState(() => {
+    if (import.meta.env.DEV && new URLSearchParams(location.search).has('asuser') && !currentUser()) { const r = signUp('Nehru', 'nehru@test.com', 'password1'); if (r.error) logIn('nehru@test.com', 'password1'); store.set('qd_guest', '1'); }
+    return currentUser();
+  });
+  const setUser = (u) => setUserState(u ? { ...u } : null);
   const [, setLangTick] = useState(0);
   const setLang = (l) => { applyLang(l); setLangTick((n) => n + 1); };
   useEffect(() => { applyLang(localStorage.getItem('qd_lang') || 'en'); }, []);
@@ -57,10 +64,12 @@ export function App() {
     if (import.meta.env.DEV && new URLSearchParams(location.search).has('guest')) store.set('qd_guest', '1');
     return store.get('qd_guest') === '1';
   });
+  const [seenLogin, setSeenLogin] = useState(false); // eslint-disable-line
 
   const [theme, setThemeState] = useState(() => {
     if (import.meta.env.DEV) { const t = new URLSearchParams(location.search).get('theme'); if (t) store.set('qd_theme', t); }
-    const t = store.get('qd_theme'); return ['light', 'black', 'charcoal', 'teal'].includes(t) ? t : 'black';
+    const t = store.get('qd_theme'); if (['light', 'black', 'charcoal', 'teal'].includes(t)) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'black' : 'light';
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -92,7 +101,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -100,33 +109,44 @@ export function App() {
   }, []);
 
   const enterAsGuest = () => { store.set('qd_guest', '1'); setGuest(true); go('/predictions'); };
-  const signOut = () => { store.del('qd_guest'); setGuest(false); go('/login'); };
+  const onAuth = (u) => { setUser(u); store.set('qd_guest', '1'); setGuest(true); go('/predictions'); };
+  const onLogOut = () => { logOut(); setUser(null); store.del('qd_guest'); setGuest(false); go('/login'); };
+  const onDelete = () => { deleteAccount(); setUser(null); store.del('qd_guest'); setGuest(false); go('/login'); };
 
   const [path, queryStr] = route.split('?');
   const query = new URLSearchParams(queryStr || '');
   const seg = path.split('/').filter(Boolean);
 
-  if (!guest || seg[0] === 'login') {
+  if (seg[0] === 'legal') {
+    return (
+      <div class="app"><main class="screen no-nav"><div class="page push"><Legal kind={seg[1]} /></div></main>{toast && <div class="toast" role="status">{toast}</div>}</div>
+    );
+  }
+  if ((!guest && !user) || seg[0] === 'login') {
     return (
       <div class="app">
-        <Login onGuest={enterAsGuest} toast={showToast} />
+        <Login onGuest={enterAsGuest} onAuth={onAuth} toast={showToast} />
         {toast && <div class="toast" role="status">{toast}</div>}
       </div>
     );
   }
 
+  const MEMBER_ONLY = ['lucky', 'analysis', 'game', 'search', 'locked'];
   let screen;
   let nav = true;
-  if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
-  else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} />; nav = false; }
+  if (!user && MEMBER_ONLY.includes(seg[0])) { screen = <Locked onLogin={() => go('/login')} onBack={() => history.back()} />; nav = false; }
+  else if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
+  else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'analysis') { screen = seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} /> : <AnalysisToday data={data} gameId={seg[2]} />; nav = false; }
   else if (seg[0] === 'lucky') { screen = <Lucky />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} />; nav = false; }
-  else if (seg[0] === 'community') screen = <Community member={member} />;
+  else if (seg[0] === 'settings') { screen = <Settings user={user} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onLogOut={onLogOut} onDelete={onDelete} onRefresh={refresh} toast={showToast} />; nav = false; }
+  else if (seg[0] === 'user') { screen = user ? <Profile user={user} uid={seg[1]} data={data} toast={showToast} onUser={setUser} /> : <Locked onLogin={() => go('/login')} />; nav = false; }
+  else if (seg[0] === 'community') screen = <Community user={user} data={data} toast={showToast} />;
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
-  else if (seg[0] === 'profile') screen = <Profile member={member} setMember={setMember} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
-  else if (seg[0] === 'home') screen = <Home data={data} />;
+  else if (seg[0] === 'profile') screen = <Profile user={user} data={data} toast={showToast} onUser={setUser} />;
+  else if (seg[0] === 'home') screen = <Home data={data} user={user} />;
   else screen = <Predictions data={data} toast={showToast} />;
 
   const active = '/' + (seg[0] || 'predictions');

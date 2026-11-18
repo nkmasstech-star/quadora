@@ -432,7 +432,7 @@ button:not([disabled]):active { transform: scale(0.96); }
 .chipwrap { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* compact top card + tighter predictions list so Lucky Pick fits on one screen */
-.hero { min-height: 0; padding: 14px 18px 14px; align-items: center; border-radius: 24px 24px 24px 6px; }
+.hero { min-height: 0; padding: 19px 18px 19px; align-items: center; border-radius: 24px 24px 24px 6px; }
 .hero::after { width: 100px; height: 100px; right: -22px; top: -30px; border-width: 15px; }
 .hero-title { font-size: 22px; margin-top: 3px; }
 .hero-kicker { font-size: 11px; }
@@ -458,3 +458,59 @@ button:not([disabled]):active { transform: scale(0.96); }
 .game-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 12px; }
 .game-how { text-align: left; display: grid; gap: 8px; font-size: 14.5px; }
 .game-score { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: .08em; color: var(--gold-text); margin: 4px 0; }
+
+/* ---- accounts, community, profile, sheets, prediction layout ---- */
+.av { display: inline-grid; place-items: center; border-radius: 50%; flex: none; line-height: 1; user-select: none; }
+.plain-btn { background: transparent; border: 0; padding: 0; color: inherit; text-align: left; font: inherit; }
+.name-btn { font-weight: 700; font-size: 15px; display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win { padding: 3px 9px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.win.new { background: var(--surface-2); color: var(--muted); font-weight: 700; }
+.pick { border: 1px solid var(--border); border-radius: 14px; padding: 10px; background: var(--surface-2); }
+.pick-head { display: flex; align-items: center; gap: 8px; font-size: 14px; flex-wrap: wrap; }
+.pick .nums { margin-top: 8px; }
+.res-line { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.res-line.won { color: #2FA866; }
+.post-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vote { padding: 7px 14px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-weight: 700; font-size: 13px; }
+.vote.on { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.chip-btn.small { padding: 6px 12px; font-size: 12.5px; }
+.chip-btn.danger { color: #E5484D; border-color: rgba(229,72,77,.4); }
+.post-cta { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 14px 0 0; padding: 12px 14px; background: var(--surface); border: 1px dashed var(--gold); border-radius: 18px; color: var(--text); }
+.post-cta .aicon { font-size: 24px; font-weight: 700; }
+.form-err { padding: 10px 12px; border-radius: 12px; background: rgba(229,72,77,.12); color: #E5484D; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+.sheet-wrap { position: fixed; left: 0; top: 0; width: 100vw; height: 100dvh; z-index: 220; display: flex; flex-direction: column; justify-content: flex-end; }
+.sheet-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.5); animation: gameIn .25s ease both; }
+.sheet { position: relative; background: var(--bg); color: var(--text); border-radius: 26px 26px 0 0; max-height: 90dvh; display: flex; flex-direction: column; animation: sheetUp .4s var(--ease) both; border-top: 1px solid var(--border-strong); }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+.sheet-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; }
+.sheet-body { padding: 4px 18px calc(18px + var(--safe-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sheet .icon-btn { font-size: 26px; line-height: 1; }
+.numin { display: grid; gap: 8px; }
+.numin-row { display: flex; align-items: center; gap: 6px; }
+.big-input { text-align: center; letter-spacing: .3em; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; }
+.pf-card { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; margin-top: 14px; padding: 18px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 26px; }
+.pf-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; }
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 6px; }
+.pf-stats div { background: var(--surface-2); border-radius: 14px; padding: 10px 4px; }
+.pf-stats b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 20px; }
+.pf-stats span { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.av-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; justify-items: center; }
+.av-pick { background: transparent; border: 2px solid transparent; border-radius: 50%; padding: 2px; }
+.av-pick.on { border-color: var(--gold); }
+.legal-page .pcard { padding: 16px; }
+.lock .btn.text { color: var(--muted); }
+/* prediction detail */
+.pd-card { margin-top: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; }
+.pd-title { display: inline-block; padding: 5px 12px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; }
+.imp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.imp { background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 16px; padding: 14px 0; }
+.imp-num { display: inline-flex; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 34px; color: var(--text); }
+.imp-num i { font-style: normal; }
+.imp-num i.dbl { color: var(--gold-text); }
+.pn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pn-grid.two { grid-template-columns: repeat(2, 1fr); }
+.pn { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 0; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: .04em; color: var(--text); }
+.pn.big { font-size: 28px; border-color: var(--gold); }
+.pd-card.top { border-color: var(--gold); }
+.pd .chart { margin: 0 auto; }

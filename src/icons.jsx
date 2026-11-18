@@ -76,3 +76,7 @@ export const IconDice = () => (
 export const IconLock = () => (
   <svg {...base}><rect x="5" y="10.5" width="14" height="9.5" rx="2.5" /><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5" /></svg>
 );
+
+export const IconGear = () => (
+  <svg {...base}><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h3M11 12h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /><circle cx="9" cy="12" r="0.01" /></svg>
+);
