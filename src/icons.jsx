@@ -69,3 +69,10 @@ export const IconClock = () => (
 export const IconUsers = () => (
   <svg {...base}><circle cx="9" cy="8.5" r="3.2" /><path d="M3 19c.6-3.3 3.1-5 6-5s5.4 1.7 6 5" /><circle cx="17" cy="9.5" r="2.5" /><path d="M16.5 14.2c2.4-.2 4.1 1.3 4.5 4.3" /></svg>
 );
+
+export const IconDice = () => (
+  <svg {...base}><rect x="4" y="4" width="16" height="16" rx="4" /><circle cx="9" cy="9" r="1" fill="currentColor" /><circle cx="15" cy="9" r="1" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="9" cy="15" r="1" fill="currentColor" /><circle cx="15" cy="15" r="1" fill="currentColor" /></svg>
+);
+export const IconLock = () => (
+  <svg {...base}><rect x="5" y="10.5" width="14" height="9.5" rx="2.5" /><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5" /></svg>
+);

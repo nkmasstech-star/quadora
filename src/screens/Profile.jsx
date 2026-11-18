@@ -12,7 +12,7 @@ const THEMES = [
   { id: 'teal', name: 'Teal', bg: '#0B1519', card: '#1A303A', line: '#22404B', gold: '#E8B94A' },
 ];
 
-export function Profile({ theme, setTheme, setLang, data, onSignOut, onRefresh, toast }) {
+export function Profile({ member, setMember, theme, setTheme, setLang, data, onSignOut, onRefresh, toast }) {
   const [open, setOpen] = useState(false);
   const updated = data.results && data.results.updated ? data.results.updated.slice(0, 16).replace('T', ' ') : t('No update yet');
   return (
@@ -50,6 +50,13 @@ export function Profile({ theme, setTheme, setLang, data, onSignOut, onRefresh, 
             {LANGS.map(([k, n]) => <button key={k} class={getLang() === k ? 'chip-btn on' : 'chip-btn'} onClick={() => setLang(k)}>{n}</button>)}
           </div>
         </div>
+      </div>
+
+      <div class="rows">
+        <button class="row" onClick={() => setMember(!member)} role="switch" aria-checked={member}>
+          <span style="flex:1">Test: open Community as member</span>
+          <span class={member ? 'toggle on' : 'toggle'} />
+        </button>
       </div>
 
       <div class="section-title"><h2>{t('Data')}</h2></div>

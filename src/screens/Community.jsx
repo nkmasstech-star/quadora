@@ -1,4 +1,5 @@
 import { AppBar, Hero, Panel } from '../ui.jsx';
+import { IconLock } from '../icons.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
 
@@ -11,7 +12,20 @@ const POSTS = [
 ];
 const NAMES = { magnum: 'Magnum', toto: 'Toto', damacai: 'Da Ma Cai', singapore: 'Singapore', gdlotto: 'GD Lotto' };
 
-export function Community() {
+export function Community({ member }) {
+  if (!member) {
+    return (
+      <div>
+        <AppBar title={t('Community')} tagline={t('Talk numbers with other players')} go={go} />
+        <div class="lock">
+          <span class="lock-ic"><IconLock /></span>
+          <div class="lock-title">{t('Members only')}</div>
+          <div class="meta" style="line-height:1.55;max-width:280px">{t('Log in to join the community. Guests can still view results and predictions.')}</div>
+          <button class="btn" style="margin-top:18px;max-width:260px" onClick={() => go('/login')}>{t('Log in')}</button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <AppBar title={t('Community')} tagline={t('Talk numbers with other players')} go={go} />

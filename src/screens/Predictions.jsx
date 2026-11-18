@@ -3,6 +3,7 @@ import { gameById, fmtShort, todayISO, nextDrawLabel } from '../data/games.js';
 import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
+import { IconDice, IconChevron } from '../icons.jsx';
 
 const CARDS = [
   { id: 'magnum', label: 'Magnum', region: 'my', letter: 'M' },
@@ -71,6 +72,12 @@ export function Predictions({ data, toast }) {
       <div class="gcards">
         {list.map((c) => <GameCard key={c.id} c={c} ready={!!games[c.id]} />)}
       </div>
+
+      <button class="lucky-card" onClick={() => go('/lucky')}>
+        <span class="aicon"><IconDice /></span>
+        <span class="atext"><b>{t('Lucky Pick')}</b><small>{t('Get your lucky 4D number')}</small></span>
+        <span class="chev"><IconChevron /></span>
+      </button>
     </div>
   );
 }

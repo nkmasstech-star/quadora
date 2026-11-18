@@ -10,6 +10,7 @@ import { Detail } from './screens/Detail.jsx';
 import { Predictions, PredictionDetail, Winnings } from './screens/Predictions.jsx';
 import { Search } from './screens/Search.jsx';
 import { AnalysisToday, AnalysisHistory } from './screens/Analysis.jsx';
+import { Lucky } from './screens/Lucky.jsx';
 import { Community } from './screens/Community.jsx';
 import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
@@ -46,6 +47,8 @@ export function App() {
   const route = useRoute();
   const [data, setData] = useState({ status: 'loading', results: null, predictions: null, demo: false });
   const [toast, setToast] = useState('');
+  const [member, setMemberState] = useState(() => store.get('qd_member') === '1');
+  const setMember = (v) => { if (v) store.set('qd_member', '1'); else store.del('qd_member'); setMemberState(v); };
   const [, setLangTick] = useState(0);
   const setLang = (l) => { applyLang(l); setLangTick((n) => n + 1); };
   useEffect(() => { applyLang(localStorage.getItem('qd_lang') || 'en'); }, []);
@@ -89,7 +92,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/analysis/') || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -117,11 +120,12 @@ export function App() {
   if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} />; nav = false; }
   else if (seg[0] === 'analysis') { screen = seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} /> : <AnalysisToday data={data} gameId={seg[2]} />; nav = false; }
+  else if (seg[0] === 'lucky') { screen = <Lucky />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} />; nav = false; }
-  else if (seg[0] === 'community') screen = <Community />;
+  else if (seg[0] === 'community') screen = <Community member={member} />;
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
-  else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} setLang={setLang} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
+  else if (seg[0] === 'profile') screen = <Profile member={member} setMember={setMember} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
   else if (seg[0] === 'home') screen = <Home data={data} />;
   else screen = <Predictions data={data} toast={showToast} />;
 
