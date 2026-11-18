@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { GAMES, gameById, fmtDate, nextDrawLabel } from '../data/games.js';
+import { GAMES, gameById, fmtDate, nextDrawLabel, todayISO } from '../data/games.js';
 import { latestOf } from '../data/store.js';
 import { Logo, IconChevron } from '../icons.jsx';
 import { Top3, NumberGrid, Loading } from '../ui.jsx';
@@ -67,7 +67,7 @@ export function Home({ data }) {
         <div class="card" style="cursor:default">
           <div class="card-head">
             <div>
-              <div style="font-weight:600">{fmtDate(draw.date)}</div>
+              <div style="font-weight:600">{fmtDate(draw.date)}{draw.date === todayISO() && <span class="new-badge">NEW</span>}</div>
               <div class="meta">{g.region}{draw.drawNo ? ` · Draw #${draw.drawNo}` : ''}</div>
             </div>
             <span class="spacer" />
@@ -90,9 +90,6 @@ export function Home({ data }) {
         </div>
       )}
 
-      <div class="note" style="margin-top:6px">
-        Results are shown for information only. Always confirm with the official operator before acting on any number.
-      </div>
     </div>
   );
 }

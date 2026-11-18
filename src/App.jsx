@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { loadAll } from './data/store.js';
-import { IconHome, IconSpark, IconSearch, IconUser } from './icons.jsx';
+import { IconQ, IconTrophy, IconSearch, IconUser } from './icons.jsx';
 import { Login } from './screens/Login.jsx';
 import { Home } from './screens/Home.jsx';
 import { Detail } from './screens/Detail.jsx';
-import { Predictions } from './screens/Predictions.jsx';
+import { Predictions, PredictionDetail, Winnings } from './screens/Predictions.jsx';
 import { Search } from './screens/Search.jsx';
 import { Profile } from './screens/Profile.jsx';
 
@@ -18,7 +19,7 @@ const store = {
 export const go = (path) => { location.hash = path; };
 
 function useRoute() {
-  const read = () => location.hash.slice(1) || '/home';
+  const read = () => location.hash.slice(1) || '/predictions';
   const [route, setRoute] = useState(read());
   useEffect(() => {
     const f = () => setRoute(read());
@@ -29,8 +30,8 @@ function useRoute() {
 }
 
 const TABS = [
-  { path: '/home', label: 'Home', Icon: IconHome },
-  { path: '/predictions', label: 'Predictions', Icon: IconSpark },
+  { path: '/predictions', label: 'Predictions', Icon: IconQ },
+  { path: '/home', label: 'Results', Icon: IconTrophy },
   { path: '/search', label: 'Search', Icon: IconSearch },
   { path: '/profile', label: 'Profile', Icon: IconUser },
 ];
@@ -43,6 +44,21 @@ export function App() {
     if (import.meta.env.DEV && new URLSearchParams(location.search).has('guest')) store.set('qd_guest', '1');
     return store.get('qd_guest') === '1';
   });
+
+  const [theme, setThemeState] = useState(() => {
+    if (import.meta.env.DEV) { const t = new URLSearchParams(location.search).get('theme'); if (t) store.set('qd_theme', t); }
+    return store.get('qd_theme') === 'light' ? 'light' : 'dark';
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#F3F5FA' : '#0A1020');
+    try {
+      StatusBar.setStyle({ style: theme === 'light' ? Style.Light : Style.Dark }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: theme === 'light' ? '#F3F5FA' : '#0A1020' }).catch(() => {});
+    } catch (e) { /* web */ }
+  }, [theme]);
+  const setTheme = (t) => { store.set('qd_theme', t); setThemeState(t); };
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -59,14 +75,14 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/search?')) history.back();
-      else if (location.hash && location.hash !== '#/home' && location.hash !== '#/login') go('/home');
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash === '#/winnings' || location.hash.startsWith('#/search?')) history.back();
+      else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
     return () => { if (handle) handle.remove(); };
   }, []);
 
-  const enterAsGuest = () => { store.set('qd_guest', '1'); setGuest(true); go('/home'); };
+  const enterAsGuest = () => { store.set('qd_guest', '1'); setGuest(true); go('/predictions'); };
   const signOut = () => { store.del('qd_guest'); setGuest(false); go('/login'); };
 
   const [path, queryStr] = route.split('?');
@@ -85,12 +101,14 @@ export function App() {
   let screen;
   let nav = true;
   if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
-  else if (seg[0] === 'predictions') screen = <Predictions data={data} />;
+  else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} />; nav = false; }
+  else if (seg[0] === 'winnings') { screen = <Winnings />; nav = false; }
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
-  else if (seg[0] === 'profile') screen = <Profile data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
-  else screen = <Home data={data} />;
+  else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
+  else if (seg[0] === 'home') screen = <Home data={data} />;
+  else screen = <Predictions data={data} toast={showToast} />;
 
-  const active = '/' + (seg[0] || 'home');
+  const active = '/' + (seg[0] || 'predictions');
 
   return (
     <div class="app">

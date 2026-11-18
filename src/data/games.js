@@ -44,3 +44,8 @@ export function nextDrawLabel(game) {
   if (!n) return '';
   return n.today ? 'Today' : fmtShort(n.date);
 }
+
+export function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

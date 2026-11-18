@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { totalDraws } from '../data/store.js';
 import { IconUser, IconChevron } from '../icons.jsx';
 
-export function Profile({ data, onSignOut, onRefresh, toast }) {
+export function Profile({ theme, setTheme, data, onSignOut, onRefresh, toast }) {
   const [open, setOpen] = useState(false);
   const updated = data.results && data.results.updated ? data.results.updated.slice(0, 16).replace('T', ' ') : 'No update yet';
 
@@ -19,6 +19,14 @@ export function Profile({ data, onSignOut, onRefresh, toast }) {
           <div class="meta">Log in to save numbers across devices</div>
         </div>
         <button class="pill gold" onClick={() => toast('Accounts arrive in the next update.')}>Log in</button>
+      </div>
+
+      <div class="section-title"><h2>Appearance</h2></div>
+      <div class="rows">
+        <button class="row" role="switch" aria-checked={theme === 'dark'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+          <span style="flex:1">Dark mode</span>
+          <span class={theme === 'dark' ? 'toggle on' : 'toggle'} />
+        </button>
       </div>
 
       <div class="section-title"><h2>Data</h2></div>
