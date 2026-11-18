@@ -3,13 +3,14 @@ import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { loadAll } from './data/store.js';
 import { t, setLang as applyLang } from './i18n.js';
-import { IconQ, IconTrophy, IconSearch, IconUser } from './icons.jsx';
+import { IconQ, IconTrophy, IconSearch, IconUser, IconUsers } from './icons.jsx';
 import { Login } from './screens/Login.jsx';
 import { Home } from './screens/Home.jsx';
 import { Detail } from './screens/Detail.jsx';
 import { Predictions, PredictionDetail, Winnings } from './screens/Predictions.jsx';
 import { Search } from './screens/Search.jsx';
 import { AnalysisToday, AnalysisHistory } from './screens/Analysis.jsx';
+import { Community } from './screens/Community.jsx';
 import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
 import { Profile } from './screens/Profile.jsx';
@@ -36,6 +37,7 @@ function useRoute() {
 const TABS = [
   { path: '/predictions', label: 'Predictions', Icon: IconQ },
   { path: '/home', label: 'Results', Icon: IconTrophy },
+  { path: '/community', label: 'Community', Icon: IconUsers },
   { path: '/search', label: 'Search', Icon: IconSearch },
   { path: '/profile', label: 'Profile', Icon: IconUser },
 ];
@@ -117,6 +119,7 @@ export function App() {
   else if (seg[0] === 'analysis') { screen = seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} /> : <AnalysisToday data={data} gameId={seg[2]} />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} />; nav = false; }
+  else if (seg[0] === 'community') screen = <Community />;
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
   else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} setLang={setLang} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
   else if (seg[0] === 'home') screen = <Home data={data} />;

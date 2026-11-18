@@ -20,7 +20,7 @@ function GameCard({ c, ready }) {
   const g = c.id === 'winnings' ? null : gameById(c.id);
   const when = g ? nextDrawLabel(g) : t('Past wins');
   return (
-    <button class="gcard" onClick={() => go(to)}>
+    <button class="gcard" data-game={c.id === 'winnings' ? undefined : c.id} onClick={() => go(to)}>
       <div class="gcard-top">
         <span class="ring">{c.letter}</span>
         {c.id !== 'winnings' && <span class={ready ? 'badge ready' : 'badge'}>{ready ? t('Ready') : t('Soon')}</span>}

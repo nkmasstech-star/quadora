@@ -51,6 +51,9 @@ export function analyze(draws) {
     boxGroups: [],
     repeats: [],
     typeLabels: TYPE_LABELS,
+    byType: { ABCD: {}, AABC: {}, AABB: {}, AAAB: {}, AAAA: {} },
+    oePat: {},
+    hlPat: {},
   };
   if (!total) return s;
 
@@ -59,6 +62,11 @@ export function analyze(draws) {
     ds.forEach((d, i) => { s.digit[d]++; s.pos[i][d]++; if (d % 2) s.oddDigits++; if (d <= 4) s.lowDigits++; });
     const t = typeOf(n);
     s.types[t]++;
+    s.byType[t][n] = (s.byType[t][n] || 0) + 1;
+    const oe = ds.map((d) => (d % 2 ? 'O' : 'E')).join('');
+    const hl = ds.map((d) => (d <= 4 ? 'L' : 'H')).join('');
+    s.oePat[oe] = (s.oePat[oe] || 0) + 1;
+    s.hlPat[hl] = (s.hlPat[hl] || 0) + 1;
     if (t !== 'ABCD') s.withDouble++;
     if (ds[0] === ds[1] || ds[1] === ds[2] || ds[2] === ds[3]) s.adjacentPair++;
     if (ds[0] < ds[1] && ds[1] < ds[2] && ds[2] < ds[3]) s.direction.Rising++;
@@ -87,6 +95,8 @@ export function analyze(draws) {
   const sumMap = {};
   s.sums.forEach((x) => { sumMap[x] = (sumMap[x] || 0) + 1; });
   s.commonSum = topN(sumMap, 1)[0];
+  s.topOe = topN(s.oePat, 3);
+  s.topHl = topN(s.hlPat, 3);
   s.topFirst2 = topN(s.first2, 6);
   s.topLast2 = topN(s.last2, 6);
   s.topLast3 = topN(s.last3, 5, 2);

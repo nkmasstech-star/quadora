@@ -37,45 +37,65 @@ function Chips({ list, fmt }) {
   return (<div class="nums" style="grid-template-columns:repeat(3,1fr)">{list.map(([k, c]) => <div key={k} class="chip">{k}<small>{fmt ? fmt(c) : `×${c}`}</small></div>)}</div>);
 }
 
-export function Report({ s, history }) {
-  const hottest = s.digit.indexOf(Math.max(...s.digit));
-  const coldest = s.digit.indexOf(Math.min(...s.digit));
-  const total = s.total;
-  const digitTotal = total * 4;
+const TYPE_NAMES = { ABCD: 'All 4 different', AABC: 'One pair', AABB: 'Two pairs', AAAB: 'Triple', AAAA: 'Four same' };
+
+function Versus({ title, a, la, lb, note, hint }) {
+  const lead = a === 50 ? t('Balanced') : a > 50 ? la : lb;
+  return (
+    <div class="versus">
+      <div class="vs-title">{title}</div>
+      <div class="vs-row"><span><b>{a}%</b> {la}</span><span>{lb} <b>{100 - a}%</b></span></div>
+      <div class="split"><i style={`width:${a}%`} /></div>
+      <div class="vs-note">{hint}</div>
+      <div class="vs-lead">{t('More: {x}', { x: lead })}</div>
+    </div>
+  );
+}
+
+function Patterns({ list, legend }) {
+  if (!list || !list.length) return null;
   return (
     <div>
-      <Panel title={t('At a glance')}>
-        <div class="stats">
-          <Stat v={total} l={t('Numbers')} />
-          <Stat v={`${pct(s.withDouble, total)}%`} l={t('Have a double')} />
-          <Stat v={s.avgSum.toFixed(1)} l={t('Avg digit sum')} />
-          <Stat v={hottest} l={t('Hottest digit')} />
-          <Stat v={coldest} l={t('Coolest digit')} />
-          <Stat v={s.commonSum ? s.commonSum[0] : '-'} l={t('Common sum')} />
-        </div>
-      </Panel>
+      <div class="nums" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
+        {list.map(([k, c]) => <div key={k} class="chip">{k}<small>{`×${c}`}</small></div>)}
+      </div>
+      <div class="meta" style="margin-top:6px">{legend}</div>
+    </div>
+  );
+}
 
+export function Report({ s, history }) {
+  const total = s.total;
+  const digitTotal = total * 4;
+  const hottest = s.digit.indexOf(Math.max(...s.digit));
+  const coldest = s.digit.indexOf(Math.min(...s.digit));
+  const sorted = s.digit.map((c, d) => ({ d, c })).sort((x, y) => y.c - x.c || x.d - y.d);
+  const top4 = new Set(sorted.slice(0, 4).map((r) => r.d));
+  const types = Object.keys(s.types).filter((k) => s.types[k] > 0).sort((x, y) => s.types[y] - s.types[x]);
+  const exLimit = history ? 8 : 14;
+  return (
+    <div>
       <Panel title={t('Digit frequency (0-9)')}>
-        <Bars rows={s.digit.map((c, d) => ({ k: d, v: c, hot: d === hottest, label: `${pct(c, digitTotal)}%` }))} />
-        <div class="meta" style="margin-top:8px">{t('Hottest {a} · coolest {b}', { a: hottest, b: coldest })}</div>
+        <Bars rows={sorted.map((r) => ({ k: r.d, v: r.c, hot: top4.has(r.d), label: `${pct(r.c, digitTotal)}%` }))} />
+        <div class="meta" style="margin-top:8px">{t('Top 4 digits are highlighted')}</div>
       </Panel>
 
       <Panel title={t('Number formats')}>
-        <Bars rows={Object.keys(s.types).map((t) => ({ k: t, v: s.types[t], label: `${s.types[t]} · ${pct(s.types[t], total)}%` }))} max={total} />
+        {types.map((k) => {
+          const nums = Object.entries(s.byType[k]).sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1)).slice(0, exLimit);
+          return (
+            <div key={k} class="fmt">
+              <div class="fmt-head"><span><b>{k}</b> · {t(TYPE_NAMES[k])}</span><span>{s.types[k]} · {pct(s.types[k], total)}%</span></div>
+              <div class="fmt-nums">{nums.map(([n, c]) => <span key={n} class="fmt-n">{n}{c > 1 ? <em>×{c}</em> : null}</span>)}</div>
+            </div>
+          );
+        })}
         <div class="meta" style="margin-top:8px">{t('ABCD all different · AABC one pair · AABB two pairs · AAAB triple · AAAA four same')}</div>
       </Panel>
 
-      <Panel title={t('Double digits')}>
-        <div class="stats">
-          <Stat v={s.withDouble} l={t('Any repeated digit')} />
-          <Stat v={s.adjacentPair} l={t('Side-by-side pair')} />
-          <Stat v={s.types.AABB + s.types.AAAB + s.types.AAAA} l={t('Strong repeats')} />
-        </div>
+      <Panel title={history ? t('Most repeated last 3 digits') : t('Repeated last 3 digits')}>
+        <Chips list={s.topLast3} />
       </Panel>
-
-      <Panel title={t('Hot endings (last 2 digits)')}><Chips list={s.topLast2} /></Panel>
-      <Panel title={t('Hot starts (first 2 digits)')}><Chips list={s.topFirst2} /></Panel>
-      {s.topLast3 && s.topLast3.length > 0 && <Panel title={t('Repeated last 3 digits')}><Chips list={s.topLast3} /></Panel>}
 
       <Panel title={t('Best digit in each position')}>
         <div class="stats four">
@@ -86,25 +106,14 @@ export function Report({ s, history }) {
         </div>
       </Panel>
 
-      <Panel title={t('Number direction')}>
-        <Bars rows={Object.entries(s.direction).map(([k, v]) => ({ k: t(k === 'Mixed' ? 'Mix' : k === 'Rising' ? 'Up' : 'Down'), v, label: `${v} · ${pct(v, total)}%` }))} max={total} />
-        <div class="meta" style="margin-top:8px">{t('Rising 1234 · Falling 4321 · Mix goes up and down')}</div>
-      </Panel>
-
-      <Panel title={t('Odd and even, high and low')}>
-        <Split a={pct(s.oddDigits, digitTotal)} b={0} la={t('Odd digits')} lb={t('Even digits')} />
-        <div style="height:12px" />
-        <Split a={pct(s.lowDigits, digitTotal)} b={0} la={t('Low 0-4')} lb={t('High 5-9')} />
-        <div style="height:12px" />
-        <Split a={pct(s.oddNumbers, total)} b={0} la={t('Odd numbers')} lb={t('Even numbers')} />
-      </Panel>
-
-      <Panel title={t('Digit sum')}>
-        <div class="stats">
-          <Stat v={s.minSum} l={t('Lowest')} />
-          <Stat v={s.avgSum.toFixed(1)} l={t('Average')} />
-          <Stat v={s.maxSum} l={t('Highest')} />
-        </div>
+      <Panel title={t('Odd / even and low / high')}>
+        <Versus title={t('Odd vs even digits')} a={pct(s.oddDigits, digitTotal)} la={t('Odd')} lb={t('Even')} hint={t('Odd = 1 3 5 7 9 · Even = 0 2 4 6 8')} />
+        <Versus title={t('Low vs high digits')} a={pct(s.lowDigits, digitTotal)} la={t('Low')} lb={t('High')} hint={t('Low = 0 to 4 · High = 5 to 9')} />
+        <Versus title={t('Numbers ending odd vs even')} a={pct(s.oddNumbers, total)} la={t('Odd')} lb={t('Even')} hint={t('Looks only at the last digit of each number')} />
+        <div class="vs-title" style="margin-top:14px">{t('Most common odd/even shape')}</div>
+        <Patterns list={s.topOe} legend={t('O = odd digit, E = even digit (e.g. OEOE = odd, even, odd, even)')} />
+        <div class="vs-title" style="margin-top:14px">{t('Most common low/high shape')}</div>
+        <Patterns list={s.topHl} legend={t('L = low digit (0-4), H = high digit (5-9)')} />
       </Panel>
 
       <Panel title={t('Same digits, different order')}>
@@ -113,21 +122,28 @@ export function Report({ s, history }) {
         )}
       </Panel>
 
-      {history ? (
-        <div>
-          <Panel title={t('Most repeated numbers')}><Chips list={s.hotNumbers} /></Panel>
-          <Panel title={t('Not seen for the longest')}>
-            {s.overdue && s.overdue.length ? <Chips list={s.overdue} fmt={(i) => t('{n} draws ago', { n: i })} /> : <div class="meta">{t('Needs more draws')}</div>}
-          </Panel>
-          <Panel title={t('Carried over from the last draw')}>
-            <div class="stats"><Stat v={(s.carryAvg || 0).toFixed(1)} l={t('Avg numbers repeated')} /><Stat v={s.drawCount} l={t('Draws studied')} /><Stat v={total} l={t('Numbers studied')} /></div>
-          </Panel>
-        </div>
-      ) : (
-        <Panel title={t('Repeated inside this draw')}>
-          {s.repeats.length === 0 ? <div class="meta">{t('No number repeated')}</div> : <Chips list={s.repeats} />}
+      <Panel title={t('Most repeated numbers')}>
+        {history
+          ? <Chips list={s.hotNumbers} />
+          : (s.repeats.length === 0 ? <div class="meta">{t('No number repeated')}</div> : <Chips list={s.repeats} />)}
+      </Panel>
+
+      {history && (
+        <Panel title={t('Not seen for the longest')}>
+          {s.overdue && s.overdue.length ? <Chips list={s.overdue} fmt={(i) => t('{n} draws ago', { n: i })} /> : <div class="meta">{t('Needs more draws')}</div>}
         </Panel>
       )}
+
+      <Panel title={t('At a glance')}>
+        <div class="stats">
+          <Stat v={total} l={t('Numbers')} />
+          <Stat v={`${pct(s.withDouble, total)}%`} l={t('Have a double')} />
+          <Stat v={s.avgSum.toFixed(1)} l={t('Avg digit sum')} />
+          <Stat v={hottest} l={t('Hottest digit')} />
+          <Stat v={coldest} l={t('Coolest digit')} />
+          {history ? <Stat v={s.drawCount} l={t('Draws studied')} /> : <Stat v={s.commonSum ? s.commonSum[0] : '-'} l={t('Common sum')} />}
+        </div>
+      </Panel>
     </div>
   );
 }

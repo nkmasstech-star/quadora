@@ -306,14 +306,14 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 :lang(km) *, :lang(ta) *, :lang(zh) * { letter-spacing: 0 !important; text-transform: none !important; }
 
 /* ---- per-game result colours (only inside a [data-game] area) ---- */
-[data-game='toto'] { --gold: #E5484D; --gold-text: #FF7A7E; --on-gold: #FFFFFF; --gold-soft: #FFA3A6; }
-[data-game='damacai'] { --gold: #F2762E; --gold-text: #FF9F63; --on-gold: #1B0E03; --gold-soft: #FFB98C; }
+[data-game='toto'] { --gold: #D92B2B; --gold-text: #FF6A66; --on-gold: #FFFFFF; --gold-soft: #FFA3A0; }
+[data-game='damacai'] { --gold: #E0489A; --gold-text: #FF86C4; --on-gold: #FFFFFF; --gold-soft: #FFB3DA; }
 [data-game='singapore'] { --gold: #3E8BFF; --gold-text: #86B8FF; --on-gold: #FFFFFF; --gold-soft: #A9CCFF; }
-[data-game='gdlotto'] { --gold: #2DBE7E; --gold-text: #62DFA5; --on-gold: #04170F; --gold-soft: #8FE8BD; }
-[data-theme='light'] [data-game='toto'] { --gold-text: #C22F34; }
-[data-theme='light'] [data-game='damacai'] { --gold-text: #B8510F; }
+[data-game='gdlotto'] { --gold: #F0456E; --gold-text: #FF8AA5; --on-gold: #FFFFFF; --gold-soft: #FFB5C6; }
+[data-theme='light'] [data-game='toto'] { --gold: #D92B2B; --gold-text: #FF6A66; --on-gold: #FFFFFF; --gold-soft: #FFA3A0; }
+[data-theme='light'] [data-game='damacai'] { --gold: #E0489A; --gold-text: #FF86C4; --on-gold: #FFFFFF; --gold-soft: #FFB3DA; }
 [data-theme='light'] [data-game='singapore'] { --gold-text: #1F62D1; }
-[data-theme='light'] [data-game='gdlotto'] { --gold-text: #138A55; }
+[data-theme='light'] [data-game='gdlotto'] { --gold: #F0456E; --gold-text: #FF8AA5; --on-gold: #FFFFFF; --gold-soft: #FFB5C6; }
 .tile.first .rank { color: var(--on-gold); opacity: 0.7; }
 .hero, .tile.first, .aicon, .ball.dbl, .pill.gold, .hit .pill, .stat-v, .bar-track i, .split i { transition: background-color .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease); }
 
@@ -370,3 +370,28 @@ button:not([disabled]):active { transform: scale(0.96); }
 .drawer-wrap.open .drawer-item:nth-of-type(2) { animation-delay: .04s; } .drawer-wrap.open .drawer-item:nth-of-type(3) { animation-delay: .08s; } .drawer-wrap.open .drawer-item:nth-of-type(4) { animation-delay: .12s; } .drawer-wrap.open .drawer-item:nth-of-type(5) { animation-delay: .16s; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; } }
+
+/* logo-style badge on prediction cards */
+.gcard[data-game] .ring { background: var(--gold); border: 0; color: var(--on-gold); width: 42px; height: 42px; font-size: 18px; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.22), 0 4px 10px rgba(0, 0, 0, 0.25); }
+.ring.sm { width: 32px; height: 32px; font-size: 14px; border-width: 2px; }
+
+/* analysis: formats, versus bars */
+.fmt { margin-bottom: 14px; }
+.fmt-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 7px; }
+.fmt-head b { color: var(--text); font-family: 'Space Grotesk', sans-serif; letter-spacing: .06em; }
+.fmt-nums { display: flex; flex-wrap: wrap; gap: 6px; }
+.fmt-n { padding: 5px 9px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: .08em; }
+.fmt-n em { font-style: normal; color: var(--gold-text); font-size: 11px; margin-left: 4px; letter-spacing: 0; }
+.versus { margin-bottom: 16px; }
+.vs-title { font-weight: 700; font-size: 14px; margin-bottom: 7px; }
+.vs-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.vs-row b { color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 16px; }
+.vs-note { font-size: 11.5px; color: var(--faint); margin-top: 6px; }
+.vs-lead { font-size: 12.5px; color: var(--gold-text); font-weight: 700; margin-top: 3px; }
+
+/* community */
+.post { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 12px 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.post-top { display: flex; align-items: center; gap: 10px; }
+.post-text { font-size: 14.5px; line-height: 1.5; }
+.nav-item { padding: 10px 11px; }
+.nav-item.on { padding: 10px 14px; }
