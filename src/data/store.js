@@ -6,6 +6,7 @@ async function getJson(name) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 6000);
   try {
+    if (import.meta.env.DEV) throw new Error('dev uses bundled data');
     const bucket = Math.floor(Date.now() / 300000);
     const r = await fetch(`${BASE}${name}?v=${bucket}`, { signal: ctrl.signal, cache: 'no-store' });
     if (!r.ok) throw new Error(String(r.status));
