@@ -1,8 +1,8 @@
 import { useState } from 'preact/hooks';
-import { GAMES, gameById, fmtShort, nextDrawLabel } from '../data/games.js';
+import { GAMES, gameById, fmtDate, nextDrawLabel } from '../data/games.js';
 import { latestOf } from '../data/store.js';
 import { Logo, IconChevron } from '../icons.jsx';
-import { Top3, Loading } from '../ui.jsx';
+import { Top3, NumberGrid, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 
 const MY = GAMES.filter((g) => g.region === 'Malaysia');
@@ -64,17 +64,30 @@ export function Home({ data }) {
       )}
 
       {draw && (
-        <button class="card" onClick={() => go(`/game/${g.id}`)}>
+        <div class="card" style="cursor:default">
           <div class="card-head">
             <div>
-              <div class="meta">{g.region} · {fmtShort(draw.date)}{draw.drawNo ? ` · #${draw.drawNo}` : ''}</div>
+              <div style="font-weight:600">{fmtDate(draw.date)}</div>
+              <div class="meta">{g.region}{draw.drawNo ? ` · Draw #${draw.drawNo}` : ''}</div>
             </div>
             <span class="spacer" />
-            <span class="chev"><IconChevron /></span>
+            <button class="step" aria-label="Previous results history" onClick={() => go(`/game/${g.id}`)}><IconChevron /></button>
           </div>
           <Top3 draw={draw} />
-          <div class="meta" style="margin-top:10px;text-align:center">Tap for all prizes</div>
-        </button>
+          {draw.special && draw.special.length > 0 && (
+            <div>
+              <div class="label">Special</div>
+              <NumberGrid numbers={draw.special} />
+            </div>
+          )}
+          {draw.consolation && draw.consolation.length > 0 && (
+            <div>
+              <div class="label">Consolation</div>
+              <NumberGrid numbers={draw.consolation} />
+            </div>
+          )}
+          <div class="meta" style="margin-top:12px;text-align:center">Tap the arrow for older draws</div>
+        </div>
       )}
 
       <div class="note" style="margin-top:6px">
