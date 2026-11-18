@@ -36,12 +36,8 @@ export const IconCalendar = () => (
 );
 
 export const Logo = ({ size = 40 }) => (
-  <svg role="img" aria-label="Quadora logo" width={size} height={size} viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="22" fill="none" stroke="#E8B94A" stroke-width="5" />
-    <path d="M42 42 L54 54" stroke="#E8B94A" stroke-width="5" stroke-linecap="round" />
-    <circle cx="26" cy="26" r="3" fill="#F3F5FA" />
-    <circle cx="38" cy="26" r="3" fill="#F3F5FA" />
-    <circle cx="26" cy="38" r="3" fill="#F3F5FA" />
-    <circle cx="38" cy="38" r="3" fill="#F3F5FA" />
+  <svg role="img" aria-label="Quadora logo" width={size} height={size} viewBox="14 14 80 80">
+    <circle cx="45" cy="45" r="22" fill="none" stroke="#E8B94A" stroke-width="6" />
+    <path d="M70 54 L74 66 L86 70 L74 74 L70 86 L66 74 L54 70 L66 66 Z" fill="#E8B94A" stroke="#0A1020" stroke-width="3" />
   </svg>
 );
