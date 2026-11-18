@@ -20,7 +20,7 @@ function GameCard({ c, ready }) {
   const g = c.id === 'winnings' ? null : gameById(c.id);
   const when = g ? nextDrawLabel(g) : t('Past wins');
   return (
-    <button class="gcard" data-game={c.id === 'winnings' ? undefined : c.id} onClick={() => go(to)}>
+    <button class="gcard" onClick={() => go(to)}>
       <div class="gcard-top">
         <span class="ring">{c.letter}</span>
         {c.id !== 'winnings' && <span class={ready ? 'badge ready' : 'badge'}>{ready ? t('Ready') : t('Soon')}</span>}
@@ -92,7 +92,12 @@ export function PredictionDetail({ data, gameId }) {
         <div>
           {p.important3 && p.important3.length > 0 && (
             <Panel title={t('Important 3 digit')}>
-              {p.important3.map((set, i) => <div key={i} class="pred-row"><Balls digits={set} /></div>)}
+              {p.important3.slice(0, 2).map((set, i) => <div key={i} class="pred-row"><Balls digits={set} /></div>)}
+            </Panel>
+          )}
+          {p.chart && p.chart.length > 0 && (
+            <Panel title={t('Chart')}>
+              <div class="chart">{p.chart.map((d, i) => <div key={i} class="cell">{d}</div>)}</div>
             </Panel>
           )}
           {p.numbers && p.numbers.length > 0 && (
@@ -103,11 +108,6 @@ export function PredictionDetail({ data, gameId }) {
               <div class="nums" style="grid-template-columns:repeat(2,1fr)">
                 {p.top3.map((n, i) => <div key={i} class="chip" style="font-size:18px;padding:9px 0;border-color:var(--gold)">{n}</div>)}
               </div>
-            </Panel>
-          )}
-          {p.chart && p.chart.length > 0 && (
-            <Panel title={t('Chart')}>
-              <div class="chart">{p.chart.map((d, i) => <div key={i} class="cell">{d}</div>)}</div>
             </Panel>
           )}
         </div>
