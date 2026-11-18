@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
+import { createPortal } from 'preact/compat';
 import { t } from '../i18n.js';
 
 // ---- tiny synthesized sounds (no audio files) ----
@@ -31,7 +32,7 @@ const SND = {
 const pad4 = (n) => String(Math.max(0, Math.min(9999, n))).padStart(4, '0');
 const MAX = 9999;
 
-export function LuckyGame({ onStart, onFinish, onClose }) {
+export function LuckyGame({ game, onStart, onFinish, onClose }) {
   const cvRef = useRef(null);
   const st = useRef(null);
   const [phase, setPhase] = useState('intro');
@@ -142,8 +143,8 @@ export function LuckyGame({ onStart, onFinish, onClose }) {
 
   const quit = () => { const s = st.current; if (phase === 'play' && s && !s.ended) s.finish(); else onClose(); };
 
-  return (
-    <div class="game-wrap">
+  return createPortal(
+    <div class="game-wrap" data-game={game}>
       <canvas ref={cvRef} class="game-cv" style={phase === 'intro' ? 'display:none' : ''} />
       <button class="game-x" aria-label={t('Close')} onClick={quit}>×</button>
       <button class="game-snd" aria-label="Sound" onClick={toggleSound}>{sound ? '🔊' : '🔇'}</button>
@@ -169,6 +170,7 @@ export function LuckyGame({ onStart, onFinish, onClose }) {
           <button class="btn" onClick={() => onFinish(final.score)}>{t('Use this number')}</button>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }

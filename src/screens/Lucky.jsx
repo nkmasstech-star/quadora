@@ -149,7 +149,7 @@ export function Lucky() {
       ))}
       <div class="meta" style="margin-top:12px;line-height:1.5">{t('Random numbers for fun only. No win is guaranteed.')}</div>
 
-      {playing && <LuckyGame onStart={consume} onFinish={finishGame} onClose={() => setPlaying(false)} />}
+      {playing && <LuckyGame game={game} onStart={consume} onFinish={finishGame} onClose={() => setPlaying(false)} />}
 
       {adOpen && (
         <div class="ad-wrap">
