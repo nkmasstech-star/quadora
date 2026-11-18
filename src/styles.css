@@ -304,3 +304,69 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .langrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
 .langrow .chip-btn { flex: none; }
 :lang(km) *, :lang(ta) *, :lang(zh) * { letter-spacing: 0 !important; text-transform: none !important; }
+
+/* ---- per-game result colours (only inside a [data-game] area) ---- */
+[data-game='toto'] { --gold: #E5484D; --gold-text: #FF7A7E; --on-gold: #FFFFFF; --gold-soft: #FFA3A6; }
+[data-game='damacai'] { --gold: #F2762E; --gold-text: #FF9F63; --on-gold: #1B0E03; --gold-soft: #FFB98C; }
+[data-game='singapore'] { --gold: #3E8BFF; --gold-text: #86B8FF; --on-gold: #FFFFFF; --gold-soft: #A9CCFF; }
+[data-game='gdlotto'] { --gold: #2DBE7E; --gold-text: #62DFA5; --on-gold: #04170F; --gold-soft: #8FE8BD; }
+[data-theme='light'] [data-game='toto'] { --gold-text: #C22F34; }
+[data-theme='light'] [data-game='damacai'] { --gold-text: #B8510F; }
+[data-theme='light'] [data-game='singapore'] { --gold-text: #1F62D1; }
+[data-theme='light'] [data-game='gdlotto'] { --gold-text: #138A55; }
+.tile.first .rank { color: var(--on-gold); opacity: 0.7; }
+.hero, .tile.first, .aicon, .ball.dbl, .pill.gold, .hit .pill, .stat-v, .bar-track i, .split i { transition: background-color .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease); }
+
+/* ---- motion (iOS-style easing; transform/opacity only) ---- */
+:root { --ease: cubic-bezier(0.32, 0.72, 0, 1); --spring: cubic-bezier(0.34, 1.35, 0.64, 1); }
+button { transition: transform .22s var(--ease), background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease), opacity .2s; -webkit-tap-highlight-color: transparent; }
+button:not([disabled]):active { transform: scale(0.96); }
+.gcard:active, .acard:active { transform: scale(0.975); }
+.step[style*='rotate']:active { transform: rotate(180deg) scale(0.94); }
+
+.page { animation: pageIn .42s var(--ease) both; }
+.page.push { animation: pushIn .42s var(--ease) both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pushIn { from { opacity: 0; transform: translateX(34px); } to { opacity: 1; transform: none; } }
+.page > * > *:nth-child(-n+9), .swap > * { animation: rise .55s var(--ease) both; }
+.page > * > *:nth-child(2), .swap > *:nth-child(2) { animation-delay: .04s; }
+.page > * > *:nth-child(3), .swap > *:nth-child(3) { animation-delay: .08s; }
+.page > * > *:nth-child(4) { animation-delay: .12s; }
+.page > * > *:nth-child(5) { animation-delay: .16s; }
+.page > * > *:nth-child(6) { animation-delay: .2s; }
+.page > * > *:nth-child(n+7) { animation-delay: .24s; }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.swap { animation: swapIn .4s var(--ease) both; }
+@keyframes swapIn { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+.nums .chip { animation: pop .45s var(--ease) both; }
+.nums .chip:nth-child(2) { animation-delay: .02s; } .nums .chip:nth-child(3) { animation-delay: .04s; } .nums .chip:nth-child(4) { animation-delay: .06s; } .nums .chip:nth-child(5) { animation-delay: .08s; }
+.nums .chip:nth-child(6) { animation-delay: .1s; } .nums .chip:nth-child(7) { animation-delay: .12s; } .nums .chip:nth-child(8) { animation-delay: .14s; } .nums .chip:nth-child(9) { animation-delay: .16s; } .nums .chip:nth-child(10) { animation-delay: .18s; }
+@keyframes pop { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: none; } }
+.top3 .tile { animation: pop .5s var(--spring) both; }
+.top3 .tile:nth-child(2) { animation-delay: .06s; } .top3 .tile:nth-child(3) { animation-delay: .12s; }
+.bar-track i, .split i { transform-origin: left center; animation: grow .8s var(--ease) both; animation-delay: .12s; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+.gcards .gcard { animation: rise .5s var(--ease) both; }
+.gcards .gcard:nth-child(2) { animation-delay: .04s; } .gcards .gcard:nth-child(3) { animation-delay: .08s; } .gcards .gcard:nth-child(4) { animation-delay: .12s; } .gcards .gcard:nth-child(5) { animation-delay: .16s; } .gcards .gcard:nth-child(6) { animation-delay: .2s; }
+
+/* tabs and chips slide in colour smoothly */
+.tab { transition: background-color .3s var(--ease), color .3s var(--ease), box-shadow .3s var(--ease), transform .2s var(--ease); }
+.chip-btn { transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease), transform .2s var(--ease); }
+
+/* bottom pill nav: smaller, label slides open */
+.nav-inner { gap: 2px; padding: 5px; }
+.nav-item { padding: 10px 13px; gap: 0; font-size: 13px; transition: background-color .35s var(--ease), color .3s var(--ease), padding .4s var(--ease), gap .4s var(--ease), transform .2s var(--ease); }
+.nav-item svg { width: 21px; height: 21px; flex: none; }
+.nav-item span { display: block; max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap; transform: translateX(-4px); transition: max-width .45s var(--ease), opacity .3s var(--ease), transform .45s var(--ease); }
+.nav-item.on { padding: 10px 15px; gap: 7px; }
+.nav-item.on span { max-width: 120px; opacity: 1; transform: none; }
+
+/* drawer, scrim, toast */
+.scrim { transition: opacity .4s var(--ease); }
+.drawer { transition: transform .48s var(--ease); }
+.toast { animation: toastIn .4s var(--ease) both; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px) scale(0.96); } to { opacity: 1; transform: translateX(-50%); } }
+.drawer-wrap.open .drawer-item { animation: rise .5s var(--ease) both; }
+.drawer-wrap.open .drawer-item:nth-of-type(2) { animation-delay: .04s; } .drawer-wrap.open .drawer-item:nth-of-type(3) { animation-delay: .08s; } .drawer-wrap.open .drawer-item:nth-of-type(4) { animation-delay: .12s; } .drawer-wrap.open .drawer-item:nth-of-type(5) { animation-delay: .16s; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; } }

@@ -55,6 +55,7 @@ export function Profile({ theme, setTheme, setLang, data, onSignOut, onRefresh, 
       <div class="section-title"><h2>{t('Data')}</h2></div>
       <div class="rows">
         <div class="row"><span style="flex:1">{t('Results updated')}</span><span class="meta">{updated}</span></div>
+        {data.results && data.results.dummy && <div class="row"><span style="flex:1">Data</span><span class="meta" style="color:var(--gold-text);font-weight:700">Demo (test)</span></div>}
         <div class="row"><span style="flex:1">{t('Draws stored')}</span><span class="meta">{totalDraws(data.results)}</span></div>
         <button class="row" onClick={() => { onRefresh(); toast(t('Refreshing…')); }}><span style="flex:1;color:var(--gold-text);font-weight:700">{t('Refresh data')}</span></button>
       </div>

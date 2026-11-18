@@ -82,7 +82,7 @@ export function PredictionDetail({ data, gameId }) {
   const p = ((data.predictions && data.predictions.games) || {})[gameId];
 
   return (
-    <div>
+    <div data-game={g.id}>
       <BackBar title={t('Prediction')} />
       <Hero kicker={t(g.region)} title={g.name} pill={p ? (p.forDate ? fmtShort(p.forDate) : t('Next draw')) : t('Soon')} />
 
@@ -116,12 +116,28 @@ export function PredictionDetail({ data, gameId }) {
   );
 }
 
-export function Winnings() {
+export function Winnings({ data }) {
+  const wins = (data && data.winnings && data.winnings.wins) || [];
   return (
     <div>
       <BackBar title={t('Winnings')} />
-      <Hero kicker={t('History')} title={t('Our past wins')} pill={t('{n} wins', { n: 0 })} />
-      <Panel><div class="empty">{t('Winning predictions will be listed here after each draw.')}</div></Panel>
+      <Hero kicker={t('History')} title={t('Our past wins')} pill={t('{n} wins', { n: wins.length })} />
+      {wins.length === 0 && <Panel><div class="empty">{t('Winning predictions will be listed here after each draw.')}</div></Panel>}
+      {wins.length > 0 && (
+        <div style="margin-top:14px">
+          {wins.map((w, i) => {
+            const g = gameById(w.game);
+            if (!g) return null;
+            return (
+              <div key={i} class="hit" data-game={g.id}>
+                <span class="n">{w.number}</span>
+                <span style="flex:1"><span style="display:block;font-weight:700;font-size:14px">{g.name}</span><span class="meta">{fmtShort(w.date)} · {w.date.slice(0, 4)}</span></span>
+                <span class="pill gold">{w.prize === 'Special' ? t(g.special) : t(w.prize)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

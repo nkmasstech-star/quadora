@@ -23,7 +23,7 @@ export function Detail({ data, gameId, toast }) {
   };
 
   return (
-    <div>
+    <div data-game={game.id}>
       <BackBar title={t('History')} right={draw && <button class="icon-btn" aria-label={t('Share result')} onClick={share}><IconShare /></button>} />
       <Hero kicker={t(game.region)} title={game.name} pill={draws.length ? `${idx + 1} / ${draws.length}` : null} />
 

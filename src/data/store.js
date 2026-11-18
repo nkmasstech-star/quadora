@@ -27,10 +27,10 @@ export async function loadAll() {
   if (import.meta.env.DEV && new URLSearchParams(location.search).has('demo')) {
     const m = await import('../dev/demo.json');
     const t = new Date(); m.default.results.games.magnum[0].date = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-    return { results: m.default.results, predictions: m.default.predictions, demo: true };
+    return { results: m.default.results, predictions: m.default.predictions, winnings: null, demo: true };
   }
-  const [results, predictions] = await Promise.all([getJson('results.json'), getJson('predictions.json')]);
-  return { results, predictions, demo: false };
+  const [results, predictions, winnings] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('winnings.json')]);
+  return { results, predictions, winnings, demo: false };
 }
 
 export const drawsOf = (results, gameId) => (results && results.games && results.games[gameId]) || [];

@@ -138,7 +138,7 @@ export function AnalysisToday({ data, gameId }) {
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draw = latestOf(data.results, gameId);
   return (
-    <div>
+    <div data-game={g.id}>
       <BackBar title={t("Today's analysis")} />
       <Hero kicker={g.name} title={t("Today's result analysis")} pill={draw ? fmtShort(draw.date) : '-'} />
       {!draw ? <Panel><div class="empty">{t('Analysis appears after the latest result is in.')}</div></Panel> : <Report s={analyze([draw])} />}
@@ -152,7 +152,7 @@ export function AnalysisHistory({ data, gameId }) {
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draws = drawsOf(data.results, gameId);
   return (
-    <div>
+    <div data-game={g.id}>
       <BackBar title={t('History analysis')} />
       <Hero kicker={g.name} title={t('Patterns over time')} pill={t('{n} draws', { n: draws.length })} />
       {draws.length === 0 ? <Panel><div class="empty">{t('History analysis appears once draws are stored.')}</div></Panel> : <Report s={analyze(draws)} history />}

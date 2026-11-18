@@ -38,7 +38,7 @@ export function Home({ data }) {
   return (
     <div>
       <AppBar title={t('Results')} tagline={t('Latest draw results')} go={go} />
-      <Hero kicker={t(g.region)} title={g.name} pill={fresh ? t('NEW') : t('Next {d}', { d: nextDrawLabel(g) })} />
+      <div data-game={g.id}><Hero kicker={t(g.region)} title={g.name} pill={fresh ? t('NEW') : t('Next {d}', { d: nextDrawLabel(g) })} /></div>
 
       <div class="tabs" role="tablist">
         {REGIONS.map(([k, l]) => (
@@ -51,6 +51,7 @@ export function Home({ data }) {
         </div>
       )}
 
+      <div data-game={g.id} key={g.id} class="swap">
       {!draw && <Panel><div class="empty">{t('Results will appear here after the next draw.')}</div></Panel>}
       {draw && <ResultBody g={g} draw={draw} onHistory={() => go(`/game/${g.id}`)} />}
       {draw && (
@@ -67,6 +68,7 @@ export function Home({ data }) {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { useState } from 'preact/hooks';
 import { Logo } from '../icons.jsx';
-import { t, LANGS, getLang } from '../i18n.js';
+import { t } from '../i18n.js';
 
-export function Login({ onGuest, toast, setLang }) {
+export function Login({ onGuest, toast }) {
   const [signup, setSignup] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -27,11 +27,7 @@ export function Login({ onGuest, toast, setLang }) {
         </div>
       </div>
 
-      <div class="langrow">
-        {LANGS.map(([k, n]) => <button key={k} type="button" class={getLang() === k ? 'chip-btn on' : 'chip-btn'} onClick={() => setLang(k)}>{n}</button>)}
-      </div>
-
-      <div style="margin-top:22px">
+      <div style="margin-top:34px">
         <h1>{signup ? t('Create your account') : t('Welcome back')}</h1>
         <p class="sub" style="font-size:14px;margin:6px 0 0;line-height:1.5">
           {t('Log in to save your favourite numbers and see your history on every device.')}
