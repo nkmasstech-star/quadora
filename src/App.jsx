@@ -8,6 +8,8 @@ import { Home } from './screens/Home.jsx';
 import { Detail } from './screens/Detail.jsx';
 import { Predictions, PredictionDetail, Winnings } from './screens/Predictions.jsx';
 import { Search } from './screens/Search.jsx';
+import { Notifications } from './screens/Notifications.jsx';
+import { Menu } from './screens/Menu.jsx';
 import { Profile } from './screens/Profile.jsx';
 
 const store = {
@@ -60,6 +62,9 @@ export function App() {
   }, [theme]);
   const setTheme = (t) => { store.set('qd_theme', t); setThemeState(t); };
 
+  const [menuOpen, setMenuOpen] = useState(!!(import.meta.env.DEV && location.search.includes('menu')));
+  useEffect(() => { const h = () => setMenuOpen(true); window.addEventListener('qd-menu', h); return () => window.removeEventListener('qd-menu', h); }, []);
+
   const showToast = useCallback((msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2600);
@@ -75,7 +80,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash === '#/winnings' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -102,6 +107,7 @@ export function App() {
   let nav = true;
   if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} />; nav = false; }
+  else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings />; nav = false; }
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
   else if (seg[0] === 'profile') screen = <Profile theme={theme} setTheme={setTheme} data={data} onSignOut={signOut} onRefresh={refresh} toast={showToast} />;
@@ -125,6 +131,7 @@ export function App() {
           </div>
         </nav>
       )}
+      <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {toast && <div class="toast" role="status">{toast}</div>}
     </div>
   );

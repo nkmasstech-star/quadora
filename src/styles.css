@@ -230,3 +230,28 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .badge.ready { background: rgba(46, 196, 140, 0.16); color: var(--ok); }
 .gcard-name { margin-top: auto; padding-top: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
 .gcard-sub { margin-top: 2px; font-size: 12px; color: var(--muted); }
+
+/* ---- shared v2 components ---- */
+.hero.plain { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 26px 26px 26px 6px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); }
+.hero.plain::after { display: none; }
+.hero.plain .hero-kicker { color: var(--gold-text); opacity: 1; }
+.hero.plain .hero-pill { background: var(--gold); color: var(--on-gold); }
+.gold-pill { background: var(--gold) !important; color: var(--on-gold) !important; }
+.pcard { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 16px; margin-top: 14px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); }
+.pcard-head { display: flex; align-items: center; justify-content: space-between; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; margin-bottom: 12px; }
+.pcard .label:first-child { margin-top: 0; }
+.subtabs { display: flex; gap: 8px; margin: -2px 0 14px; }
+.chipwrap { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.chip-btn { padding: 8px 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; }
+.chip-btn.on { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.rows { border-radius: 22px; }
+.drawer-wrap { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+.drawer-wrap.open { pointer-events: auto; }
+.scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); opacity: 0; transition: opacity .2s; }
+.drawer-wrap.open .scrim { opacity: 1; }
+.drawer { position: absolute; top: 0; bottom: 0; left: 0; width: 78%; max-width: 320px; background: var(--surface); border-right: 1px solid var(--border-strong); border-radius: 0 26px 26px 0; padding: calc(var(--safe-top) + 24px) 18px 24px; transform: translateX(-102%); transition: transform .22s ease; display: flex; flex-direction: column; }
+.drawer-wrap.open .drawer { transform: none; }
+.drawer-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.drawer-item { text-align: left; padding: 14px 12px; border-radius: 12px; font-size: 15.5px; font-weight: 600; }
+.drawer-item:active { background: var(--surface-2); }
+.drawer-sep { height: 1px; background: var(--border); margin: 10px 0; }

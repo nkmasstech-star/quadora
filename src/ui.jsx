@@ -31,3 +31,54 @@ export function NumberGrid({ numbers }) {
 export function Loading() {
   return <div class="loading">Loading…</div>;
 }
+
+import { IconMenu, IconBell, IconBack } from './icons.jsx';
+
+export const openMenu = () => window.dispatchEvent(new Event('qd-menu'));
+
+export function AppBar({ title, tagline, go }) {
+  return (
+    <div class="app-bar">
+      <button class="icon-btn" aria-label="Menu" onClick={openMenu}><IconMenu /></button>
+      <div>
+        <div class="app-title">{title}</div>
+        {tagline && <div class="tagline">{tagline}</div>}
+      </div>
+      <button class="icon-btn bell" aria-label="Notifications" onClick={() => go('/notifications')}><IconBell /><i class="dot" /></button>
+    </div>
+  );
+}
+
+export function BackBar({ title, right }) {
+  return (
+    <div class="app-bar">
+      <button class="icon-btn" aria-label="Back" onClick={() => history.back()}><IconBack /></button>
+      <div class="app-title" style="font-size:18px">{title}</div>
+      <div style="display:flex;justify-content:flex-end">{right}</div>
+    </div>
+  );
+}
+
+export function Hero({ kicker, title, pill, plain, children }) {
+  return (
+    <div class={plain ? 'hero plain' : 'hero'}>
+      <div class="hero-text">
+        {kicker && <div class="hero-kicker">{kicker}</div>}
+        <div class="hero-title">{title}</div>
+        {children}
+      </div>
+      {pill && <span class="hero-pill">{pill}</span>}
+    </div>
+  );
+}
+
+export function Panel({ title, action, children }) {
+  return (
+    <div class="pcard">
+      {(title || action) && (
+        <div class="pcard-head"><span>{title}</span>{action}</div>
+      )}
+      {children}
+    </div>
+  );
+}
