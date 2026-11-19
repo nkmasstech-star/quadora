@@ -2,7 +2,8 @@
 // When Firebase (Firestore) is connected, replace the load/save functions; screens keep working.
 import { GAMES } from './games.js';
 import { drawsOf, prizeEntries } from './store.js';
-import { EDIT_CUTOFF_HOUR_IST, FOLLOW_MIN_DRAWS } from '../config.js';
+import { FOLLOW_MIN_DRAWS } from '../config.js';
+import { targetDraw as targetDrawId, cutoffMs } from './rules.js';
 
 export const FORMATS = ['Straight', 'iBox', 'Multi'];
 export const MAX_GAMES = 2;
@@ -11,30 +12,10 @@ export const MAX_SETS = 4;
 const read = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } };
 
-// ---------- India time ----------
-export function ist(d = new Date()) {
-  const p = {};
-  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
-    .formatToParts(d).forEach((x) => { p[x.type] = x.value; });
-  const date = `${p.year}-${p.month}-${p.day}`;
-  const dow = new Date(Date.UTC(+p.year, +p.month - 1, +p.day)).getUTCDay();
-  return { date, hour: +p.hour % 24, minute: +p.minute, dow };
-}
-const addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const x = new Date(Date.UTC(y, m - 1, d + n)); return x.toISOString().slice(0, 10); };
-const dowOf = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); };
-
-export const editOpen = () => ist().hour < EDIT_CUTOFF_HOUR_IST;
-
-// The draw a new post is for: today's draw if it is a draw day and it is before the cutoff, else the next draw day.
-export function targetDraw(game) {
-  const n = ist();
-  for (let i = 0; i < 8; i += 1) {
-    if (i === 0 && n.hour >= EDIT_CUTOFF_HOUR_IST) continue;
-    const date = addDays(n.date, i);
-    if (game.days.includes(dowOf(date))) return date;
-  }
-  return n.date;
-}
+// ---------- dates (the phone's own calendar day) ----------
+export const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10); };
+const targetDraw = (g) => targetDrawId(g.id);
 
 // ---------- sample players (test only) ----------
 export const SEED_USERS = [
@@ -66,8 +47,7 @@ function seedPosts(results) {
     const g = GAMES[(ui * 2) % GAMES.length];
     const tr = rng(u.uid + 'today');
     const g2 = GAMES[(ui * 2 + 1) % GAMES.length];
-    const n = ist();
-    out.push({ id: `seed-${u.uid}-today`, uid: u.uid, day: n.date, at: Date.now() - (ui + 1) * 3600e3, edited: false, picks: [{ game: g.id, format: FORMATS[ui % 3], sets: [num4(tr), num4(tr), num4(tr)], forDate: targetDraw(g) }, { game: g2.id, format: FORMATS[(ui + 1) % 3], sets: [num4(tr), num4(tr)], forDate: targetDraw(g2) }], up: 3 + ui * 2, down: ui, seed: true });
+    out.push({ id: `seed-${u.uid}-today`, uid: u.uid, day: today(), at: Date.now() - (ui + 1) * 3600e3, edited: false, picks: [{ game: g.id, format: FORMATS[ui % 3], sets: [num4(tr), num4(tr), num4(tr)], forDate: targetDraw(g) }, { game: g2.id, format: FORMATS[(ui + 1) % 3], sets: [num4(tr), num4(tr)], forDate: targetDraw(g2) }], up: 3 + ui * 2, down: ui, seed: true });
   });
   return out;
 }
@@ -78,9 +58,11 @@ export function allPosts(results) {
   return [...myPosts(), ...seedPosts(results)].sort((a, b) => b.at - a.at);
 }
 export function userPosts(uid, results) { return allPosts(results).filter((p) => p.uid === uid); }
-export const postedToday = (uid) => myPosts().some((p) => p.uid === uid && p.day === ist().date);
-export const canEdit = (p, uid) => p.uid === uid && !p.seed && !p.edited && p.day === ist().date && editOpen();
-export const canDelete = (p, uid) => p.uid === uid && !p.seed && p.day === ist().date && editOpen();
+export const postedToday = (uid) => myPosts().some((p) => p.uid === uid && p.day === today());
+// Edit/delete is open until 2 hours before the earliest draw in the post starts.
+export const cutoffOf = (p) => Math.min(...p.picks.map((k) => cutoffMs(k.game, k.forDate)));
+export const canEdit = (p, uid) => p.uid === uid && !p.seed && !p.edited && Date.now() < cutoffOf(p);
+export const canDelete = (p, uid) => p.uid === uid && !p.seed && Date.now() < cutoffOf(p);
 
 export function validPicks(picks) {
   if (!picks.length || picks.length > MAX_GAMES) return 'Choose 1 or 2 games.';
@@ -94,8 +76,7 @@ export function validPicks(picks) {
 
 export function createPost(uid, picks) {
   const posts = myPosts();
-  const n = ist();
-  const p = { id: `p${Date.now().toString(36)}`, uid, day: n.date, at: Date.now(), edited: false, picks: picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) })), up: 0, down: 0 };
+  const p = { id: `p${Date.now().toString(36)}`, uid, day: today(), at: Date.now(), edited: false, picks: picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) })), up: 0, down: 0 };
   posts.unshift(p); write('qd_posts', posts);
   return p;
 }
@@ -108,21 +89,23 @@ export function editPost(id, picks) {
 }
 export function deletePost(id) { write('qd_posts', myPosts().filter((p) => p.id !== id)); }
 
-// ---------- votes & follows ----------
-export const myVotes = () => read('qd_votes', {});
-export function vote(postId, v) {
-  const m = myVotes();
-  if (m[postId] === v) delete m[postId]; else m[postId] = v;
-  write('qd_votes', m);
-}
-export function votePct(p) {
-  const m = myVotes()[p.id];
-  const up = p.up + (m === 'up' ? 1 : 0);
-  const down = p.down + (m === 'down' ? 1 : 0);
-  const tot = up + down;
-  return { up: tot ? Math.round((up / tot) * 100) : 0, down: tot ? 100 - Math.round((up / tot) * 100) : 0, mine: m || '' };
-}
+// ---------- likes, saves & follows ----------
+export const myLikes = () => read('qd_likes', {});
+export function toggleLike(postId) { const m = myLikes(); if (m[postId]) delete m[postId]; else m[postId] = 1; write('qd_likes', m); }
+export const likeCount = (p) => (p.up || 0) + (myLikes()[p.id] ? 1 : 0);
+export const savedIds = (uid) => read(`qd_saved_${uid}`, []);
+export function toggleSave(uid, postId) { const l = savedIds(uid); const i = l.indexOf(postId); if (i >= 0) l.splice(i, 1); else l.unshift(postId); write(`qd_saved_${uid}`, l); }
+export const savedPosts = (uid, results) => { const ids = savedIds(uid); const all = allPosts(results); return ids.map((id) => all.find((p) => p.id === id)).filter(Boolean); };
+
+// private picks (saved without posting) and saved lucky numbers
+export const myPicks = (uid) => read(`qd_picks_${uid}`, []);
+export function addPick(uid, picks) { const l = myPicks(uid); l.unshift({ id: `k${Date.now().toString(36)}`, at: Date.now(), picks: picks.map((k) => ({ ...k, forDate: targetDrawId(k.game) })) }); write(`qd_picks_${uid}`, l.slice(0, 100)); }
+export function delPick(uid, id) { write(`qd_picks_${uid}`, myPicks(uid).filter((x) => x.id !== id)); }
+export const myLucky = (uid) => read(`qd_luckyn_${uid}`, []);
+export function addLucky(uid, n, game, format) { const l = myLucky(uid); l.unshift({ id: `l${Date.now().toString(36)}`, at: Date.now(), n, game, format, forDate: targetDrawId(game) }); write(`qd_luckyn_${uid}`, l.slice(0, 100)); }
+export function delLucky(uid, id) { write(`qd_luckyn_${uid}`, myLucky(uid).filter((x) => x.id !== id)); }
 export const followingOf = (uid) => read(`qd_follows_${uid}`, []);
+export const followingCount = (uid) => followingOf(uid).length;
 export function toggleFollow(me, target) {
   const f = followingOf(me);
   const i = f.indexOf(target);
@@ -136,10 +119,19 @@ export function followersOf(uid, me) {
 
 // ---------- winning % ----------
 const norm = (s) => s.split('').sort().join('');
-function pickWins(pick, draw) {
-  const nums = prizeEntries(draw).map((e) => e.number);
-  return pick.sets.some((s) => nums.some((n) => (pick.format === 'Straight' ? n === s : norm(n) === norm(s))));
+// Which of the given 4-digit numbers matched this draw, using the chosen format (Straight = exact, iBox/Multi = any digit order).
+export function matchSets(sets, format, draw) {
+  const hits = [];
+  prizeEntries(draw).forEach((e) => sets.forEach((s) => { if (format === 'Straight' ? e.number === s : norm(e.number) === norm(s)) hits.push({ set: s, prize: e.prize }); }));
+  return hits;
 }
+export function evalEntry(game, format, sets, forDate, results) {
+  const d = drawsOf(results, game).find((x) => x.date === forDate);
+  if (!d) return { resolved: false, won: false, hits: [] };
+  const hits = matchSets(sets, format, d);
+  return { resolved: true, won: hits.length > 0, hits };
+}
+const pickWins = (pick, draw) => matchSets(pick.sets, pick.format, draw).length > 0;
 export function evalPost(post, results) {
   let resolved = false; let won = false;
   post.picks.forEach((k) => {

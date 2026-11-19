@@ -136,25 +136,27 @@ export function Report({ s, history }) {
   );
 }
 
-export function AnalysisToday({ data, gameId }) {
+export function AnalysisToday({ data, gameId, date }) {
   const g = gameById(gameId);
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
-  const draw = latestOf(data.results, gameId);
+  const latest = latestOf(data.results, gameId);
+  const draw = date ? drawsOf(data.results, gameId).find((d) => d.date === date) : latest;
+  const old = !!(draw && latest && draw.date !== latest.date);
   return (
     <div data-game={g.id}>
-      <BackBar title={t("Today's analysis")} />
-      <Hero kicker={g.name} title={t("Today's result analysis")} pill={draw ? fmtShort(draw.date) : '-'} />
+      <BackBar title={old ? t('Analysis of this draw') : t("Today's analysis")} />
+      <Hero kicker={g.name} title={old ? t('Analysis of this draw') : t("Today's result analysis")} pill={draw ? fmtShort(draw.date) : '-'} />
       {!draw ? <Panel><div class="empty">{t('Analysis appears after the latest result is in.')}</div></Panel> : <Report s={analyze([draw])} />}
     </div>
   );
 }
 
-export function AnalysisHistory({ data, gameId }) {
+export function AnalysisHistory({ data, gameId, date }) {
   const g = gameById(gameId);
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
-  const draws = drawsOf(data.results, gameId);
+  const draws = drawsOf(data.results, gameId).filter((d) => !date || d.date <= date);
   return (
     <div data-game={g.id}>
       <BackBar title={t('History analysis')} />

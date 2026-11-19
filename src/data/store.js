@@ -30,8 +30,8 @@ export async function loadAll() {
     const t = new Date(); m.default.results.games.magnum[0].date = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
     return { results: m.default.results, predictions: m.default.predictions, winnings: null, demo: true };
   }
-  const [results, predictions, winnings] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('winnings.json')]);
-  return { results, predictions, winnings, demo: false };
+  const [results, predictions, predHistory] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('pred_history.json')]);
+  return { results, predictions, predHistory, demo: false };
 }
 
 export const drawsOf = (results, gameId) => (results && results.games && results.games[gameId]) || [];
@@ -68,4 +68,34 @@ export function searchHistory(results, query, anyOrder, gameId) {
 
 export function totalDraws(results) {
   return GAMES.reduce((n, g) => n + drawsOf(results, g.id).length, 0);
+}
+
+const norm4 = (s) => String(s).split('').sort().join('');
+// Win check (same rule as the daily task): the 6 predictions match any prize in any digit order;
+// the 2 Top-3 picks are checked against 1st/2nd/3rd only.
+export function checkPrediction(pred, draw) {
+  const wins = [];
+  if (!pred || !draw) return wins;
+  const all = prizeEntries(draw);
+  (pred.numbers || []).forEach((n) => {
+    all.forEach((e) => { if (norm4(e.number) === norm4(n)) wins.push({ number: n, prize: e.prize, got: e.number, kind: '4D' }); });
+  });
+  (pred.top3 || []).forEach((n) => {
+    all.filter((e) => ['1st', '2nd', '3rd'].includes(e.prize)).forEach((e) => { if (norm4(e.number) === norm4(n)) wins.push({ number: n, prize: e.prize, got: e.number, kind: 'Top3' }); });
+  });
+  return wins;
+}
+
+// Every win across all games from the stored prediction history, newest first.
+export function allWins(data) {
+  const out = [];
+  GAMES.forEach((g) => {
+    const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[g.id]) || [];
+    rows.forEach((p) => {
+      const d = drawsOf(data.results, g.id).find((x) => x.date === p.forDate);
+      checkPrediction(p, d).forEach((w) => out.push({ game: g.id, date: p.forDate, ...w }));
+    });
+  });
+  out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return out;
 }

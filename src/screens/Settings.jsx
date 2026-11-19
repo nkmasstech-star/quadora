@@ -54,7 +54,7 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
         ))}
         <div class="row"><span style="flex:1">{t('Version')}</span><span class="meta">{APP_NAME} 0.1.0 · build {__BUILD__}</span></div>
       </div>
-      <div class="meta" style="font-size:12px;line-height:1.5;margin:10px 4px">{t('For information and entertainment only. Quadora does not sell tickets or accept bets. 18+')}</div>
+      <div class="meta" style="font-size:12px;line-height:1.5;margin:10px 4px">{t('For information and entertainment only. Q Spot 4D does not sell tickets or accept bets. 18+')}</div>
 
       <div class="section-title"><h2>{t('Account')}</h2></div>
       <div class="rows">

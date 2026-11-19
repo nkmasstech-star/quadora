@@ -2,13 +2,13 @@ import { BackBar } from '../ui.jsx';
 import { t } from '../i18n.js';
 import { APP_NAME, CONTACT_EMAIL } from '../config.js';
 
-const DOCS = {
+export const DOCS = {
   disclaimer: {
     title: 'Disclaimer',
     body: [
       ['For information and entertainment only', `${APP_NAME} shows lottery results, statistics, analysis and number suggestions for information and entertainment. It does not sell tickets, accept bets, handle money or run any draw.`],
       ['No guarantee', 'Predictions, charts, lucky numbers and community posts are statistical guesses or personal opinions. They are not advice and they are not guaranteed. Nobody can predict a lottery draw. Past results do not affect future draws.'],
-      ['Not affiliated', 'Quadora is an independent app. It is not affiliated with, endorsed by or connected to Magnum, Sports Toto, Da Ma Cai, Singapore Pools, Grand Dragon Lotto or any other lottery operator. All names belong to their owners and are used only to describe the draws.'],
+      ['Not affiliated', 'Q Spot 4D is an independent app. It is not affiliated with, endorsed by or connected to Magnum, Sports Toto, Da Ma Cai, Singapore Pools, Grand Dragon Lotto or any other lottery operator. All names belong to their owners and are used only to describe the draws.'],
       ['Official results', 'Results are collected from public sources and may contain delays or errors. Always check the official operator before you act on any result.'],
       ['Age and responsibility', 'You must be 18 or older. Gambling can be addictive and may be restricted where you live. You are responsible for following your local laws. Never spend money you cannot afford to lose. If gambling is a problem for you, please seek help.'],
     ],
@@ -28,7 +28,7 @@ const DOCS = {
   terms: {
     title: 'Terms of Use',
     body: [
-      ['Using the app', 'You may use Quadora for personal, lawful purposes if you are 18 or older. You are responsible for your account and for what you post.'],
+      ['Using the app', 'You may use Q Spot 4D for personal, lawful purposes if you are 18 or older. You are responsible for your account and for what you post.'],
       ['Community rules', 'Post only your own number picks. No abuse, hate, spam, scams, advertising or links. One post per day. Posts that break the rules can be removed and accounts can be blocked.'],
       ['No guarantees', 'The app is provided as is. We do not promise that results, analysis or predictions are accurate, complete or available at all times. See the Disclaimer.'],
       ['Changes', 'We may update the app and these terms. Continuing to use the app means you accept the updated terms.'],

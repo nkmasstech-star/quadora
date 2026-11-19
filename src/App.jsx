@@ -16,9 +16,11 @@ import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
 import { Profile } from './screens/Profile.jsx';
 import { Settings } from './screens/Settings.jsx';
+import { Splash } from './screens/Splash.jsx';
+import { Agree } from './screens/Agree.jsx';
 import { Legal } from './screens/Legal.jsx';
 import { Locked } from './ui.jsx';
-import { currentUser, logOut, deleteAccount, signUp, logIn } from './data/account.js';
+import { currentUser, logOut, deleteAccount, googleSignIn } from './data/account.js';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -52,10 +54,12 @@ export function App() {
   const [data, setData] = useState({ status: 'loading', results: null, predictions: null, demo: false });
   const [toast, setToast] = useState('');
   const [user, setUserState] = useState(() => {
-    if (import.meta.env.DEV && new URLSearchParams(location.search).has('asuser') && !currentUser()) { const r = signUp('Nehru', 'nehru@test.com', 'password1'); if (r.error) logIn('nehru@test.com', 'password1'); store.set('qd_guest', '1'); }
+    if (import.meta.env.DEV && new URLSearchParams(location.search).has('asuser') && !currentUser()) { googleSignIn({ name: 'Nehru', email: 'nehru@test.com', dob: null }); store.set('qd_guest', '1'); }
     return currentUser();
   });
   const setUser = (u) => setUserState(u ? { ...u } : null);
+  const [splash, setSplash] = useState(!(import.meta.env.DEV && location.search.includes('nosplash')));
+  const [agreed, setAgreed] = useState(() => store.get('qd_agreed') === '1' || !!(import.meta.env.DEV && location.search.includes('agreed')));
   const [, setLangTick] = useState(0);
   const setLang = (l) => { applyLang(l); setLangTick((n) => n + 1); };
   useEffect(() => { applyLang(localStorage.getItem('qd_lang') || 'en'); }, []);
@@ -117,6 +121,8 @@ export function App() {
   const query = new URLSearchParams(queryStr || '');
   const seg = path.split('/').filter(Boolean);
 
+  if (splash) return <div class="app"><Splash onDone={() => setSplash(false)} /></div>;
+  if (!agreed && seg[0] !== 'legal') return <div class="app"><Agree onAccept={() => { store.set('qd_agreed', '1'); setAgreed(true); }} /></div>;
   if (seg[0] === 'legal') {
     return (
       <div class="app"><main class="screen no-nav"><div class="page push"><Legal kind={seg[1]} /></div></main>{toast && <div class="toast" role="status">{toast}</div>}</div>
@@ -137,9 +143,9 @@ export function App() {
   if (!user && MEMBER_ONLY.includes(seg[0])) { screen = <Locked onLogin={() => go('/login')} onBack={() => history.back()} />; nav = false; }
   else if (seg[0] === 'game') { screen = <Detail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
-  else if (seg[0] === 'analysis') { screen = seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} /> : <AnalysisToday data={data} gameId={seg[2]} />; nav = false; }
-  else if (seg[0] === 'lucky') { screen = <Lucky />; nav = false; }
-  else if (seg[0] === 'notifications') { screen = <Notifications />; nav = false; }
+  else if (seg[0] === 'analysis') { screen = seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} date={seg[3]} /> : <AnalysisToday data={data} gameId={seg[2]} date={seg[3]} />; nav = false; }
+  else if (seg[0] === 'lucky') { screen = <Lucky user={user} toast={showToast} />; nav = false; }
+  else if (seg[0] === 'notifications') { screen = <Notifications user={user} data={data} />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} />; nav = false; }
   else if (seg[0] === 'settings') { screen = <Settings user={user} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onLogOut={onLogOut} onDelete={onDelete} onRefresh={refresh} toast={showToast} />; nav = false; }
   else if (seg[0] === 'user') { screen = user ? <Profile user={user} uid={seg[1]} data={data} toast={showToast} onUser={setUser} /> : <Locked onLogin={() => go('/login')} />; nav = false; }

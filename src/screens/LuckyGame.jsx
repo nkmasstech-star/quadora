@@ -55,8 +55,8 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
     play('start');
     setPhase('play');
     const s = st.current;
-    const bw = () => Math.max(56, 92 - 5 * s.level);
-    const by = () => s.h - 96;
+    const bw = () => Math.max(56, 92 - 2 * Math.min(s.level, 18));
+    const by = () => s.h - 121;
     const finish = () => {
       if (s.ended) return; s.ended = true; cancelAnimationFrame(s.raf);
       play('over'); setFinal({ score: s.score, level: s.level }); setPhase('over');
@@ -69,16 +69,16 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
     const loop = (ts) => {
       if (s.ended) return;
       const dt = Math.min(0.04, (ts - (s.last || ts)) / 1000); s.last = ts; s.t += dt;
-      const lv = s.level;
+      const lv = Math.min(s.level, 16);
       // spawn
       s.spawn -= dt;
       if (s.spawn <= 0) {
-        s.spawn = Math.max(0.26, 0.8 - 0.08 * lv) * (0.8 + Math.random() * 0.4);
+        s.spawn = Math.max(0.24, 0.75 - 0.035 * lv) * (0.8 + Math.random() * 0.4);
         const r = Math.random();
-        const bombP = Math.min(0.45, 0.16 + 0.04 * lv);
+        const bombP = Math.min(0.45, 0.16 + 0.02 * lv);
         const type = r < bombP ? 'bomb' : r < bombP + 0.05 ? 'star' : 'ball';
-        const fast = lv >= 5 && Math.random() < 0.3 ? 1.35 : 1;
-        s.items.push({ type, x: 26 + Math.random() * (s.w - 52), y: -26, vy: (170 + 60 * lv) * (0.85 + Math.random() * 0.35) * fast, r: type === 'ball' ? 21 : 19, n: Math.floor(Math.random() * 10), drift: lv >= 3 ? (Math.random() - 0.5) * 38 * (lv - 2) : 0, ph: Math.random() * 6 });
+        const fast = lv >= 8 && Math.random() < 0.3 ? 1.35 : 1;
+        s.items.push({ type, x: 26 + Math.random() * (s.w - 52), y: -26, vy: (230 + 34 * lv) * (0.85 + Math.random() * 0.35) * fast, r: type === 'ball' ? 21 : 19, n: Math.floor(Math.random() * 10), drift: lv >= 5 ? (Math.random() - 0.5) * 20 * (lv - 4) : 0, ph: Math.random() * 6 });
       }
       // update
       const baseY = by(); const half = bw() / 2;
@@ -93,7 +93,7 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
         } else if (it.y > s.h + 30) { if (it.type === 'ball') s.combo = 0; s.items.splice(i, 1); }
       }
       if (s.score >= MAX) { s.score = MAX; finish(); return; }
-      const nl = Math.floor(s.score / 1000);
+      const nl = Math.floor(s.score / 100);
       if (nl > s.level) { s.level = nl; s.banner = 1.4; play('level'); }
       if (s.lives <= 0) { finish(); return; }
       s.shake = Math.max(0, s.shake - dt); s.banner = Math.max(0, s.banner - dt);
@@ -155,7 +155,7 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
             <div>🟡 {t('Catch the golden balls')}</div>
             <div>💣 {t('Dodge the bombs (3 lives)')}</div>
             <div>👆 {t('Drag your finger to move the basket')}</div>
-            <div>📈 {t('Every 1000 points the game gets harder')}</div>
+            <div>📈 {t('Every 100 points the game gets faster')}</div>
           </div>
           <div class="meta" style="margin:10px 0 16px;line-height:1.5">{t('Your final score becomes your lucky number.')}</div>
           <button class="btn" onClick={start}>{t('Start')}</button>

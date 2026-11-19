@@ -36,6 +36,22 @@ for gid, i, prize in [("magnum", 2, "1st"), ("toto", 1, "Special"), ("singapore"
     d = games[gid][i]
     num = d["first"] if prize == "1st" else d["second"] if prize == "2nd" else d["third"] if prize == "3rd" else d["special"][0] if prize == "Special" else d["consolation"][0]
     wins.append({"game": gid, "date": d["date"], "number": num, "prize": prize})
+hist = {}
+for gid, ds in games.items():
+    rows = []
+    for d in ds[:30]:
+        nums = [n4() for _ in range(6)]
+        top = [n4(), n4()]
+        if random.random() < 0.3:   # some predictions hit (dummy)
+            pool = [d["first"], d["second"], d["third"]] + d["special"] + d["consolation"]
+            h = random.choice(pool)
+            nums[random.randint(0, 5)] = "".join(random.sample(h, 4))
+        if random.random() < 0.12:
+            top[random.randint(0, 1)] = "".join(random.sample(random.choice([d["first"], d["second"], d["third"]]), 4))
+        rows.append({"forDate": d["date"], "important3": [[random.randint(0, 9) for _ in range(3)] for _ in range(2)],
+                     "numbers": nums, "top3": top, "chart": [random.randint(0, 9) for _ in range(12)]})
+    hist[gid] = rows
+json.dump({"dummy": True, "games": hist}, open("public/data/pred_history.json", "w"), separators=(",", ":"))
 json.dump(res, open("public/data/results.json", "w"), separators=(",", ":"))
 json.dump(pred, open("public/data/predictions.json", "w"), separators=(",", ":"))
 json.dump({"dummy": True, "wins": wins}, open("public/data/winnings.json", "w"), separators=(",", ":"))

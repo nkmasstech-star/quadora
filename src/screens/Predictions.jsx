@@ -4,6 +4,7 @@ import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
 import { IconDice, IconChevron } from '../icons.jsx';
+import { drawsOf, checkPrediction, allWins } from '../data/store.js';
 
 const CARDS = [
   { id: 'magnum', label: 'Magnum', region: 'my', letter: 'M' },
@@ -47,7 +48,7 @@ export function Predictions({ data, toast }) {
 
   return (
     <div>
-      <AppBar title="Quadora 4D" tagline={t('4D Predictions · Results · Analysis')} go={go} />
+      <AppBar title="Q Spot 4D" tagline={t('4D Predictions · Results · Analysis')} go={go} />
 
       <div class="hero">
         <div class="hero-text">
@@ -76,57 +77,87 @@ export function Predictions({ data, toast }) {
   );
 }
 
-export function PredictionDetail({ data, gameId, toast }) {
-  const g = gameById(gameId);
-  if (!g) return <div class="empty">{t('Game not found.')}</div>;
-  if (data.status === 'loading' && !data.predictions) return <Loading />;
-  const p = ((data.predictions && data.predictions.games) || {})[gameId];
-  const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
+function Dots({ set }) {
+  return <span class="dots">{set.join('')}</span>;
+}
 
+function PredBody({ p, copy, g, label }) {
+  const nums = p.numbers || [];
   return (
-    <div data-game={g.id} class="pd">
-      <BackBar title={t('Prediction')} />
-      <Hero kicker={t(g.region)} title={g.name} pill={p ? (p.forDate ? fmtShort(p.forDate) : t('Next draw')) : t('Soon')} />
-
-      {!p && <Panel><div class="empty">{t('Prediction for this game will appear after the daily update.')}</div></Panel>}
-
-      {p && (
-        <div>
-          {p.important3 && p.important3.length > 0 && (
-            <div class="pd-card">
-              <div class="pd-title">{t('Important 3 digit')}</div>
-              <div class="imp-row">
-                {p.important3.slice(0, 2).map((set, i) => <button key={i} class="imp" onClick={() => copy(set.join(''))}><Digits digits={set} /></button>)}
-              </div>
-            </div>
-          )}
-          {p.chart && p.chart.length > 0 && (
-            <div class="pd-card">
-              <div class="pd-title">{t('Chart')}</div>
-              <div class="chart">{p.chart.map((d, i) => <div key={i} class="cell">{d}</div>)}</div>
-            </div>
-          )}
-          {p.numbers && p.numbers.length > 0 && (
-            <div class="pd-card">
-              <div class="pd-title">{t('Prediction numbers')}</div>
-              <div class="pn-grid">{p.numbers.map((n, i) => <button key={i} class="pn" onClick={() => copy(n)}>{n}</button>)}</div>
-            </div>
-          )}
-          {p.top3 && p.top3.length > 0 && (
-            <div class="pd-card top">
-              <div class="pd-title">{t('Top 3 prediction')}</div>
-              <div class="pn-grid two">{p.top3.map((n, i) => <button key={i} class="pn big" onClick={() => copy(n)}>{n}</button>)}</div>
-            </div>
-          )}
-          <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:6px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>
+    <div class="pd-sheet">
+      <div class="pd-band date">{label}</div>
+      <div class="pd-band title">{g.name.toUpperCase()}</div>
+      {p.important3 && p.important3.length > 0 && (
+        <div class="pd-imp">
+          <div class="pd-imp-h">{t('Important 3 digit')}</div>
+          <div class="pd-imp-row">
+            {p.important3.slice(0, 2).map((set, i) => <button key={i} class="pd-imp-n" onClick={() => copy(set.join(''))}>•••{set.join('')}•••</button>)}
+          </div>
+        </div>
+      )}
+      {p.chart && p.chart.length > 0 && <div class="pd-chart">{p.chart.map((d, i) => <div key={i}>{d}</div>)}</div>}
+      {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} onClick={() => copy(n)}>{n}</button>)}</div>}
+      {p.top3 && p.top3.length > 0 && (
+        <div class="pd-top">
+          <div class="pd-top-h">{t('Top 3 prediction')}</div>
+          <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} onClick={() => copy(n)}>{n}</button>)}</div>
         </div>
       )}
     </div>
   );
 }
 
+function PredHistory({ rows, data, gid, copy, g }) {
+  const [open, setOpen] = useState(null);
+  const draws = drawsOf(data.results, gid);
+  const list = rows.slice().sort((a, b) => (a.forDate < b.forDate ? 1 : -1)).slice(0, 30);
+  return (
+    <div>
+      <div class="section-title"><h2>{t('History Predictions')}</h2><span>{t('Last {n} draws', { n: list.length })}</span></div>
+      {list.map((p) => {
+        const wins = checkPrediction(p, draws.find((d) => d.date === p.forDate));
+        const on = open === p.forDate;
+        return (
+          <div key={p.forDate} class="ph">
+            <button class="ph-row" onClick={() => setOpen(on ? null : p.forDate)}>
+              <span class="ph-d">{fmtShort(p.forDate)} <i>{p.forDate.slice(0, 4)}</i></span>
+              {wins.length > 0 && <span class="pill gold">{t('Win')} {wins.length}</span>}
+              <span class="chev" style={on ? 'transform:rotate(90deg)' : ''}><IconChevron /></span>
+            </button>
+            {on && (
+              <div>
+                {wins.length > 0 && <div class="ph-wins">{wins.map((w, i) => <span key={i}>🎉 {w.number} · {t(w.prize)}</span>)}</div>}
+                <PredBody p={p} copy={copy} g={g} label={fmtShort(p.forDate)} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function PredictionDetail({ data, gameId, toast }) {
+  const g = gameById(gameId);
+  if (!g) return <div class="empty">{t('Game not found.')}</div>;
+  if (data.status === 'loading' && !data.predictions) return <Loading />;
+  const p = ((data.predictions && data.predictions.games) || {})[gameId];
+  const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[gameId]) || [];
+  const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
+
+  return (
+    <div data-game={g.id} class="pd">
+      <BackBar title={t('Prediction')} />
+      {!p && <Panel><div class="empty">{t('Prediction for this game will appear after the daily update.')}</div></Panel>}
+      {p && <PredBody p={p} copy={copy} g={g} label={p.forDate ? fmtShort(p.forDate) : t('Next draw')} />}
+      {p && <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:8px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>}
+      {rows.length > 0 && <PredHistory rows={rows} data={data} gid={gameId} copy={copy} g={g} />}
+    </div>
+  );
+}
+
 export function Winnings({ data }) {
-  const wins = (data && data.winnings && data.winnings.wins) || [];
+  const wins = allWins(data);
   return (
     <div>
       <BackBar title={t('Winnings')} />

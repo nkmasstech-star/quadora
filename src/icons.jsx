@@ -36,7 +36,7 @@ export const IconCalendar = () => (
 );
 
 export const Logo = ({ size = 40 }) => (
-  <svg role="img" aria-label="Quadora logo" width={size} height={size} viewBox="14 14 80 80">
+  <svg role="img" aria-label="Q Spot 4D logo" width={size} height={size} viewBox="14 14 80 80">
     <circle cx="45" cy="45" r="22" fill="none" stroke="#E8B94A" stroke-width="6" />
     <path d="M70 54 L74 66 L86 70 L74 74 L70 86 L66 74 L54 70 L66 66 Z" fill="#E8B94A" style="stroke:var(--bg)" stroke-width="3" />
   </svg>
@@ -79,4 +79,11 @@ export const IconLock = () => (
 
 export const IconGear = () => (
   <svg {...base}><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h3M11 12h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /><circle cx="9" cy="12" r="0.01" /></svg>
+);
+
+export const IconHeart = ({ on }) => (
+  <svg {...base} fill={on ? 'currentColor' : 'none'}><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" /></svg>
+);
+export const IconBookmark = ({ on }) => (
+  <svg {...base} fill={on ? 'currentColor' : 'none'}><path d="M7 4h10v16l-5-3.5L7 20V4z" /></svg>
 );

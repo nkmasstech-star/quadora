@@ -16,7 +16,7 @@ export function Menu({ open, onClose, go, toast }) {
     <div class={open ? 'drawer-wrap open' : 'drawer-wrap'} aria-hidden={!open}>
       <div class="scrim" onClick={onClose} />
       <aside class="drawer" aria-label={t('Menu')}>
-        <div class="drawer-head"><Logo size={40} /><div><div class="app-title" style="text-align:left;font-size:20px">Quadora 4D</div><div class="tagline" style="text-align:left">{t('4D Predictions · Results · Analysis')}</div></div></div>
+        <div class="drawer-head"><Logo size={40} /><div><div class="app-title" style="text-align:left;font-size:20px">Q Spot 4D</div><div class="tagline" style="text-align:left">{t('4D Predictions · Results · Analysis')}</div></div></div>
         {ITEMS.map(([p, l]) => <button key={p} class="drawer-item" onClick={() => { onClose(); go(p); }}>{t(l)}</button>)}
         <div class="drawer-sep" />
         <button class="drawer-item" onClick={() => { onClose(); go('/legal/privacy'); }}>{t('Privacy Policy')}</button>
