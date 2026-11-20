@@ -173,21 +173,14 @@ const onlyTop3 = (d) => ({ ...d, special: [], consolation: [] });
 
 export function AnalysisTop3({ data, gameId, date }) {
   const g = gameById(gameId);
-  const [mode, setMode] = useState('draw');
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
-  const all = drawsOf(data.results, gameId);
-  const draw = date ? all.find((d) => d.date === date) : latestOf(data.results, gameId);
-  const list = (mode === 'draw' ? (draw ? [draw] : []) : all.filter((d) => !date || d.date <= date)).map(onlyTop3);
+  const list = drawsOf(data.results, gameId).filter((d) => !date || d.date <= date).map(onlyTop3);
   return (
     <div data-game={g.id}>
-      <BackBar title={t('Top 3 analysis')} />
-      <Hero kicker={g.name} title={t('1st, 2nd and 3rd prize only')} pill={draw ? fmtShort(draw.date) : '-'} />
-      <div class="chipwrap" style="margin-top:12px">
-        <button class={mode === 'draw' ? 'chip-btn on' : 'chip-btn'} onClick={() => setMode('draw')}>{t('This draw')}</button>
-        <button class={mode === 'all' ? 'chip-btn on' : 'chip-btn'} onClick={() => setMode('all')}>{t('All draws')}</button>
-      </div>
-      {list.length === 0 ? <Panel><div class="empty">{t('Analysis appears after the latest result is in.')}</div></Panel> : <Report s={analyze(list)} history={mode === 'all'} />}
+      <BackBar title={t('Top 3 history analysis')} />
+      <Hero kicker={g.name} title={t('1st, 2nd and 3rd prize over time')} pill={t('{n} draws', { n: list.length })} />
+      {list.length === 0 ? <Panel><div class="empty">{t('History analysis appears once draws are stored.')}</div></Panel> : <Report s={analyze(list)} history />}
     </div>
   );
 }
@@ -197,7 +190,7 @@ export function AnalysisCards({ g, draw, latest, user }) {
   const isLatest = !latest || draw.date === latest.date;
   const dest = (k) => (user ? `/analysis/${k}/${g.id}/${draw.date}` : '/locked');
   const rows = [
-    ['top3', <IconBars />, t('Top 3 analysis'), t('Only 1st, 2nd and 3rd prize')],
+    ['top3', <IconBars />, t('Top 3 history analysis'), t('1st, 2nd and 3rd prize across all draws')],
     ['today', <IconBars />, isLatest ? t("Today's result analysis") : t('Analysis of this draw'), t('Doubles, hot digits, formats and more')],
     ['history', <IconClock />, t('History analysis'), t('Patterns across all stored draws')],
   ];

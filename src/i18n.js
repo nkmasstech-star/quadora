@@ -216,6 +216,9 @@ const ROWS = [
   ['Your posts, saved numbers and winning percentage. We check everything automatically when results arrive.', 'Hantaran, nombor tersimpan dan peratus kemenangan anda. Kami semak semuanya secara automatik apabila keputusan keluar.', '你的帖子、保存的号码和中奖率。结果公布后我们会自动核对。', 'உங்கள் பதிவுகள், சேமித்த எண்கள், வெற்றி %. முடிவு வந்ததும் தானாக சரிபார்ப்போம்.', 'ប្រកាស លេខដែលបានរក្សាទុក និងភាគរយឈ្នះរបស់អ្នក។ យើងពិនិត្យដោយស្វ័យប្រវត្តិនៅពេលលទ្ធផលចេញ។'],
   ['{n} numbers won', '{n} nombor menang', '中奖号码 {n} 个', '{n} எண்கள் வெற்றி', 'ឈ្នះ {n} លេខ'],
   ['{n} of 4 opened', '{n} daripada 4 dibuka', '已打开 {n}/4', '4-ல் {n} திறக்கப்பட்டது', 'បានបើក {n} ក្នុង 4'],
+  ['Top 3 history analysis', 'Analisis sejarah Top 3', 'Top 3 历史分析', 'Top 3 வரலாற்று பகுப்பாய்வு', 'ការវិភាគប្រវត្តិ Top 3'],
+  ['1st, 2nd and 3rd prize over time', 'Hadiah 1, 2 dan 3 dari masa ke masa', '头奖、二奖、三奖走势', '1, 2, 3-ஆம் பரிசு காலப்போக்கில்', 'រង្វាន់ទី 1 ទី 2 ទី 3 តាមពេលវេលា'],
+  ['1st, 2nd and 3rd prize across all draws', 'Hadiah 1, 2 dan 3 merentas semua cabutan', '所有期数的头奖、二奖、三奖', 'அனைத்து டிராக்களின் 1, 2, 3-ஆம் பரிசு', 'រង្វាន់ទី 1 ទី 2 ទី 3 គ្រប់ការចាប់ឆ្នោត'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],
