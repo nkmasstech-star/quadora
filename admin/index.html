@@ -50,6 +50,8 @@ function form(user) {
   const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
   root.innerHTML = `
   <div class="sub">Signed in: ${user.email} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
+  <label>Quick: paste the whole result here, then tap Auto-fill</label><textarea id="all" style="min-height:110px" placeholder="Copy everything from the results page and paste here"></textarea>
+  <button id="af" class="g" style="margin-top:8px">Auto-fill from paste</button><div id="afm" class="sub" style="margin-top:6px"></div>
   <label>Game</label><select id="g">${Object.entries(GAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
   <div class="row"><div><label>Draw date</label><input id="d" type="date" value="${today}"></div><div><label>Draw no. (optional)</label><input id="n" inputmode="numeric" placeholder="e.g. 3631"></div></div>
   <div class="row"><div><label>1st</label><input id="f" inputmode="numeric" maxlength="4"></div><div><label>2nd</label><input id="s" inputmode="numeric" maxlength="4"></div><div><label>3rd</label><input id="t" inputmode="numeric" maxlength="4"></div></div>
@@ -59,6 +61,23 @@ function form(user) {
   <div id="out2"></div>`;
   $('#out').onclick = (e) => { e.preventDefault(); signOut(auth); };
   let draw = null;
+  $('#af').onclick = () => {
+    const txt = $('#all').value, m = $('#afm');
+    const marks = [['f', /1st|first/ig], ['s', /2nd|second/ig], ['t', /3rd|third/ig], ['sp', /special|starter/ig], ['co', /consolation/ig]];
+    const pos = [];
+    marks.forEach(([k, re]) => { const x = re.exec(txt); if (x) pos.push({ k, i: x.index }); });
+    const sec = {};
+    if (pos.length >= 4) {
+      pos.sort((a, b) => a.i - b.i);
+      pos.forEach((q, n) => { sec[q.k] = nums(txt.slice(q.i, n + 1 < pos.length ? pos[n + 1].i : txt.length)); });
+    }
+    let f, s, t, sp, co;
+    if (sec.f && sec.f.length && sec.s && sec.s.length && sec.t && sec.t.length && sec.sp && sec.co) { f = sec.f[0]; s = sec.s[0]; t = sec.t[0]; sp = sec.sp; co = sec.co; }
+    else { const a = nums(txt); if (a.length === 23 || a.length === 26) { [f, s, t] = a; const rest = a.slice(3); sp = rest.slice(0, rest.length - 10); co = rest.slice(-10); } }
+    if (!f) { m.className = 'sub err'; m.textContent = 'Could not read it. Please check the paste, or fill the boxes below by hand.'; return; }
+    $('#f').value = f; $('#s').value = s; $('#t').value = t; $('#sp').value = sp.join(' '); $('#co').value = co.join(' ');
+    m.className = 'sub ok'; m.textContent = 'Filled. Check the numbers, then tap Check.';
+  };
   $('#pv').onclick = () => {
     const f = $('#f').value.trim(), s = $('#s').value.trim(), t = $('#t').value.trim();
     let sp = nums($('#sp').value), co = nums($('#co').value);
