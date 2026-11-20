@@ -1,0 +1,79 @@
+// FAQ rows: [question, answer], each as [en, ms, zh, ta, km]. Order of languages matches LANGS in i18n.js.
+export const FAQ = [
+  [
+    ['What is Q Spot 4D?', 'Apakah Q Spot 4D?', 'Q Spot 4D 是什么？', 'Q Spot 4D என்றால் என்ன?', 'Q Spot 4D គឺជាអ្វី?'],
+    ['An app that shows 4D lottery results, analysis and number predictions for Magnum, Sports Toto, Da Ma Cai, Singapore 4D and GD Lotto, for information and entertainment.', 'Aplikasi yang memaparkan keputusan loteri 4D, analisis dan ramalan nombor untuk Magnum, Sports Toto, Da Ma Cai, Singapore 4D dan GD Lotto, untuk maklumat dan hiburan.', '一款展示 Magnum、Sports Toto、Da Ma Cai、新加坡 4D 和 GD Lotto 开奖结果、分析与号码预测的应用，仅供资讯和娱乐。', 'Magnum, Sports Toto, Da Ma Cai, Singapore 4D, GD Lotto ஆகியவற்றின் 4D முடிவுகள், பகுப்பாய்வு, எண் கணிப்புகளைக் காட்டும் செயலி. தகவல் மற்றும் பொழுதுபோக்குக்கு மட்டும்.', 'កម្មវិធីបង្ហាញលទ្ធផលឆ្នោត 4D ការវិភាគ និងការទស្សន៍ទាយលេខ សម្រាប់ Magnum, Sports Toto, Da Ma Cai, Singapore 4D និង GD Lotto សម្រាប់ព័ត៌មាន និងកម្សាន្តតែប៉ុណ្ណោះ។'],
+  ],
+  [
+    ['Is the app free?', 'Adakah aplikasi ini percuma?', '应用免费吗？', 'செயலி இலவசமா?', 'តើកម្មវិធីឥតគិតថ្លៃទេ?'],
+    ['Yes. It is free to use and supported by ads.', 'Ya. Percuma digunakan dan disokong oleh iklan.', '是的，免费使用，由广告支持。', 'ஆம். இலவசம், விளம்பரங்களால் இயங்குகிறது.', 'បាទ/ចាស ឥតគិតថ្លៃ ហើយទទួលការគាំទ្រពីការផ្សាយពាណិជ្ជកម្ម។'],
+  ],
+  [
+    ['Can I bet or buy tickets in this app?', 'Bolehkah saya bertaruh atau membeli tiket dalam aplikasi ini?', '可以在应用里下注或买彩票吗？', 'இந்த செயலியில் பந்தயம் கட்டவோ டிக்கெட் வாங்கவோ முடியுமா?', 'តើខ្ញុំអាចភ្នាល់ ឬទិញសំបុត្រក្នុងកម្មវិធីបានទេ?'],
+    ['No. We do not sell tickets, take bets or handle any money. We only show results, analysis and predictions.', 'Tidak. Kami tidak menjual tiket, menerima pertaruhan atau mengendalikan wang. Kami hanya memaparkan keputusan, analisis dan ramalan.', '不可以。我们不卖彩票、不接受下注，也不处理任何资金，只提供开奖结果、分析和预测。', 'இல்லை. டிக்கெட் விற்பனை, பந்தயம், பணப் பரிவர்த்தனை எதுவும் இல்லை. முடிவுகள், பகுப்பாய்வு, கணிப்புகள் மட்டுமே காட்டுகிறோம்.', 'ទេ។ យើងមិនលក់សំបុត្រ មិនទទួលភ្នាល់ ឬគ្រប់គ្រងលុយទេ។ យើងបង្ហាញតែលទ្ធផល ការវិភាគ និងការទស្សន៍ទាយប៉ុណ្ណោះ។'],
+  ],
+  [
+    ['If I win, can I get the prize from this app?', 'Jika saya menang, bolehkah saya tuntut hadiah daripada aplikasi ini?', '中奖后可以在应用里领奖吗？', 'நான் வென்றால் பரிசை இந்த செயலியில் பெற முடியுமா?', 'បើខ្ញុំឈ្នះ តើអាចទទួលរង្វាន់ពីកម្មវិធីនេះបានទេ?'],
+    ['No. Claim your prize only from the official operator or the outlet where you bought the ticket.', 'Tidak. Tuntut hadiah hanya daripada pengendali rasmi atau kedai tempat anda membeli tiket.', '不能。请到官方运营商或购买彩票的店面领奖。', 'இல்லை. அதிகாரப்பூர்வ நிறுவனத்திடமோ டிக்கெட் வாங்கிய கடையிலோ மட்டுமே பரிசைப் பெறுங்கள்.', 'ទេ។ សូមទាមទាររង្វាន់ពីប្រតិបត្តិករផ្លូវការ ឬហាងដែលអ្នកបានទិញសំបុត្រប៉ុណ្ណោះ។'],
+  ],
+  [
+    ['Which games are covered?', 'Permainan apa yang dilitupi?', '包含哪些游戏？', 'எந்த விளையாட்டுகள் உள்ளன?', 'មានហ្គេមអ្វីខ្លះ?'],
+    ['Magnum 4D, Sports Toto, Da Ma Cai (Malaysia), Singapore 4D and Cambodia GD Lotto.', 'Magnum 4D, Sports Toto, Da Ma Cai (Malaysia), Singapore 4D dan GD Lotto Kemboja.', 'Magnum 4D、Sports Toto、Da Ma Cai（马来西亚）、新加坡 4D 和柬埔寨 GD Lotto。', 'Magnum 4D, Sports Toto, Da Ma Cai (மலேசியா), Singapore 4D, கம்போடியா GD Lotto.', 'Magnum 4D, Sports Toto, Da Ma Cai (ម៉ាឡេស៊ី), Singapore 4D និង GD Lotto កម្ពុជា។'],
+  ],
+  [
+    ['When are results updated?', 'Bilakah keputusan dikemas kini?', '结果什么时候更新？', 'முடிவுகள் எப்போது புதுப்பிக்கப்படும்?', 'តើលទ្ធផលធ្វើបច្ចុប្បន្នភាពនៅពេលណា?'],
+    ['Soon after each official draw. A fresh result shows a NEW badge.', 'Sejurus selepas setiap cabutan rasmi. Keputusan baharu dipaparkan dengan lencana NEW.', '每次官方开奖后不久更新，最新结果会显示 NEW 标记。', 'ஒவ்வொரு அதிகாரப்பூர்வ டிராவுக்குப் பிறகும் விரைவில். புதிய முடிவில் NEW குறி தெரியும்.', 'បន្ទាប់ពីការចាប់ឆ្នោតផ្លូវការមិនយូរ។ លទ្ធផលថ្មីមានស្លាក NEW។'],
+  ],
+  [
+    ['Are the results 100% accurate?', 'Adakah keputusan 100% tepat?', '结果 100% 准确吗？', 'முடிவுகள் 100% சரியானவையா?', 'តើលទ្ធផលត្រឹមត្រូវ 100% ទេ?'],
+    ['We collect results from public sources and they may be delayed or wrong. Always check the official operator before claiming a prize.', 'Kami mengumpul keputusan daripada sumber awam dan ia mungkin lewat atau tidak tepat. Sentiasa semak pengendali rasmi sebelum menuntut hadiah.', '结果来自公开来源，可能有延迟或错误。领奖前请务必核对官方运营商。', 'முடிவுகள் பொது ஆதாரங்களிலிருந்து எடுக்கப்படுவதால் தாமதம் அல்லது பிழை இருக்கலாம். பரிசு கோரும் முன் அதிகாரப்பூர்வ தளத்தை சரிபாருங்கள்.', 'យើងប្រមូលលទ្ធផលពីប្រភពសាធារណៈ ដែលអាចយឺត ឬខុស។ សូមពិនិត្យប្រតិបត្តិករផ្លូវការមុនទាមទាររង្វាន់។'],
+  ],
+  [
+    ['Where can I see old results?', 'Di mana saya boleh lihat keputusan lama?', '哪里可以看历史结果？', 'பழைய முடிவுகளை எங்கே பார்க்கலாம்?', 'តើខ្ញុំអាចមើលលទ្ធផលចាស់នៅឯណា?'],
+    ['Tap the arrow on a game result to open all past draws. Search lets you look up any number.', 'Ketik anak panah pada keputusan permainan untuk membuka semua cabutan lalu. Carian membolehkan anda semak mana-mana nombor.', '点击游戏结果上的箭头可查看所有往期开奖；也可在搜索中查询任意号码。', 'விளையாட்டு முடிவில் உள்ள அம்புக்குறியைத் தொட்டால் முந்தைய எல்லா டிராக்களும் வரும். Search-ல் எந்த எண்ணையும் தேடலாம்.', 'ចុចព្រួញលើលទ្ធផលហ្គេមដើម្បីមើលការចាប់ឆ្នោតកន្លងមកទាំងអស់។ ការស្វែងរកអាចរកលេខណាមួយ។'],
+  ],
+  [
+    ['How are predictions made?', 'Bagaimana ramalan dibuat?', '预测是怎么产生的？', 'கணிப்புகள் எப்படி உருவாகின்றன?', 'តើការទស្សន៍ទាយបង្កើតយ៉ាងដូចម្តេច?'],
+    ['From past results using a fixed formula: Important 3-digit sets, a 12-number chart with a connected path, 4-digit numbers (3-digit base + 1 extra digit) and Top 3 picks.', 'Daripada keputusan lalu menggunakan formula tetap: set 3 digit penting, carta 12 nombor dengan laluan bersambung, nombor 4 digit (asas 3 digit + 1 digit tambahan) dan pilihan Top 3.', '根据往期结果按固定公式生成：重要的 3 位数组合、带连线路径的 12 格图表、4 位数（3 位基数 + 1 个额外数字）和 Top 3 精选。', 'முந்தைய முடிவுகளிலிருந்து நிலையான சூத்திரப்படி: முக்கிய 3 இலக்க தொகுப்புகள், இணைந்த பாதையுடன் 12 எண் அட்டவணை, 4 இலக்க எண்கள் (3 இலக்க அடிப்படை + 1 கூடுதல் இலக்கம்), Top 3.', 'ពីលទ្ធផលមុនៗតាមរូបមន្តថេរ៖ ក្រុមលេខ 3 ខ្ទង់សំខាន់ តារាង 12 លេខមានផ្លូវតភ្ជាប់ លេខ 4 ខ្ទង់ (មូលដ្ឋាន 3 ខ្ទង់ + 1 ខ្ទង់បន្ថែម) និង Top 3។'],
+  ],
+  [
+    ['When do new predictions come?', 'Bilakah ramalan baharu keluar?', '新预测什么时候出？', 'புதிய கணிப்புகள் எப்போது வரும்?', 'តើការទស្សន៍ទាយថ្មីចេញនៅពេលណា?'],
+    ['2 hours after a result if the next draw is the next day, 12 hours before a special draw, otherwise 24 hours. GD Lotto is always 2 hours.', '2 jam selepas keputusan jika cabutan seterusnya esok, 12 jam untuk cabutan khas, selain itu 24 jam. GD Lotto sentiasa 2 jam.', '若下一期在次日，则开奖后 2 小时发布；特别开奖为 12 小时；其余为 24 小时。GD Lotto 始终为 2 小时。', 'அடுத்த டிரா மறுநாள் என்றால் முடிவுக்கு 2 மணி நேரம் பிறகு; சிறப்பு டிரா என்றால் 12 மணி நேரம்; மற்றவை 24 மணி நேரம். GD Lotto எப்போதும் 2 மணி நேரம்.', '២ ម៉ោងក្រោយលទ្ធផល បើការចាប់ឆ្នោតបន្ទាប់នៅថ្ងៃស្អែក ១២ ម៉ោងសម្រាប់ការចាប់ឆ្នោតពិសេស បើមិនដូច្នោះ ២៤ ម៉ោង។ GD Lotto តែងតែ ២ ម៉ោង។'],
+  ],
+  [
+    ['Will a prediction win?', 'Adakah ramalan akan menang?', '预测一定会中吗？', 'கணிப்பு வெல்லுமா?', 'តើការទស្សន៍ទាយនឹងឈ្នះទេ?'],
+    ['No one can predict a lottery draw. Predictions are statistical guesses for entertainment and are never guaranteed. Past results do not affect future draws.', 'Tiada sesiapa dapat meramal cabutan loteri. Ramalan hanyalah andaian statistik untuk hiburan dan tidak dijamin. Keputusan lalu tidak mempengaruhi cabutan akan datang.', '没有人能预测彩票开奖。预测只是供娱乐的统计推测，不保证中奖。过去的结果不会影响未来的开奖。', 'லாட்டரி டிராவை யாராலும் கணிக்க முடியாது. கணிப்புகள் பொழுதுபோக்குக்கான புள்ளிவிவர ஊகங்கள், உத்தரவாதம் இல்லை. கடந்த முடிவுகள் எதிர்கால டிராவை பாதிக்காது.', 'គ្មានអ្នកណាអាចទស្សន៍ទាយការចាប់ឆ្នោតបានទេ។ ការទស្សន៍ទាយគ្រាន់តែជាការស្មានតាមស្ថិតិសម្រាប់កម្សាន្ត ហើយមិនមានការធានាទេ។ លទ្ធផលមុនមិនប៉ះពាល់ការចាប់ឆ្នោតអនាគតទេ។'],
+  ],
+  [
+    ['What do the circles, lines and "3-digit base" mean?', 'Apakah maksud bulatan, garisan dan "asas 3 digit"?', '圆圈、连线和“3 位基数”是什么意思？', 'வட்டங்கள், கோடுகள், "3 இலக்க அடிப்படை" என்றால் என்ன?', 'រង្វង់ ខ្សែ និង "មូលដ្ឋាន 3 ខ្ទង់" មានន័យយ៉ាងណា?'],
+    ['When a prediction wins, its number is circled. On the chart a coloured line shows the connected path (up, down, left, right) of the 3-digit base, and the extra digit is dashed. Each win has its own colour.', 'Apabila ramalan menang, nombornya dibulatkan. Pada carta, garisan berwarna menunjukkan laluan bersambung (atas, bawah, kiri, kanan) bagi asas 3 digit, dan digit tambahan bergaris putus. Setiap kemenangan ada warna sendiri.', '预测中奖时号码会被圈出。图表上的彩色线条显示 3 位基数的连线路径（上、下、左、右），额外数字用虚线圈。每次中奖使用不同颜色。', 'கணிப்பு வென்றால் அந்த எண் வட்டமிடப்படும். அட்டவணையில் 3 இலக்க அடிப்படையின் இணைந்த பாதை (மேல், கீழ், இடது, வலது) நிறக் கோடாகத் தெரியும்; கூடுதல் இலக்கம் புள்ளிக்கோட்டு வட்டத்தில். ஒவ்வொரு வெற்றிக்கும் தனி நிறம்.', 'នៅពេលការទស្សន៍ទាយឈ្នះ លេខត្រូវបានគូសរង្វង់។ លើតារាង ខ្សែពណ៌បង្ហាញផ្លូវតភ្ជាប់ (ឡើង ចុះ ឆ្វេង ស្តាំ) នៃមូលដ្ឋាន 3 ខ្ទង់ ហើយខ្ទង់បន្ថែមមានរង្វង់ដាច់ៗ។ ការឈ្នះនីមួយៗមានពណ៌ផ្សេងគ្នា។'],
+  ],
+  [
+    ['What does "Win" in History Predictions mean?', 'Apakah maksud "Win" dalam Sejarah Ramalan?', '“预测历史”中的 Win 是什么意思？', 'முந்தைய கணிப்புகளில் "Win" என்றால் என்ன?', '"Win" ក្នុងប្រវត្តិទស្សន៍ទាយមានន័យយ៉ាងណា?'],
+    ['It shows how many numbers of that day\'s prediction matched a prize in the real draw. The last 30 predictions are kept.', 'Ia menunjukkan berapa nombor ramalan hari itu sepadan dengan hadiah dalam cabutan sebenar. 30 ramalan terakhir disimpan.', '表示当天预测中有多少个号码在实际开奖中中奖。系统保留最近 30 期预测。', 'அந்த நாளின் கணிப்பில் எத்தனை எண்கள் உண்மையான டிராவில் பரிசு பெற்றன என்பதைக் காட்டும். கடைசி 30 கணிப்புகள் சேமிக்கப்படும்.', 'បង្ហាញថាលេខប៉ុន្មានក្នុងការទស្សន៍ទាយថ្ងៃនោះត្រូវនឹងរង្វាន់ក្នុងការចាប់ឆ្នោតពិតប្រាកដ។ រក្សាទុកការទស្សន៍ទាយ ៣០ ចុងក្រោយ។'],
+  ],
+  [
+    ['How do I post in Community?', 'Bagaimana saya menyiarkan dalam Komuniti?', '如何在社区发帖？', 'Community-ல் எப்படி பதிவிடுவது?', 'តើខ្ញុំបង្ហោះក្នុងសហគមន៍យ៉ាងដូចម្តេច?'],
+    ['Sign in, tap the + button and post your own picks. One post per day. You can edit once or delete until 2 hours before the draw.', 'Log masuk, ketik butang + dan siarkan pilihan anda sendiri. Satu siaran sehari. Anda boleh edit sekali atau padam sehingga 2 jam sebelum cabutan.', '登录后点击 + 按钮，发布你自己的选号。每天 1 条。开奖前 2 小时内可编辑一次或删除。', 'உள்நுழைந்து + பொத்தானைத் தொட்டு உங்கள் எண்களைப் பதிவிடுங்கள். ஒரு நாளுக்கு ஒரு பதிவு. டிராவுக்கு 2 மணி நேரம் முன் வரை ஒரு முறை திருத்தலாம் அல்லது நீக்கலாம்.', 'ចូលគណនី ចុចប៊ូតុង + ហើយបង្ហោះលេខរបស់អ្នក។ មួយថ្ងៃមួយប្រកាស។ អាចកែម្តង ឬលុបបានរហូតដល់ ២ ម៉ោងមុនការចាប់ឆ្នោត។'],
+  ],
+  [
+    ['What are Lucky Game, Mystery Boxes and the Scratch Card?', 'Apakah Lucky Game, Mystery Boxes dan Kad Calar?', '幸运游戏、神秘盒子和刮刮卡是什么？', 'Lucky Game, Mystery Boxes, Scratch Card என்றால் என்ன?', 'Lucky Game, Mystery Boxes និងកាតកោសជាអ្វី?'],
+    ['Pick a game, open 4 of the 15 Mystery Boxes and get a lucky number, saved to your Profile. The Scratch Card gives one more random number each day.', 'Pilih permainan, buka 4 daripada 15 Mystery Boxes dan dapatkan nombor bertuah, disimpan dalam Profil anda. Kad Calar memberi satu lagi nombor rawak setiap hari.', '选择游戏，从 15 个神秘盒子中打开 4 个，得到幸运号码并保存到个人资料。刮刮卡每天再送一个随机号码。', 'ஒரு விளையாட்டைத் தேர்ந்து 15 Mystery Boxes-ல் 4-ஐ திறந்து அதிர்ஷ்ட எண்ணைப் பெறுங்கள்; அது Profile-ல் சேமிக்கப்படும். Scratch Card தினமும் மேலும் ஒரு எண் தரும்.', 'ជ្រើសហ្គេម បើក 4 ក្នុងចំណោម 15 Mystery Boxes ហើយទទួលលេខសំណាង រក្សាទុកក្នុងប្រវត្តិរូប។ កាតកោសផ្តល់លេខចៃដន្យមួយទៀតរាល់ថ្ងៃ។'],
+  ],
+  [
+    ['What is the Voting Poll?', 'Apakah Voting Poll?', '投票是什么？', 'Voting Poll என்றால் என்ன?', 'Voting Poll ជាអ្វី?'],
+    ['Choose a game, vote your 4 digits (A, B, C, D) and then see which numbers other players picked most.', 'Pilih permainan, undi 4 digit anda (A, B, C, D) dan lihat nombor yang paling banyak dipilih pemain lain.', '选择游戏，投下你的 4 个数字（A、B、C、D），即可看到其他玩家最多选择的号码。', 'விளையாட்டைத் தேர்ந்து 4 இலக்கங்களை (A, B, C, D) வாக்களித்தால் மற்றவர்கள் அதிகம் தேர்ந்த எண்களைப் பார்க்கலாம்.', 'ជ្រើសហ្គេម បោះឆ្នោតលេខ 4 ខ្ទង់ (A, B, C, D) ហើយមើលលេខដែលអ្នកលេងផ្សេងជ្រើសច្រើនជាងគេ។'],
+  ],
+  [
+    ['Guest or signed in: what is the difference?', 'Tetamu atau log masuk: apakah bezanya?', '访客和登录有什么区别？', 'Guest மற்றும் உள்நுழைவு: என்ன வித்தியாசம்?', 'ភ្ញៀវ ឬចូលគណនី៖ ខុសគ្នាយ៉ាងណា?'],
+    ['Guests can view today\'s results and predictions. Sign in with Google to use Community, Lucky Game, Poll, search, analysis and your Profile.', 'Tetamu boleh melihat keputusan dan ramalan hari ini. Log masuk dengan Google untuk guna Komuniti, Lucky Game, Poll, carian, analisis dan Profil.', '访客只能查看今天的结果和预测。使用 Google 登录后可使用社区、幸运游戏、投票、搜索、分析和个人资料。', 'Guest-கள் இன்றைய முடிவுகள், கணிப்புகளை மட்டும் பார்க்கலாம். Google மூலம் உள்நுழைந்தால் Community, Lucky Game, Poll, தேடல், பகுப்பாய்வு, Profile பயன்படுத்தலாம்.', 'ភ្ញៀវអាចមើលលទ្ធផល និងការទស្សន៍ទាយថ្ងៃនេះ។ ចូលតាម Google ដើម្បីប្រើសហគមន៍ Lucky Game Poll ការស្វែងរក ការវិភាគ និងប្រវត្តិរូប។'],
+  ],
+  [
+    ['Who can use this app? What about age and local laws?', 'Siapa boleh guna aplikasi ini? Bagaimana dengan umur dan undang-undang tempatan?', '谁可以使用？年龄和当地法律如何？', 'இந்த செயலியை யார் பயன்படுத்தலாம்? வயது, உள்ளூர் சட்டம்?', 'អ្នកណាអាចប្រើកម្មវិធីនេះ? អាយុ និងច្បាប់ក្នុងស្រុកយ៉ាងណា?'],
+    ['You must be 18 or older. Lottery laws differ by country: in Malaysia and Singapore the age to buy lottery is 21, and Muslims in Malaysia are not allowed to buy it. You are responsible for following your local laws.', 'Anda mesti berumur 18 tahun ke atas. Undang-undang loteri berbeza mengikut negara: di Malaysia dan Singapura umur untuk membeli loteri ialah 21 tahun, dan orang Islam di Malaysia tidak dibenarkan membelinya. Anda bertanggungjawab mematuhi undang-undang tempatan.', '须年满 18 岁。各国彩票法律不同：马来西亚和新加坡购买彩票的年龄为 21 岁，马来西亚的穆斯林不得购买。请自行遵守当地法律。', '18 வயது அல்லது அதற்கு மேல் இருக்க வேண்டும். சட்டங்கள் நாட்டுக்கு நாடு வேறுபடும்: மலேசியா, சிங்கப்பூரில் லாட்டரி வாங்க 21 வயது; மலேசிய முஸ்லிம்கள் வாங்க அனுமதி இல்லை. உங்கள் ஊர் சட்டத்தைப் பின்பற்றுவது உங்கள் பொறுப்பு.', 'អ្នកត្រូវមានអាយុ 18 ឆ្នាំឡើង។ ច្បាប់ឆ្នោតខុសគ្នាតាមប្រទេស៖ នៅម៉ាឡេស៊ី និងសិង្ហបុរី អាយុទិញឆ្នោតគឺ 21 ឆ្នាំ ហើយអ្នកកាន់សាសនាឥស្លាមនៅម៉ាឡេស៊ីមិនត្រូវបានអនុញ្ញាតទិញឡើយ។ អ្នកទទួលខុសត្រូវក្នុងការគោរពច្បាប់ក្នុងស្រុក។'],
+  ],
+  [
+    ['How do I delete my posts, saved numbers or account?', 'Bagaimana memadam siaran, nombor tersimpan atau akaun saya?', '如何删除我的帖子、保存的号码或账号？', 'என் பதிவுகள், சேமித்த எண்கள், கணக்கை எப்படி நீக்குவது?', 'តើខ្ញុំលុបប្រកាស លេខដែលបានរក្សាទុក ឬគណនីយ៉ាងដូចម្តេច?'],
+    ['Go to Settings, then Delete my data. You can clear posts, saved predictions and saved lucky numbers separately, or delete your account.', 'Pergi ke Tetapan, kemudian Padam data saya. Anda boleh kosongkan siaran, ramalan tersimpan dan nombor bertuah tersimpan secara berasingan, atau padam akaun.', '进入设置，点击“删除我的数据”。可分别清除帖子、保存的预测和保存的幸运号码，也可删除账号。', 'Settings-ல் "Delete my data" செல்லுங்கள். பதிவுகள், சேமித்த கணிப்புகள், சேமித்த அதிர்ஷ்ட எண்களை தனித்தனியாக நீக்கலாம்; கணக்கையும் நீக்கலாம்.', 'ទៅការកំណត់ រួចចុច Delete my data។ អ្នកអាចលុបប្រកាស ការទស្សន៍ទាយដែលបានរក្សាទុក និងលេខសំណាងដែលបានរក្សាទុកដាច់ដោយឡែក ឬលុបគណនី។'],
+  ],
+];

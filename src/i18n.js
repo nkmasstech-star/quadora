@@ -304,6 +304,8 @@ const ROWS = [
   ["Delete my saved lucky numbers", "Padam nombor bertuah tersimpan saya", "删除我保存的幸运号码", "நான் சேமித்த அதிர்ஷ்ட எண்களை நீக்கு", "លុបលេខសំណាងដែលបានរក្សាទុក"],
   ["Delete all? This cannot be undone.", "Padam semua? Ini tidak boleh dibatalkan.", "全部删除？此操作无法撤销。", "அனைத்தையும் நீக்கவா? இதை திரும்பப் பெற முடியாது.", "លុបទាំងអស់? មិនអាចត្រឡប់វិញបានទេ។"],
   ["Deleted", "Dipadam", "已删除", "நீக்கப்பட்டது", "បានលុប"],
+  ['FAQ', 'Soalan Lazim', '常见问题', 'அடிக்கடி கேட்கப்படும் கேள்விகள்', 'សំណួរញឹកញាប់'],
+  ['More questions? Use Feedback in the menu.', 'Ada soalan lain? Guna Maklum balas dalam menu.', '还有问题？请使用菜单中的反馈。', 'மேலும் கேள்விகள்? மெனுவில் Feedback பயன்படுத்துங்கள்.', 'មានសំណួរបន្ថែម? សូមប្រើមតិកែលម្អក្នុងម៉ឺនុយ។'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],

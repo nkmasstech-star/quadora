@@ -8,6 +8,7 @@ export function Menu({ open, onClose, go, toast }) {
       <aside class="drawer" aria-label={t('Menu')}>
         <div class="drawer-head"><Logo size={40} /><div><div class="app-title" style="text-align:left;font-size:20px">Q Spot 4D</div><div class="tagline" style="text-align:left">{t('4D Analysis · Predictions · Results')}</div></div></div>
         <button class="drawer-item" onClick={() => { onClose(); go('/howto'); }}>{t('How to Play')}</button>
+        <button class="drawer-item" onClick={() => { onClose(); go('/faq'); }}>{t('FAQ')}</button>
         <button class="drawer-item" onClick={() => { onClose(); go('/feedback'); }}>{t('Feedback')}</button>
         <div class="drawer-sep" />
         <button class="drawer-item" onClick={() => { onClose(); go('/legal/privacy'); }}>{t('Privacy Policy')}</button>

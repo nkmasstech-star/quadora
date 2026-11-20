@@ -12,7 +12,8 @@ export const DOCS = {
       ['Results may contain errors', 'Results are collected from public sources and may be delayed, incomplete or wrong. Always check the official operator before you act on any result or claim any prize. We are not responsible for any loss caused by relying on results shown here.'],
       ['Your local laws', 'Lottery and gambling laws are different in every country and some places restrict or forbid them. You are responsible for following the laws where you live. The app is not an invitation to gamble anywhere gambling is not allowed.'],
       ['Age and responsibility', 'You must be 18 or older. The app is for entertainment only. Never spend money you cannot afford to lose.'],
-      ['Ads and links', 'The app may show ads. We do not control the ads or any website you reach from them and we do not endorse them.'],
+      ['Age and religion limits', 'In Malaysia and Singapore the legal age to buy lottery tickets is 21, and Muslims in Malaysia are not allowed to buy them. If this applies to you, please do not use the app to take part in any lottery. You are responsible for following the laws and rules that apply to you.'],
+      ['Ads and links', 'The app may show ads. We do not control the ads, the cookies or similar technology they use, or any website you reach from them, and we do not endorse them.'],
     ],
   },
   privacy: {
@@ -24,6 +25,7 @@ export const DOCS = {
       ['How we use it', 'To create and run your account, show your posts and profile to other players, work out winning percentages, check your saved numbers when results arrive, keep the community safe and improve the app. We never sell your personal data.'],
       ['What other players see', 'Your display name, avatar, posts, follower count and winning percentage. Your email is never shown to other players.'],
       ['Services we use', 'Sign-in, accounts and the community are provided by Google Firebase (Google LLC). Ads may be shown through Google AdMob, which may use the advertising ID of your device and similar technology. You can reset or limit the advertising ID in your Android settings. These services process data under their own privacy policies.'],
+      ['Ads', 'Ads are shown by Google AdMob and may be personalized, using your advertising ID and similar information. If you turn personalization off, you will still see ads, but they will not be based on your interests. We do not control third-party ads or the cookies and identifiers they use; please read the privacy policy of the ad provider.'],
       ['Where data is kept', 'Your data may be stored and processed on Google servers in other countries. We take reasonable steps to protect it, but no system is completely secure.'],
       ['How long we keep it', 'We keep your account data while your account is active. When you delete your account, your profile and posts are removed. Some records, such as safety reports, may be kept for a limited time where needed to protect the community or meet legal duties.'],
       ['Your choices and rights', 'You can change your name and avatar (within the limits shown in the app), and you can delete your account at any time in Settings. You can also ask us by email to access, correct or delete your data. We will reply within a reasonable time.'],

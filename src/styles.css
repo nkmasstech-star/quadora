@@ -728,3 +728,8 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .wstep b { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--rc); font-size: 14px; letter-spacing: 0; }
 .wstep em { font-style: normal; font-weight: 800; color: var(--rc); font-size: 16px; }
 .pd-lines { pointer-events: none; }
+
+/* faq */
+.faq-q{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-weight:700;line-height:1.4;cursor:pointer}
+.faq-chev{flex:none;font-size:20px;line-height:1;color:var(--accent,#C9A24B)}
+.faq-a{margin-top:8px;line-height:1.6;font-size:14px}
