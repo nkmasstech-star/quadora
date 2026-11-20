@@ -44,7 +44,7 @@ export function Login({ onGuest, onAuth, toast }) {
       </div>
 
       <div class="legal">
-        <p>{t('By continuing you agree to our')} <a href="#/legal/privacy" onClick={(e) => { e.preventDefault(); go('/legal/privacy'); }}>{t('Privacy Policy')}</a> {t('and')} <a href="#/legal/disclaimer" onClick={(e) => { e.preventDefault(); go('/legal/disclaimer'); }}>{t('Disclaimer')}</a>.</p>
+        <p>{t('By continuing you agree to our')} <a href="#/legal/privacy" onClick={(e) => { e.preventDefault(); go('/legal/privacy'); }}>{t('Privacy Policy')}</a>, <a href="#/legal/terms" onClick={(e) => { e.preventDefault(); go('/legal/terms'); }}>{t('Terms of Use')}</a> {t('and')} <a href="#/legal/disclaimer" onClick={(e) => { e.preventDefault(); go('/legal/disclaimer'); }}>{t('Disclaimer')}</a>.</p>
         <p style="color:var(--faint)">{t('For information and entertainment only. Q Spot 4D does not sell tickets or accept bets. 18+')}</p>
       </div>
     </div>

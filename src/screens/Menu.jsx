@@ -10,6 +10,7 @@ export function Menu({ open, onClose, go, toast }) {
         <button class="drawer-item" onClick={() => { onClose(); go('/howto'); }}>{t('How to Play')}</button>
         <div class="drawer-sep" />
         <button class="drawer-item" onClick={() => { onClose(); go('/legal/privacy'); }}>{t('Privacy Policy')}</button>
+        <button class="drawer-item" onClick={() => { onClose(); go('/legal/terms'); }}>{t('Terms of Use')}</button>
         <button class="drawer-item" onClick={() => { onClose(); go('/legal/disclaimer'); }}>{t('Disclaimer')}</button>
         <button class="drawer-item" onClick={() => { onClose(); toast(t('Share is coming soon')); }}>{t('Share the app')}</button>
         <button class="drawer-item" onClick={() => { onClose(); toast(t('Rating opens after launch')); }}>{t('Rate the app')}</button>

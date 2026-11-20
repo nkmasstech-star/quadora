@@ -16,6 +16,7 @@ export function Agree({ onAccept }) {
       <div class="seg" style="margin:12px 0 10px">
         <button type="button" class={tab === 'disclaimer' ? 'on' : ''} onClick={() => setTab('disclaimer')}>{t('Disclaimer')}</button>
         <button type="button" class={tab === 'privacy' ? 'on' : ''} onClick={() => setTab('privacy')}>{t('Privacy Policy')}</button>
+        <button type="button" class={tab === 'terms' ? 'on' : ''} onClick={() => setTab('terms')}>{t('Terms')}</button>
       </div>
       <div class="agree-doc pcard">
         {d.body.map(([h, p]) => (
@@ -24,7 +25,7 @@ export function Agree({ onAccept }) {
       </div>
       <label class="switch agree-check">
         <input type="checkbox" checked={ok} onChange={(e) => setOk(e.currentTarget.checked)} />
-        {t('I am 18 or older and I have read and agree to the Disclaimer and Privacy Policy.')}
+        {t('I am 18 or older and I agree to the Disclaimer, Privacy Policy and Terms of Use.')}
       </label>
       <button class="btn" disabled={!ok} onClick={onAccept}>{t('Agree and continue')}</button>
       <button class="btn text" onClick={decline}>{t('Decline and exit')}</button>

@@ -153,3 +153,25 @@ export function userInfo(id, me) {
   if (me && me.uid === id) return me;
   return { uid: id, name: 'Player', avatar: 0 };
 }
+
+// ---- reports and blocks (test layer; Firebase + Admin page later) ----
+export const REPORT_REASONS = ['Spam or advertising', 'Abuse or hate', 'Scam or false claim', 'Adult or inappropriate content', 'Other'];
+export const HIDE_AT = 3; // a post with this many reports is hidden until reviewed
+export const allReports = () => read('qd_reports', []);
+export function reportPost(uid, postId, reason) {
+  const l = allReports();
+  if (l.some((r) => r.postId === postId && r.by === uid)) return false;
+  l.push({ id: `r${Date.now().toString(36)}`, postId, by: uid, reason, at: Date.now() });
+  write('qd_reports', l);
+  return true;
+}
+export const reportCount = (postId) => allReports().filter((r) => r.postId === postId).length;
+export const blockedOf = (uid) => read(`qd_blocks_${uid}`, []);
+export function toggleBlock(me, target) {
+  const l = blockedOf(me); const i = l.indexOf(target);
+  if (i >= 0) l.splice(i, 1); else l.push(target);
+  write(`qd_blocks_${me}`, l);
+  return i < 0;
+}
+// posts the viewer should see: no blocked players, no posts hidden by reports (own posts always shown)
+export const visiblePosts = (list, me) => list.filter((p) => !me || p.uid === me.uid || (!blockedOf(me.uid).includes(p.uid) && reportCount(p.id) < HIDE_AT));

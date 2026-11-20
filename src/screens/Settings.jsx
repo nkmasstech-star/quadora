@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks';
 import { totalDraws } from '../data/store.js';
 import { IconChevron } from '../icons.jsx';
-import { BackBar } from '../ui.jsx';
+import { BackBar, Sheet } from '../ui.jsx';
+import { blockedOf, toggleBlock, userInfo } from '../data/community.js';
 import { go } from '../App.jsx';
 import { t, LANGS, getLang } from '../i18n.js';
 import { APP_NAME } from '../config.js';
@@ -17,6 +18,8 @@ const THEMES = [
 export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDelete, onRefresh, toast }) {
   const [confirmDel, setConfirmDel] = useState(false);
   const [notif, setN] = useState(notifOn());
+  const [blkOpen, setBlkOpen] = useState(false);
+  const [, tick] = useState(0);
   const updated = data.results && data.results.updated ? data.results.updated.slice(0, 16).replace('T', ' ') : t('No update yet');
   return (
     <div>
@@ -66,6 +69,7 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
       <div class="rows">
         {user ? (
           <div>
+            <button class="row" onClick={() => setBlkOpen(true)}><span style="flex:1">{t('Blocked players')}</span><span class="meta">{blockedOf(user.uid).length}</span><span class="chev"><IconChevron /></span></button>
             <div class="row"><span style="flex:1">{t('Signed in as')}</span><span class="meta">{user.email}</span></div>
             <button class="row" onClick={onLogOut}><span style="flex:1">{t('Log out')}</span></button>
             {!confirmDel && <button class="row" onClick={() => setConfirmDel(true)}><span style="flex:1;color:#E5484D;font-weight:600">{t('Delete my account')}</span></button>}
@@ -80,6 +84,14 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
           <button class="row" onClick={() => go('/login')}><span style="flex:1;color:var(--gold-text);font-weight:700">{t('Log in or sign up')}</span></button>
         )}
       </div>
+      {blkOpen && user && (
+        <Sheet title={t('Blocked players')} onClose={() => setBlkOpen(false)}>
+          {blockedOf(user.uid).length === 0 && <div class="empty">{t('You have not blocked anyone.')}</div>}
+          {blockedOf(user.uid).map((id) => (
+            <div key={id} class="row"><span style="flex:1">{userInfo(id, user).name}</span><button class="chip-btn small" onClick={() => { toggleBlock(user.uid, id); tick((n) => n + 1); }}>{t('Unblock')}</button></div>
+          ))}
+        </Sheet>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
-// App-wide constants. Fill CONTACT_EMAIL before the Play Store release.
+// App-wide constants.
 export const APP_NAME = 'Q Spot 4D';
-export const CONTACT_EMAIL = 'support@qspot4d.app';
+export const CONTACT_EMAIL = 'nkmasstech@gmail.com';
 export const EDIT_BEFORE_HOURS = 2; // posts can be edited/deleted until this many hours before the draw starts
 export const FOLLOW_MIN_DRAWS = 4; // winning % shows after this many checked posts
 export const MIN_AGE = 18;
@@ -17,3 +17,6 @@ export const DRAW_TIMES = {
   singapore: { h: 18, m: 30, utc: 8 },
   gdlotto: { h: 19, m: 15, utc: 7 },
 };
+export const PUBLISHER = 'Nehru Karupaiya';
+export const GOVERNING_LAW = 'India';
+export const LEGAL_UPDATED = '20 November 2026';

@@ -6,7 +6,7 @@ import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
 import { Avatar } from '../avatars.jsx';
 import { IconHeart, IconBookmark, IconShare } from '../icons.jsx';
-import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost } from '../data/community.js';
+import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts } from '../data/community.js';
 
 const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto');
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
@@ -14,6 +14,19 @@ const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 
 export function WinBadge({ stats }) {
   if (stats.pct == null) return <span class="win new">{t('New')}</span>;
   return <span class="win">{stats.pct}% {t('wins')}</span>;
+}
+
+function ReportSheet({ p, me, name, onClose, onChange, toast }) {
+  const blocked = blockedOf(me.uid).includes(p.uid);
+  return (
+    <Sheet title={t('Report or block')} onClose={onClose}>
+      <div class="meta" style="margin-bottom:8px">{t('Why are you reporting this post?')}</div>
+      {REPORT_REASONS.map((r) => (
+        <button key={r} class="row" onClick={() => { reportPost(me.uid, p.id, r); toast(t('Thanks. We will review this post.')); onChange(); onClose(); }}><span style="flex:1;text-align:left">{t(r)}</span></button>
+      ))}
+      <button class="btn ghost" style="margin-top:12px" onClick={() => { const on = toggleBlock(me.uid, p.uid); toast(on ? t('{n} is blocked', { n: name }) : t('{n} is unblocked', { n: name })); onChange(); onClose(); }}>{blocked ? t('Unblock {n}', { n: name }) : t('Block {n}', { n: name })}</button>
+    </Sheet>
+  );
 }
 
 export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideActions, hideFollow }) {
@@ -28,6 +41,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
     const text = `${u.name}: ${p.picks.map((k) => `${(gameById(k.game) || {}).name} (${k.format}) ${k.sets.join(' ')}`).join(' | ')}\nvia Q Spot 4D`;
     try { if (navigator.share) await navigator.share({ text }); else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Copied')); } } catch (e) { /* cancelled */ }
   };
+  const [rep, setRep] = useState(false);
   const editable = mine && canEdit(p, me.uid);
   const deletable = mine && canDelete(p, me.uid);
   return (
@@ -36,9 +50,9 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
         <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)} aria-label={u.name}><Avatar id={u.avatar} size={44} /></button>
         <span style="flex:1;min-width:0">
           <button class="plain-btn name-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)}>{u.name}</button>
-          <span class="meta" style="display:block">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}</span>
+          <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}<WinBadge stats={stats} /></span>
         </span>
-        <WinBadge stats={stats} />
+        {!mine && me && <button class="plain-btn more-btn" aria-label={t('Report or block')} onClick={() => setRep(true)}>⋯</button>}
         {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { toggleFollow(me.uid, p.uid); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 
@@ -65,6 +79,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
           {deletable && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Delete this post?'))) { deletePost(p.id); onChange(); toast(t('Post deleted')); } }}>{t('Delete')}</button>}
         </div>
       )}
+      {rep && <ReportSheet p={p} me={me} name={u.name} onClose={() => setRep(false)} onChange={onChange} toast={toast} />}
     </div>
   );
 }
@@ -146,7 +161,7 @@ export function Community({ user, data, toast }) {
   if (!user) return (<div><AppBar title={t('Community')} tagline={t('Share your predictions')} go={go} /><Locked onLogin={() => go('/login')} text={t('Log in to share predictions and follow other players. Guests can still view results and predictions.')} /></div>);
   if (data.status === 'loading' && !data.results) return <Loading />;
 
-  const fresh = allPosts(results);
+  const fresh = visiblePosts(allPosts(results), user);
   const following = followingOf(user.uid);
   const shown = fresh.filter((p) => (tab === 'all' ? true : following.includes(p.uid)));
   const done = postedToday(user.uid);

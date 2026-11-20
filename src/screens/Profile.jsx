@@ -7,7 +7,7 @@ import { Avatar, AVATAR_THEMES } from '../avatars.jsx';
 import { setAvatar, renameUser, validName } from '../data/account.js';
 import { NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
 import { gameById, fmtShort } from '../data/games.js';
-import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, delLucky, delPick, evalEntry } from '../data/community.js';
+import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, delLucky, delPick, evalEntry, visiblePosts } from '../data/community.js';
 import { PostCard, WinBadge, Composer } from './Community.jsx';
 
 function AvatarPicker({ current, onPick, onClose, left }) {
@@ -89,7 +89,7 @@ export function Profile({ user, uid, data, toast, onUser }) {
   const tabs = own ? [['posts', 'Posts'], ['saved', 'Saved'], ['lucky', 'Lucky'], ['picks', 'My picks']] : [['posts', 'Posts']];
   let body = null;
   if (tab === 'posts') {
-    const posts = userPosts(id, results);
+    const posts = visiblePosts(userPosts(id, results), user);
     body = posts.length === 0 ? <Panel><div class="empty">{t('No posts yet.')}</div></Panel> : posts.slice(0, 30).map((p) => <PostCard key={p.id} p={p} me={user} results={results} stats={st} onChange={refresh} toast={toast} hideActions hideFollow />);
   } else if (tab === 'saved') {
     const l = savedPosts(user.uid, results);

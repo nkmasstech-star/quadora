@@ -634,3 +634,5 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .hit, .acard, .row, .pd-win-row { min-width: 0; }
 .atext, .hit > span { min-width: 0; overflow-wrap: anywhere; }
 .btn { white-space: normal; }
+
+.more-btn { font-size: 22px; line-height: 1; padding: 4px 8px; color: var(--muted); font-weight: 700; }
