@@ -6,7 +6,7 @@ import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
 import { Avatar } from '../avatars.jsx';
 import { IconHeart, IconBookmark, IconShare } from '../icons.jsx';
-import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts } from '../data/community.js';
+import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts, hidePost } from '../data/community.js';
 
 const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto');
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
@@ -16,16 +16,30 @@ export function WinBadge({ stats }) {
   return <span class="win">{stats.pct}% {t('wins')}</span>;
 }
 
-function ReportSheet({ p, me, name, onClose, onChange, toast }) {
-  const blocked = blockedOf(me.uid).includes(p.uid);
+function ReportSheet({ p, me, onClose, onChange, toast }) {
   return (
-    <Sheet title={t('Report or block')} onClose={onClose}>
+    <Sheet title={t('Report this post')} onClose={onClose}>
       <div class="meta" style="margin-bottom:8px">{t('Why are you reporting this post?')}</div>
       {REPORT_REASONS.map((r) => (
         <button key={r} class="row" onClick={() => { reportPost(me.uid, p.id, r); toast(t('Thanks. We will review this post.')); onChange(); onClose(); }}><span style="flex:1;text-align:left">{t(r)}</span></button>
       ))}
-      <button class="btn ghost" style="margin-top:12px" onClick={() => { const on = toggleBlock(me.uid, p.uid); toast(on ? t('{n} is blocked', { n: name }) : t('{n} is unblocked', { n: name })); onChange(); onClose(); }}>{blocked ? t('Unblock {n}', { n: name }) : t('Block {n}', { n: name })}</button>
     </Sheet>
+  );
+}
+
+function PostMenu({ p, me, name, onClose, onReport, onChange, toast }) {
+  const blocked = blockedOf(me.uid).includes(p.uid);
+  const copy = async () => { try { await navigator.clipboard.writeText(p.picks.map((k) => k.sets.join(' ')).join(' ')); toast(t('Copied')); } catch (e) { /* ignore */ } onClose(); };
+  return (
+    <div>
+      {createPortal(<div class="menu-scrim" onClick={onClose} />, document.body)}
+      <div class="post-menu" role="menu">
+        <button role="menuitem" onClick={copy}>{t('Copy numbers')}</button>
+        <button role="menuitem" onClick={() => { hidePost(me.uid, p.id); toast(t('Post hidden')); onChange(); onClose(); }}>{t('Hide this post')}</button>
+        <button role="menuitem" onClick={() => { onClose(); onReport(); }}>{t('Report post')}</button>
+        <button role="menuitem" class="danger" onClick={() => { const on = toggleBlock(me.uid, p.uid); toast(on ? t('{n} is blocked', { n: name }) : t('{n} is unblocked', { n: name })); onChange(); onClose(); }}>{blocked ? t('Unblock {n}', { n: name }) : t('Block {n}', { n: name })}</button>
+      </div>
+    </div>
   );
 }
 
@@ -42,6 +56,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
     try { if (navigator.share) await navigator.share({ text }); else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Copied')); } } catch (e) { /* cancelled */ }
   };
   const [rep, setRep] = useState(false);
+  const [menu, setMenu] = useState(!!(import.meta.env.DEV && location.search.includes('pdots') && !mine && p.uid === 's-kumar'));
   const editable = mine && canEdit(p, me.uid);
   const deletable = mine && canDelete(p, me.uid);
   return (
@@ -52,7 +67,8 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
           <button class="plain-btn name-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)}>{u.name}</button>
           <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}<WinBadge stats={stats} /></span>
         </span>
-        {!mine && me && <button class="plain-btn more-btn" aria-label={t('Report or block')} onClick={() => setRep(true)}>⋯</button>}
+        {!mine && me && <button class="plain-btn more-btn" aria-label={t('More options')} aria-haspopup="menu" onClick={() => setMenu(true)}>⋯</button>}
+        {menu && <PostMenu p={p} me={me} name={u.name} onClose={() => setMenu(false)} onReport={() => setRep(true)} onChange={onChange} toast={toast} />}
         {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { toggleFollow(me.uid, p.uid); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 
@@ -79,7 +95,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
           {deletable && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Delete this post?'))) { deletePost(p.id); onChange(); toast(t('Post deleted')); } }}>{t('Delete')}</button>}
         </div>
       )}
-      {rep && <ReportSheet p={p} me={me} name={u.name} onClose={() => setRep(false)} onChange={onChange} toast={toast} />}
+      {rep && <ReportSheet p={p} me={me} onClose={() => setRep(false)} onChange={onChange} toast={toast} />}
     </div>
   );
 }

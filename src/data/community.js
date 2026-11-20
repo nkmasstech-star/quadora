@@ -174,4 +174,6 @@ export function toggleBlock(me, target) {
   return i < 0;
 }
 // posts the viewer should see: no blocked players, no posts hidden by reports (own posts always shown)
-export const visiblePosts = (list, me) => list.filter((p) => !me || p.uid === me.uid || (!blockedOf(me.uid).includes(p.uid) && reportCount(p.id) < HIDE_AT));
+export const hiddenOf = (uid) => read(`qd_hide_${uid}`, []);
+export function hidePost(uid, postId) { const l = hiddenOf(uid); if (!l.includes(postId)) l.push(postId); write(`qd_hide_${uid}`, l); }
+export const visiblePosts = (list, me) => list.filter((p) => !me || (p.uid === me.uid) || (!blockedOf(me.uid).includes(p.uid) && reportCount(p.id) < HIDE_AT && !hiddenOf(me.uid).includes(p.id)));

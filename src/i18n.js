@@ -236,6 +236,12 @@ const ROWS = [
   ['Unblock', 'Nyahsekat', '取消屏蔽', 'தடை நீக்கு', 'ដោះការរារាំង'],
   ['Blocked players', 'Pemain disekat', '已屏蔽的玩家', 'தடுக்கப்பட்ட வீரர்கள்', 'អ្នកលេងដែលត្រូវបានរារាំង'],
   ['You have not blocked anyone.', 'Anda belum menyekat sesiapa.', '你还没有屏蔽任何人。', 'நீங்கள் யாரையும் தடுக்கவில்லை.', 'អ្នកមិនទាន់បានរារាំងអ្នកណាទេ។'],
+  ['Report this post', 'Laporkan hantaran ini', '举报这条帖子', 'இந்தப் பதிவை புகார் செய்', 'រាយការណ៍ប្រកាសនេះ'],
+  ['More options', 'Lebih banyak pilihan', '更多选项', 'மேலும் விருப்பங்கள்', 'ជម្រើសបន្ថែម'],
+  ['Copy numbers', 'Salin nombor', '复制号码', 'எண்களை நகலெடு', 'ចម្លងលេខ'],
+  ['Hide this post', 'Sembunyikan hantaran ini', '隐藏这条帖子', 'இந்தப் பதிவை மறை', 'លាក់ប្រកាសនេះ'],
+  ['Post hidden', 'Hantaran disembunyikan', '帖子已隐藏', 'பதிவு மறைக்கப்பட்டது', 'បានលាក់ប្រកាស'],
+  ['Report post', 'Laporkan hantaran', '举报帖子', 'பதிவை புகார் செய்', 'រាយការណ៍ប្រកាស'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],
