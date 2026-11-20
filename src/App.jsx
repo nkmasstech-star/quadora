@@ -23,7 +23,7 @@ import { Profile } from './screens/Profile.jsx';
 import { Settings } from './screens/Settings.jsx';
 import { HowTo } from './screens/HowTo.jsx';
 import { Faq } from './screens/Faq.jsx';
-import { StraightList, StraightChart } from './screens/Straight.jsx';
+import { StraightList, StraightChart, StraightHistoryPage } from './screens/Straight.jsx';
 import { Feedback } from './screens/Feedback.jsx';
 import { Splash } from './screens/Splash.jsx';
 import { Agree } from './screens/Agree.jsx';
@@ -127,7 +127,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/faq' || location.hash.startsWith('#/straight') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/faq' || location.hash.startsWith('#/straight') || location.hash.startsWith('#/straighthist') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -169,6 +169,7 @@ export function App() {
   else if (seg[0] === 'predhist') { screen = <PredHistoryPage data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'feedback') { screen = <Feedback user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'howto') { screen = <HowTo />; nav = false; }
+  else if (seg[0] === 'straighthist') { screen = <StraightHistoryPage data={data} gameId={seg[1]} />; nav = false; }
   else if (seg[0] === 'straight') { screen = seg[1] ? <StraightChart data={data} gameId={seg[1]} /> : <StraightList data={data} />; nav = false; }
   else if (seg[0] === 'faq') { screen = <Faq />; nav = false; }
   else if (seg[0] === 'poll') { screen = <Poll user={user} toast={showToast} />; nav = false; }

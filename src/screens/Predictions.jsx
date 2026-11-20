@@ -122,7 +122,6 @@ function PredBody({ p, copy, g, label, wins = [] }) {
   const impWon = (set) => impIdx(set) >= 0;
   return (
     <div class="pd-sheet">
-      <div class="pd-brandtop"><Logo size={28} /><span>Q Spot <em>4D</em> {t('Predictions')}</span></div>
       <div class="pd-band date">{label}</div>
       <div class="pd-band title">{g.name.toUpperCase()}</div>
       {p.important3 && p.important3.length > 0 && (
@@ -133,7 +132,7 @@ function PredBody({ p, copy, g, label, wins = [] }) {
           </div>
         </div>
       )}
-      {p.chart && p.chart.length > 0 && <div class="pd-chart-bg"><ChartCard p={p} g={g} /></div>}
+      {p.chart && p.chart.length > 0 && <div><div class="pd-brandtop"><Logo size={28} /><span>Q Spot <em>4D</em> {t('Predictions')}</span></div><div class="pd-chart-bg"><ChartCard p={p} g={g} /></div></div>}
       {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} class={wonN.has(n) ? 'ring' : ''} style={wonN.has(n) ? `--rc:${colorOf['4D' + n]}` : undefined} onClick={() => copy(n)}><span>{n}</span></button>)}</div>}
       {p.top3 && p.top3.length > 0 && (
         <div class="pd-top">

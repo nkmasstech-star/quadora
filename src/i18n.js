@@ -309,6 +309,8 @@ const ROWS = [
   ['Straight Predictions', 'Ramalan Straight', '直选预测', 'ஸ்ட்ரெயிட் கணிப்புகள்', 'ការទស្សន៍ទាយ Straight'],
   ['Top 7 digits', '7 digit teratas', '前7位数字', 'முதல் 7 இலக்கங்கள்', 'ខ្ទង់កំពូល 7'],
   ['Straight chart uses the top 7 digits of the history analysis. Guesses only, not guaranteed.', 'Carta Straight menggunakan 7 digit teratas daripada analisis sejarah. Hanya andaian, tidak dijamin.', '直选图表使用历史分析中最常出现的7个数字，仅为推测，不保证中奖。', 'ஸ்ட்ரெயிட் அட்டவணை வரலாற்று பகுப்பாய்வின் முதல் 7 இலக்கங்களைப் பயன்படுத்துகிறது. ஊகம் மட்டுமே, உத்தரவாதம் இல்லை.', 'តារាង Straight ប្រើខ្ទង់កំពូល 7 ពីការវិភាគប្រវត្តិ។ ជាការស្មានតែប៉ុណ្ណោះ មិនមានការធានាទេ។'],
+  ['History Straight Charts', 'Carta Straight Sejarah', '直选历史图表', 'முந்தைய ஸ்ட்ரெயிட் அட்டவணைகள்', 'តារាង Straight ប្រវត្តិ'],
+  ['Read aloud', 'Baca dengan kuat', '朗读', 'சத்தமாக வாசி', 'អានឮៗ'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],
