@@ -66,13 +66,7 @@ export function InterstitialHost() {
   const [left, setLeft] = useState(3);
   useEffect(() => {
     if (NATIVE) {
-      // real ads: one bottom banner + full-screen ad on request
-      initAdMob().then(async (ok) => {
-        if (!ok) return;
-        try {
-          await admob.AdMob.showBanner({ adId: ADMOB_BANNER_ID, adSize: admob.BannerAdSize.ADAPTIVE_BANNER, position: admob.BannerAdPosition.BOTTOM_CENTER, margin: 64, isTesting: AD_TEST });
-        } catch (e) { /* no banner */ }
-      });
+      // real ads: full-screen ad on request (the banner is handled by BannerHost, only on result pages)
       listener = (done) => {
         initAdMob().then(async (ok) => {
           if (!ok) { done(); return; }
@@ -108,4 +102,23 @@ export function InterstitialHost() {
     </div>,
     document.body,
   );
+}
+
+// Native banner: only on a game's Results page (never Singapore), never on other screens. No bottom nav there, so nothing overlaps.
+export function BannerHost({ path }) {
+  const m = /^\/game\/([^/?#]+)/.exec(path || '');
+  const want = !!m && m[1] !== 'singapore';
+  useEffect(() => {
+    if (!NATIVE) return undefined;
+    let dead = false;
+    initAdMob().then(async (ok) => {
+      if (!ok || dead) return;
+      try {
+        if (want) await admob.AdMob.showBanner({ adId: ADMOB_BANNER_ID, adSize: admob.BannerAdSize.ADAPTIVE_BANNER, position: admob.BannerAdPosition.BOTTOM_CENTER, margin: 0, isTesting: AD_TEST });
+        else await admob.AdMob.removeBanner();
+      } catch (e) { /* ignore */ }
+    });
+    return () => { dead = true; };
+  }, [want]);
+  return null;
 }

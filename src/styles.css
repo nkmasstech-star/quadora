@@ -51,7 +51,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 
 .app { min-height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
 .screen { padding: calc(var(--safe-top) + 18px) 18px calc(96px + var(--safe-bottom)); }
-.screen.no-nav { padding-bottom: calc(28px + var(--safe-bottom)); }
+.screen.no-nav { padding-bottom: calc(90px + var(--safe-bottom)); }
 
 /* header */
 .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
