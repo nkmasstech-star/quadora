@@ -11,7 +11,7 @@ export const DOCS = {
       ['Not affiliated', `${APP_NAME} is an independent app published by ${PUBLISHER}. It is not affiliated with, endorsed by, sponsored by or connected to Magnum, Sports Toto, Da Ma Cai, Singapore Pools, Grand Dragon Lotto or any other lottery operator. All names and trademarks belong to their owners and are used only to describe the draws.`],
       ['Results may contain errors', 'Results are collected from public sources and may be delayed, incomplete or wrong. Always check the official operator before you act on any result or claim any prize. We are not responsible for any loss caused by relying on results shown here.'],
       ['Your local laws', 'Lottery and gambling laws are different in every country and some places restrict or forbid them. You are responsible for following the laws where you live. The app is not an invitation to gamble anywhere gambling is not allowed.'],
-      ['Age and responsible play', 'You must be 18 or older. Gambling can be addictive. Never spend money you cannot afford to lose and never chase losses. If gambling is a problem for you or someone you know, please talk to someone you trust and contact a gambling support service in your country.'],
+      ['Age and responsibility', 'You must be 18 or older. The app is for entertainment only. Never spend money you cannot afford to lose.'],
       ['Ads and links', 'The app may show ads. We do not control the ads or any website you reach from them and we do not endorse them.'],
     ],
   },

@@ -639,7 +639,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
 
 .post-top { position: relative; }
 .menu-scrim { position: fixed; inset: 0; z-index: 90; background: transparent; }
-.post-menu { position: absolute; right: 0; top: 40px; z-index: 91; min-width: 190px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; box-shadow: 0 14px 30px rgba(0,0,0,.28); padding: 6px; animation: pop .18s var(--ease) both; transform-origin: top right; }
+.post-menu { position: fixed; z-index: 91; min-width: 190px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; box-shadow: 0 14px 30px rgba(0,0,0,.28); padding: 6px; animation: pop .18s var(--ease) both; transform-origin: top right; }
 .post-menu button { display: block; width: 100%; text-align: left; padding: 11px 12px; border-radius: 10px; font-size: 14.5px; font-weight: 600; }
 .post-menu button + button { border-top: 1px solid var(--border); }
 .post-menu button.danger { color: #E5484D; }

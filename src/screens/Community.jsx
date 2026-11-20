@@ -27,19 +27,20 @@ function ReportSheet({ p, me, onClose, onChange, toast }) {
   );
 }
 
-function PostMenu({ p, me, name, onClose, onReport, onChange, toast }) {
+function PostMenu({ p, me, name, anchor, onClose, onReport, onChange, toast }) {
   const blocked = blockedOf(me.uid).includes(p.uid);
   const copy = async () => { try { await navigator.clipboard.writeText(p.picks.map((k) => k.sets.join(' ')).join(' ')); toast(t('Copied')); } catch (e) { /* ignore */ } onClose(); };
   return (
+    createPortal(
     <div>
-      {createPortal(<div class="menu-scrim" onClick={onClose} />, document.body)}
-      <div class="post-menu" role="menu">
+      <div class="menu-scrim" onClick={onClose} />
+      <div class="post-menu" role="menu" style={`top:${Math.round(anchor.bottom + 6)}px;right:${Math.max(8, Math.round(window.innerWidth - anchor.right))}px`}>
         <button role="menuitem" onClick={copy}>{t('Copy numbers')}</button>
         <button role="menuitem" onClick={() => { hidePost(me.uid, p.id); toast(t('Post hidden')); onChange(); onClose(); }}>{t('Hide this post')}</button>
         <button role="menuitem" onClick={() => { onClose(); onReport(); }}>{t('Report post')}</button>
         <button role="menuitem" class="danger" onClick={() => { const on = toggleBlock(me.uid, p.uid); toast(on ? t('{n} is blocked', { n: name }) : t('{n} is unblocked', { n: name })); onChange(); onClose(); }}>{blocked ? t('Unblock {n}', { n: name }) : t('Block {n}', { n: name })}</button>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 
@@ -56,7 +57,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
     try { if (navigator.share) await navigator.share({ text }); else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Copied')); } } catch (e) { /* cancelled */ }
   };
   const [rep, setRep] = useState(false);
-  const [menu, setMenu] = useState(!!(import.meta.env.DEV && location.search.includes('pdots') && !mine && p.uid === 's-kumar'));
+  const [menu, setMenu] = useState(null);
   const editable = mine && canEdit(p, me.uid);
   const deletable = mine && canDelete(p, me.uid);
   return (
@@ -67,8 +68,8 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
           <button class="plain-btn name-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)}>{u.name}</button>
           <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}<WinBadge stats={stats} /></span>
         </span>
-        {!mine && me && <button class="plain-btn more-btn" aria-label={t('More options')} aria-haspopup="menu" onClick={() => setMenu(true)}>⋯</button>}
-        {menu && <PostMenu p={p} me={me} name={u.name} onClose={() => setMenu(false)} onReport={() => setRep(true)} onChange={onChange} toast={toast} />}
+        {!mine && me && <button class="plain-btn more-btn" aria-label={t('More options')} aria-haspopup="menu" onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}>⋯</button>}
+        {menu && <PostMenu p={p} me={me} name={u.name} anchor={menu} onClose={() => setMenu(null)} onReport={() => setRep(true)} onChange={onChange} toast={toast} />}
         {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { toggleFollow(me.uid, p.uid); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 

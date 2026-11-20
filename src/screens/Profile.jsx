@@ -39,7 +39,7 @@ function NameSheet({ user, onClose, onDone, toast }) {
   return (
     <Sheet title={t('Edit name')} onClose={onClose}>
       <div class="meta" style="margin-bottom:8px;line-height:1.5">{t('Letters only, up to {n} characters. No numbers, emoji or symbols. Changes left: {c}', { n: NAME_MAX, c: left })}</div>
-      <input class="input" value={v} maxLength={NAME_MAX} autocomplete="off" onInput={(e) => setV(e.currentTarget.value.replace(/[^\p{L}\p{M} ]/gu, '').slice(0, NAME_MAX))} />
+      <input class="input" value={v} maxLength={NAME_MAX} autocomplete="off" onInput={(e) => { const c = e.currentTarget.value.replace(/[^\p{L}\p{M} ]/gu, '').slice(0, NAME_MAX); e.currentTarget.value = c; setV(c); }} />
       <div class="meta" style="text-align:right;font-size:12px;margin:4px 2px 10px">{v.length}/{NAME_MAX}</div>
       {err && <div class="form-err" role="alert">{t(err)}</div>}
       <button class="btn" disabled={left <= 0 || !validName(v.trim()) || v.trim() === user.name} onClick={save}>{t('Save name')}</button>
