@@ -643,3 +643,43 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .post-menu button { display: block; width: 100%; text-align: left; padding: 11px 12px; border-radius: 10px; font-size: 14.5px; font-weight: 600; }
 .post-menu button + button { border-top: 1px solid var(--border); }
 .post-menu button.danger { color: #E5484D; }
+
+/* ads (test placeholders) */
+.adslot { display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 10px 12px; min-height: 58px; border-radius: 18px; background: var(--surface); border: 1px dashed var(--border-strong); }
+.adslot .adtag { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 10.5px; font-weight: 700; }
+.adslot .adbody { min-width: 0; display: grid; gap: 1px; }
+.adslot .adbody b { font-size: 14px; }
+.adslot .adbody small { color: var(--muted); font-size: 12px; }
+.adslot.native { min-height: 96px; margin: 12px 0; border-style: solid; }
+.acards .adslot { margin: 0; }
+
+/* two half cards on Predictions */
+.cardrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 12px; }
+.cardrow .lucky-card { margin: 0; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; }
+.cardrow .lucky-card .atext { display: grid; gap: 2px; min-width: 0; }
+.cardrow .lucky-card .atext b { font-size: 14.5px; }
+.cardrow .lucky-card .atext small { font-size: 11.5px; line-height: 1.35; }
+.cardrow .lucky-card .chev { display: none; }
+
+/* voting poll */
+.pollboxes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.pbox { display: grid; place-items: center; gap: 0; padding: 8px 0; border-radius: 16px; background: var(--surface-2); border: 1.5px solid var(--border-strong); }
+.pbox small { color: var(--muted); font-size: 11px; font-weight: 700; }
+.pbox b { font-family: 'Space Grotesk', sans-serif; font-size: 34px; line-height: 1.1; }
+.pbox.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.keypad { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.key { height: 46px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border-strong); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; }
+.pollmine { display: flex; justify-content: center; gap: 10px; margin: 10px 0 14px; }
+.pollmine span { width: 54px; height: 62px; display: grid; place-items: center; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--gold); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; }
+.pollrow { margin-bottom: 14px; }
+.pollhead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.pollbars { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; align-items: end; height: 118px; }
+.pbar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; min-width: 0; }
+.pbar small { font-size: 8.5px; color: var(--muted); }
+.pbar span { width: 100%; border-radius: 5px 5px 2px 2px; background: var(--border-strong); }
+.pbar i { font-style: normal; font-size: 11px; font-weight: 700; }
+.pbar.top span { background: var(--gold); }
+.pbar.top small { color: var(--text); font-weight: 700; }
+.pbar.mine i { text-decoration: underline; }
+.polltop { text-align: center; font-size: 15px; margin-top: 4px; }
+.polltop b { font-family: 'Space Grotesk', sans-serif; letter-spacing: 3px; font-size: 20px; }

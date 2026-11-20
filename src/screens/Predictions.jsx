@@ -4,7 +4,8 @@ import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel, Sheet } from '../ui.
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
 import { IconClock } from '../icons.jsx';
-import { IconDice, IconChevron } from '../icons.jsx';
+import { IconDice, IconChevron, IconVote } from '../icons.jsx';
+import { goWithAd } from '../ads.jsx';
 import { drawsOf, checkPrediction, allWins } from '../data/store.js';
 
 const CARDS = [
@@ -23,7 +24,7 @@ function GameCard({ c, ready }) {
   const g = c.id === 'winnings' ? null : gameById(c.id);
   const when = g ? nextDrawLabel(g) : t('Past wins');
   return (
-    <button class="gcard" onClick={() => go(to)}>
+    <button class="gcard" onClick={() => goWithAd(to, c.id)}>
       <div class="gcard-top">
         <span class="ring">{c.letter}</span>
         {c.id !== 'winnings' && <span class={ready ? 'badge ready' : 'badge'}>{ready ? t('Ready') : t('Soon')}</span>}
@@ -69,11 +70,20 @@ export function Predictions({ data, toast }) {
         {list.map((c) => <GameCard key={c.id} c={c} ready={!!games[c.id]} />)}
       </div>
 
-      {filter === 'all' && <button class="lucky-card" onClick={() => go('/lucky')}>
-        <span class="aicon"><IconDice /></span>
-        <span class="atext"><b>{t('Lucky Game Number')}</b><small>{t('Play a quick game, your score is your number')}</small></span>
-        <span class="chev"><IconChevron /></span>
-      </button>}
+      {filter === 'all' && (
+        <div class="cardrow">
+          <button class="lucky-card" onClick={() => go('/lucky')}>
+            <span class="aicon"><IconDice /></span>
+            <span class="atext"><b>{t('Lucky Game Number')}</b><small>{t('Play a quick game, your score is your number')}</small></span>
+            <span class="chev"><IconChevron /></span>
+          </button>
+          <button class="lucky-card" onClick={() => go('/poll')}>
+            <span class="aicon"><IconVote /></span>
+            <span class="atext"><b>{t('Voting Poll')}</b><small>{t('Vote your 4 digits and see what others picked')}</small></span>
+            <span class="chev"><IconChevron /></span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

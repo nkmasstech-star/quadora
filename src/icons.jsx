@@ -87,3 +87,6 @@ export const IconHeart = ({ on }) => (
 export const IconBookmark = ({ on }) => (
   <svg {...base} fill={on ? 'currentColor' : 'none'}><path d="M7 4h10v16l-5-3.5L7 20V4z" /></svg>
 );
+export const IconVote = () => (
+  <svg {...base}><rect x="4" y="12" width="4" height="8" rx="1" /><rect x="10" y="5" width="4" height="15" rx="1" /><rect x="16" y="9" width="4" height="11" rx="1" /></svg>
+);

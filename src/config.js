@@ -20,3 +20,10 @@ export const DRAW_TIMES = {
 export const PUBLISHER = 'Nehru Karupaiya';
 export const GOVERNING_LAW = 'India';
 export const LEGAL_UPDATED = '20 November 2026';
+
+// Ads (TEST placeholders for now; real AdMob units are added at release). Timings are easy to change here.
+export const AD_INTERSTITIAL_GAP_SEC = 180; // min seconds between two full-screen ads for one user
+export const AD_BANNER_REFRESH_SEC = 60; // a banner shows a new ad this often while the user stays on the page
+export const AD_FEED_EVERY = 4; // one ad card after this many posts in the Community feed
+export const AD_PREDICTION_GAMES = ['magnum', 'singapore', 'gdlotto']; // full-screen ad only when these prediction cards are opened
+export const POLL_GAMES = ['magnum', 'singapore', 'gdlotto'];

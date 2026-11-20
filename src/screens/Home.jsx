@@ -5,6 +5,7 @@ import { IconChevron, IconBars, IconClock, IconLock } from '../icons.jsx';
 import { Top3, NumberGrid, Loading, AppBar, Hero, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { AnalysisCards } from './Analysis.jsx';
+import { AdBanner } from '../ads.jsx';
 import { t } from '../i18n.js';
 
 const MY = GAMES.filter((g) => g.region === 'Malaysia');
@@ -55,6 +56,7 @@ export function Home({ data, user }) {
       <div data-game={g.id} key={g.id} class="swap">
       {!draw && <Panel><div class="empty">{t('Results will appear here after the next draw.')}</div></Panel>}
       {draw && <ResultBody g={g} draw={draw} onHistory={user ? () => go(`/game/${g.id}`) : () => go('/locked')} />}
+      {draw && <AdBanner />}
       {draw && <AnalysisCards g={g} draw={draw} latest={draw} user={user} />}
       </div>
     </div>

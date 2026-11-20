@@ -11,6 +11,8 @@ import { Predictions, PredictionDetail, Winnings, PredHistoryPage } from './scre
 import { Search } from './screens/Search.jsx';
 import { AnalysisToday, AnalysisHistory, AnalysisTop3 } from './screens/Analysis.jsx';
 import { Lucky } from './screens/Lucky.jsx';
+import { Poll } from './screens/Poll.jsx';
+import { InterstitialHost } from './ads.jsx';
 import { Community } from './screens/Community.jsx';
 import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
@@ -107,7 +109,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -139,7 +141,7 @@ export function App() {
     );
   }
 
-  const MEMBER_ONLY = ['lucky', 'analysis', 'game', 'search', 'locked'];
+  const MEMBER_ONLY = ['lucky', 'poll', 'analysis', 'game', 'search', 'locked'];
   let screen;
   let nav = true;
   if (!user && MEMBER_ONLY.includes(seg[0])) { screen = <Locked onLogin={() => go('/login')} onBack={() => history.back()} />; nav = false; }
@@ -149,6 +151,7 @@ export function App() {
   else if (seg[0] === 'predhist') { screen = <PredHistoryPage data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'feedback') { screen = <Feedback user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'howto') { screen = <HowTo />; nav = false; }
+  else if (seg[0] === 'poll') { screen = <Poll user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'lucky') { screen = <Lucky user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications user={user} data={data} />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} toast={showToast} />; nav = false; }
@@ -177,6 +180,7 @@ export function App() {
           </div>
         </nav>
       )}
+      <InterstitialHost />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {toast && <div class="toast" role="status">{toast}</div>}
     </div>

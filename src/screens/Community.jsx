@@ -2,6 +2,8 @@ import { useState, useMemo } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { AppBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
+import { AdBanner } from '../ads.jsx';
+import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
 import { Avatar } from '../avatars.jsx';
@@ -192,7 +194,10 @@ export function Community({ user, data, toast }) {
       </div>
 
       {shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
-      {shown.slice(0, 40).map((p) => <PostCard key={p.id} p={p} me={user} results={results} stats={stats(p.uid)} onChange={refresh} toast={toast} onEdit={(x) => setComposer({ edit: x })} />)}
+      {shown.slice(0, 40).map((p, i) => [
+        <PostCard key={p.id} p={p} me={user} results={results} stats={stats(p.uid)} onChange={refresh} toast={toast} onEdit={(x) => setComposer({ edit: x })} />,
+        (i + 1) % AD_FEED_EVERY === 0 ? <AdBanner key={`ad${i}`} native /> : null,
+      ])}
 
       <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />
       {composer && <Composer me={user} edit={composer.edit} toast={toast} onClose={() => setComposer(null)} onDone={() => { setComposer(null); refresh(); }} />}

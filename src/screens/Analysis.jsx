@@ -6,6 +6,7 @@ import { t } from '../i18n.js';
 import { go } from '../App.jsx';
 import { IconBars, IconClock, IconChevron, IconLock } from '../icons.jsx';
 import { useState } from 'preact/hooks';
+import { AdBanner } from '../ads.jsx';
 
 function Bars({ rows, max, accent }) {
   const m = max || Math.max(1, ...rows.map((r) => r.v));
@@ -196,13 +197,14 @@ export function AnalysisCards({ g, draw, latest, user }) {
   ];
   return (
     <div class="acards">
-      {rows.map(([k, ic, title, sub]) => (
+      {rows.map(([k, ic, title, sub]) => [
         <button key={k} class="acard" onClick={() => go(dest(k))}>
           <span class="aicon">{ic}</span>
           <span class="atext"><b>{title}</b><small>{sub}</small></span>
           <span class="chev">{user ? <IconChevron /> : <IconLock />}</span>
-        </button>
-      ))}
+        </button>,
+        k === 'today' ? <AdBanner key="ad" /> : null,
+      ])}
     </div>
   );
 }
