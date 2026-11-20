@@ -4,8 +4,8 @@ import { Loading, BackBar, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t, getLang } from '../i18n.js';
 import { IconChevron, IconClock, Logo } from '../icons.jsx';
-import { drawsOf, prizeEntries } from '../data/store.js';
-import { analyze } from '../data/analysis.js';
+import { drawsOf } from '../data/store.js';
+import { straightChart, straightWins } from '../data/straight.js';
 import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { drawStartMs, updateDelayHours } from '../data/rules.js';
@@ -23,23 +23,6 @@ function nextDrawISO(g, draws) {
     if (g.days.includes(x.getDay()) && !done.has(iso)) return iso;
   }
   return todayISO();
-}
-
-function rng(seedStr) { // small seeded random so the chart stays the same for one draw
-  let h = 2166136261;
-  for (let i = 0; i < seedStr.length; i += 1) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return () => { h += 0x6D2B79F5; let x = Math.imul(h ^ (h >>> 15), 1 | h); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
-}
-const shuffle = (arr, r) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-
-// 4 columns (A B C D) x 4 rows. The 7 most frequent digits of the history are placed at random;
-// a digit never repeats inside one column.
-export function straightChart(draws, seed) {
-  const s = analyze(draws);
-  const top7 = s.digit.map((c, d) => [d, c]).sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 7).map((x) => x[0]);
-  const r = rng(seed);
-  const cols = [0, 1, 2, 3].map(() => shuffle(top7, r).slice(0, 4));
-  return { top7, cols };
 }
 
 // Until the next prediction is published, the chart of the draw that just finished stays on screen with its wins.
@@ -60,13 +43,19 @@ export function StraightList({ data }) {
     <div>
       <BackBar title={t('Straight Predictions')} />
       <div style="margin-top:14px">
-        {GAMES.map((g) => (
-          <button key={g.id} class="srow" onClick={() => go(`/straight/${g.id}`)}>
-            <span class="ring">{LETTER[g.id]}</span>
-            <span class="atext"><b>{t(shortName(g))}</b><small>{t(g.region)} · {t('Next draw')}: {fmtShort(nextDrawISO(g, drawsOf(data.results, g.id)))}</small></span>
-            <span class="chev"><IconChevron /></span>
-          </button>
-        ))}
+        {GAMES.map((g) => {
+          const draws = drawsOf(data.results, g.id);
+          const latest = showsLatest(g, draws);
+          const wins = latest ? straightWins(straightChart(draws.slice(1), `${g.id}${draws[0].date}`).cols, draws[0]) : [];
+          return (
+            <button key={g.id} class="srow" onClick={() => go(`/straight/${g.id}`)}>
+              <span class="ring">{LETTER[g.id]}</span>
+              <span class="atext"><b>{t(shortName(g))}</b><small>{latest ? "" : `${t(g.region)} · `}{latest ? `${t('Result')}: ${fmtShort(draws[0].date)}` : `${t('Next draw')}: ${fmtShort(nextDrawISO(g, draws))}`}</small></span>
+              {wins.length > 0 && <span class="pill gold">{t('Win')} {wins.length}</span>}
+              <span class="chev"><IconChevron /></span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -75,12 +64,6 @@ export function StraightList({ data }) {
 const COLORS = ['#FF5A5F', '#2BB3FF', '#8B5CF6', '#22C55E', '#F97316', '#E11D8A'];
 const LANG_TAG = { en: 'en-US', ms: 'ms-MY', zh: 'zh-CN', ta: 'ta-IN', km: 'km-KH' };
 const soundOn = () => { try { return localStorage.getItem('qd_sound') !== '0'; } catch (e) { return true; } };
-
-// a prize number wins when its 1st digit is in column A, 2nd in B, 3rd in C and 4th in D (any row)
-export function straightWins(cols, draw) {
-  if (!draw) return [];
-  return prizeEntries(draw).filter((e) => /^\d{4}$/.test(e.number) && e.number.split('').every((d, i) => cols[i].includes(Number(d))));
-}
 
 // reads each winning number aloud digit by digit and lights up that digit in its column
 function useReader(cols, wins, auto) {
