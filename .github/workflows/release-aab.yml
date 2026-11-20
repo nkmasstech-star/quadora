@@ -2,7 +2,7 @@ name: Release AAB
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   aab:
     runs-on: ubuntu-latest
@@ -18,6 +18,8 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_ADS_LIVE: '1'
       - run: npx cap sync android
       - name: Decode upload key
         env:
@@ -37,3 +39,10 @@ jobs:
           name: qspot4d-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 14
+      - name: Publish AAB to a release (for download)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/bundle/release/app-release.aab QSpot4D-release.aab
+          gh release delete release-aab -y --cleanup-tag || true
+          gh release create release-aab QSpot4D-release.aab --title "Release AAB" --notes "Signed AAB for Play Console" --prerelease

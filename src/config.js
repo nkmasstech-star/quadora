@@ -31,7 +31,7 @@ export const POLL_GAMES = ['magnum', 'toto', 'damacai', 'singapore', 'gdlotto'];
 // Test build helpers (set to false before the Play Store release).
 export const TEST_MODE = true;
 
-// AdMob (personal AdMob account). AD_TEST=true shows Google test ads only: keep true while testing, set false for the Play release.
-export const AD_TEST = true;
+// AdMob (personal AdMob account). Test ads everywhere except the Play release build (release workflow sets VITE_ADS_LIVE=1).
+export const AD_TEST = import.meta.env.VITE_ADS_LIVE !== '1';
 export const ADMOB_BANNER_ID = 'ca-app-pub-1116963475189668/2300589539';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-1116963475189668/4879932670';
