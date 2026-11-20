@@ -26,7 +26,7 @@ export const AD_INTERSTITIAL_GAP_SEC = 180; // min seconds between two full-scre
 export const AD_BANNER_REFRESH_SEC = 60; // a banner shows a new ad this often while the user stays on the page
 export const AD_FEED_EVERY = 4; // one ad card after this many posts in the Community feed
 export const AD_PREDICTION_GAMES = ['magnum', 'singapore', 'gdlotto']; // full-screen ad only when these prediction cards are opened
-export const POLL_GAMES = ['magnum', 'singapore', 'gdlotto'];
+export const POLL_GAMES = ['magnum', 'toto', 'damacai', 'singapore', 'gdlotto'];
 
 // Test build helpers (set to false before the Play Store release).
 export const TEST_MODE = true;

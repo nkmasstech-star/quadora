@@ -177,3 +177,8 @@ export function toggleBlock(me, target) {
 export const hiddenOf = (uid) => read(`qd_hide_${uid}`, []);
 export function hidePost(uid, postId) { const l = hiddenOf(uid); if (!l.includes(postId)) l.push(postId); write(`qd_hide_${uid}`, l); }
 export const visiblePosts = (list, me) => list.filter((p) => !me || (p.uid === me.uid) || (!blockedOf(me.uid).includes(p.uid) && reportCount(p.id) < HIDE_AT && !hiddenOf(me.uid).includes(p.id)));
+
+// Settings > Delete my data (kept out of the lists so a stray tap can never remove history)
+export const clearMyPosts = (uid) => write('qd_posts', myPosts().filter((p) => p.uid !== uid));
+export const clearMyPicks = (uid) => write(`qd_picks_${uid}`, []);
+export const clearMyLucky = (uid) => write(`qd_luckyn_${uid}`, []);

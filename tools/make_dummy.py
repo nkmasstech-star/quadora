@@ -37,20 +37,37 @@ for gid, i, prize in [("magnum", 2, "1st"), ("toto", 1, "Special"), ("singapore"
     num = d["first"] if prize == "1st" else d["second"] if prize == "2nd" else d["third"] if prize == "3rd" else d["special"][0] if prize == "Special" else d["consolation"][0]
     wins.append({"game": gid, "date": d["date"], "number": num, "prize": prize})
 hist = {}
+def rand_path(chart):
+    # random connected up/down/left/right walk of 4 different cells in the 4x3 chart
+    while True:
+        r, c = random.randint(0, 2), random.randint(0, 3)
+        path = [(r, c)]
+        while len(path) < 4:
+            opts = [(r + a, c + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= r + a < 3 and 0 <= c + b < 4 and (r + a, c + b) not in path]
+            if not opts: break
+            r, c = random.choice(opts); path.append((r, c))
+        if len(path) == 4: return path
+def formula_row(d):
+    chart = [random.randint(0, 9) for _ in range(12)]
+    path = rand_path(chart)
+    digits = [chart[r * 4 + c] for r, c in path]
+    base = digits[:3]
+    imp = [base, [random.randint(0, 9) for _ in range(3)]]
+    nums = ["".join(map(str, digits))]
+    while len(nums) < 6:
+        x = base + [random.randint(0, 9)]; random.shuffle(x); nums.append("".join(map(str, x)))
+    random.shuffle(nums)
+    top = [n4(), n4()]
+    if random.random() < 0.45:   # some predictions hit: a prize number is the same digits in any order
+        h = list(random.choice(nums)); random.shuffle(h); h = "".join(h)
+        slot = random.choice(["third", "second", "special", "consolation"])
+        if slot in ("special", "consolation"): d[slot][random.randint(0, 9)] = h
+        else: d[slot] = h
+    if random.random() < 0.12:
+        top[random.randint(0, 1)] = "".join(random.sample(random.choice([d["first"], d["second"], d["third"]]), 4))
+    return {"forDate": d["date"], "important3": imp, "numbers": nums, "top3": top, "chart": chart}
 for gid, ds in games.items():
-    rows = []
-    for d in ds[:30]:
-        nums = [n4() for _ in range(6)]
-        top = [n4(), n4()]
-        if random.random() < 0.3:   # some predictions hit (dummy)
-            pool = [d["first"], d["second"], d["third"]] + d["special"] + d["consolation"]
-            h = random.choice(pool)
-            nums[random.randint(0, 5)] = "".join(random.sample(h, 4))
-        if random.random() < 0.12:
-            top[random.randint(0, 1)] = "".join(random.sample(random.choice([d["first"], d["second"], d["third"]]), 4))
-        rows.append({"forDate": d["date"], "important3": [[random.randint(0, 9) for _ in range(3)] for _ in range(2)],
-                     "numbers": nums, "top3": top, "chart": [random.randint(0, 9) for _ in range(12)]})
-    hist[gid] = rows
+    hist[gid] = [formula_row(d) for d in ds[:30]]
 json.dump({"dummy": True, "games": hist}, open("public/data/pred_history.json", "w"), separators=(",", ":"))
 json.dump(res, open("public/data/results.json", "w"), separators=(",", ":"))
 json.dump(pred, open("public/data/predictions.json", "w"), separators=(",", ":"))

@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { totalDraws } from '../data/store.js';
 import { IconChevron } from '../icons.jsx';
 import { BackBar, Sheet } from '../ui.jsx';
-import { blockedOf, toggleBlock, userInfo } from '../data/community.js';
+import { blockedOf, toggleBlock, userInfo, myPosts, myPicks, myLucky, clearMyPosts, clearMyPicks, clearMyLucky } from '../data/community.js';
 import { go } from '../App.jsx';
 import { t, LANGS, getLang } from '../i18n.js';
 import { APP_NAME } from '../config.js';
@@ -55,6 +55,23 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
         <div class="row"><span style="flex:1">{t('Draws stored')}</span><span class="meta">{totalDraws(data.results)}</span></div>
         <button class="row" onClick={() => { onRefresh(); toast(t('Refreshing…')); }}><span style="flex:1;color:var(--gold-text);font-weight:700">{t('Refresh data')}</span></button>
       </div>
+
+      {user && (
+        <div>
+          <div class="section-title"><h2>{t('Delete my data')}</h2></div>
+          <div class="rows">
+            {[
+              ['posts', t('Delete my posts'), myPosts().filter((p) => p.uid === user.uid).length, clearMyPosts],
+              ['picks', t('Delete my saved predictions'), myPicks(user.uid).length, clearMyPicks],
+              ['lucky', t('Delete my saved lucky numbers'), myLucky(user.uid).length, clearMyLucky],
+            ].map(([k, label, n, fn]) => (
+              <button key={k} class="row" disabled={n === 0} onClick={() => { if (confirm(t('Delete all? This cannot be undone.'))) { fn(user.uid); tick((x) => x + 1); toast(t('Deleted')); } }}>
+                <span style="flex:1;text-align:left;color:var(--danger, #E5484D);font-weight:700">{label}</span><span class="meta">{n}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div class="section-title"><h2>{t('About')}</h2></div>
       <div class="rows">

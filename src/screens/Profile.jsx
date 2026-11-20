@@ -8,7 +8,7 @@ import { setAvatar, renameUser, validName } from '../data/account.js';
 import { NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
 import { gameById, fmtShort } from '../data/games.js';
 import { addInbox } from '../data/inbox.js';
-import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, delLucky, delPick, evalEntry, visiblePosts } from '../data/community.js';
+import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, evalEntry, visiblePosts } from '../data/community.js';
 import { PostCard, WinBadge, Composer } from './Community.jsx';
 
 function AvatarPicker({ current, onPick, onClose, left }) {
@@ -54,7 +54,6 @@ function EntryRow({ title, sub, ev, game, onDelete }) {
       <span class="n">{title}</span>
       <span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:14px">{sub}</span>
         <span class="meta">{ev.resolved ? (ev.won ? `🎉 ${t('Matched')} ${ev.hits.map((h) => h.prize).join(', ')}` : t('Did not match')) : t('Waiting for the result')}</span></span>
-      <button class="del-btn" aria-label={t('Delete')} onClick={onDelete}>×</button>
     </div>
   );
 }
@@ -97,10 +96,10 @@ export function Profile({ user, uid, data, toast, onUser }) {
     body = l.length === 0 ? <Panel><div class="empty">{t('Posts you save appear here. We check them when the result is out.')}</div></Panel> : l.map((p) => <PostCard key={p.id} p={p} me={user} results={results} stats={winStats(p.uid, results)} onChange={refresh} toast={toast} hideActions />);
   } else if (tab === 'lucky') {
     const l = myLucky(user.uid);
-    body = l.length === 0 ? <Panel><div class="empty">{t('Lucky numbers you save from the Lucky Game or Scratch Card appear here.')}</div></Panel> : l.map((x) => <EntryRow key={x.id} title={x.n} game={x.game} sub={`${gname(x.game)} · ${t(x.format)} · ${t('Draw')} ${fmtShort(x.forDate)}`} ev={evalEntry(x.game, x.format, [x.n], x.forDate, results)} onDelete={() => { delLucky(user.uid, x.id); refresh(); }} />);
+    body = l.length === 0 ? <Panel><div class="empty">{t('Lucky numbers you save from the Lucky Game or Scratch Card appear here.')}</div></Panel> : l.map((x) => <EntryRow key={x.id} title={x.n} game={x.game} sub={`${gname(x.game)} · ${t(x.format)} · ${t('Draw')} ${fmtShort(x.forDate)}`} ev={evalEntry(x.game, x.format, [x.n], x.forDate, results)} />);
   } else if (tab === 'picks') {
     const l = myPicks(user.uid);
-    body = l.length === 0 ? <Panel><div class="empty">{t('Predictions you save only for yourself appear here.')}</div></Panel> : l.map((x) => x.picks.map((k, i) => <EntryRow key={`${x.id}${i}`} title={k.sets[0]} game={k.game} sub={`${gname(k.game)} · ${t(k.format)} · ${k.sets.join(' ')}`} ev={evalEntry(k.game, k.format, k.sets, k.forDate, results)} onDelete={() => { delPick(user.uid, x.id); refresh(); }} />));
+    body = l.length === 0 ? <Panel><div class="empty">{t('Predictions you save only for yourself appear here.')}</div></Panel> : l.map((x) => x.picks.map((k, i) => <EntryRow key={`${x.id}${i}`} title={k.sets[0]} game={k.game} sub={`${gname(k.game)} · ${t(k.format)} · ${k.sets.join(' ')}`} ev={evalEntry(k.game, k.format, k.sets, k.forDate, results)} />));
   }
 
   return (

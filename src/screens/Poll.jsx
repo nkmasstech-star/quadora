@@ -8,6 +8,7 @@ import { requestInterstitial, AdBanner } from '../ads.jsx';
 
 const PG = GAMES.filter((g) => POLL_GAMES.includes(g.id));
 const LETTERS = ['A', 'B', 'C', 'D'];
+const POLL_SHORT = { magnum: 'Magnum', toto: 'Toto', damacai: 'Da Ma Cai', singapore: 'Singapore', gdlotto: 'GD Lotto' };
 
 const ORD = ['1st digit', '2nd digit', '3rd digit', '4th digit'];
 function Results({ game, mine }) {
@@ -74,7 +75,7 @@ export function Poll({ user, toast }) {
 
       <div class="meta" style="margin:14px 2px 6px;font-weight:700">{t('1. Choose your game')}</div>
       <div class="chipwrap" style="margin-top:0">
-        {PG.map((x) => <button key={x.id} class={game === x.id ? 'chip-btn on' : 'chip-btn'} onClick={() => pickGame(x.id)}>{x.id === 'gdlotto' ? 'GD Lotto' : x.name.replace(' 4D', '')}</button>)}
+        {PG.map((x) => <button key={x.id} class={game === x.id ? 'chip-btn on' : 'chip-btn'} onClick={() => pickGame(x.id)}>{POLL_SHORT[x.id] || x.name}</button>)}
       </div>
       <div class="meta" style="margin:6px 2px 0">{t('For the draw on {d}', { d: fmtShort(pollDraw(game)) })}</div>
 

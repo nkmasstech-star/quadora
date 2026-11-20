@@ -100,21 +100,23 @@ function contains(num, set) {
 // find a connected up/down/left/right path in the 4x3 chart that spells the number
 function findPath(chart, num) {
   if (!chart || chart.length < 12) return null;
-  const ds = String(num).split('');
+  const want = String(num).split('').sort().join('');
   const R = 3; const C = 4;
   const go = (path) => {
-    if (path.length === ds.length) return path;
+    if (path.length === want.length) {
+      return path.map(([r, c]) => String(chart[r * C + c])).sort().join('') === want ? path : null;
+    }
     const [r, c] = path[path.length - 1];
     for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nr = r + dr; const nc = c + dc;
       if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
       if (path.some(([a, b]) => a === nr && b === nc)) continue;
-      if (String(chart[nr * C + nc]) !== ds[path.length]) continue;
+      if (!want.includes(String(chart[nr * C + nc]))) continue;
       const res = go([...path, [nr, nc]]); if (res) return res;
     }
     return null;
   };
-  for (let r = 0; r < R; r += 1) for (let c = 0; c < C; c += 1) if (String(chart[r * C + c]) === ds[0]) { const res = go([[r, c]]); if (res) return res; }
+  for (let r = 0; r < R; r += 1) for (let c = 0; c < C; c += 1) { const res = go([[r, c]]); if (res) return res; }
   return null;
 }
 function formulaOf(p, w) {
@@ -127,16 +129,49 @@ function formulaOf(p, w) {
   return `${w.number} = ${imp.join('')} + ${rest.join('')}  ·  ${big} ${t('Big')} + ${4 - big} ${t('Small')}`;
 }
 
+const WIN_COLORS = ['#FF5A5F', '#2BB3FF', '#8B5CF6', '#22C55E', '#F97316', '#E11D8A'];
+const winColor = (i) => WIN_COLORS[i % WIN_COLORS.length];
+const ARROW = (a, b) => (b[0] > a[0] ? '↓' : b[0] < a[0] ? '↑' : b[1] > a[1] ? '→' : '←');
+// everything the win box and the chart need about one winning number
+function winInfo(p, w) {
+  if (w.kind !== '4D') return { path: null, base: null, rest: null };
+  const imp = (p.important3 || []).find((set) => contains(w.number, set));
+  const path = findPath(p.chart, imp ? imp.join('') : w.number);
+  return { path, base: imp ? imp.map(String) : null, rest: imp ? contains(w.number, imp) : null };
+}
+
 function ChartCard({ p, g, wins }) {
-  const lines = wins.filter((w) => w.kind === '4D').map((w) => findPath(p.chart, w.number)).filter(Boolean);
+  const items = wins.map((w, i) => ({ w, i, ...winInfo(p, w) })).filter((x) => x.path);
   return (
     <div class="pd-chart-wrap">
       <div class="pd-chart-title">{shortName(g)} {t('Chart')}</div>
       <div class="pd-chart">
         {p.chart.map((d, i) => <div key={i}>{d}</div>)}
-        {lines.length > 0 && (
-          <svg class="pd-lines" viewBox="0 0 4 3" preserveAspectRatio="none" aria-hidden="true">
-            {lines.map((path, k) => <polyline key={k} points={path.map(([r, c]) => `${c + 0.5},${r + 0.5}`).join(' ')} fill="none" stroke="#FF5A5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />)}
+        {items.length > 0 && (
+          <svg class="pd-lines" viewBox="0 0 4 3" aria-hidden="true">
+            {items.map(({ path, i, base, w }) => {
+              const col = winColor(i);
+              const off = (i % 3) * 0.07 - 0.07;
+              const pts = path.map(([r, c]) => [c + 0.5 + off, r + 0.5 + off]);
+              const baseLeft = base ? [...base] : [];
+              return (
+                <g key={i}>
+                  <polyline points={pts.map((q) => q.join(',')).join(' ')} fill="none" stroke={col} stroke-width="0.09" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" />
+                  {path.map(([r, c], k) => {
+                    const dgt = String(p.chart[r * 4 + c]);
+                    const j = baseLeft.indexOf(dgt);
+                    const inBase = j >= 0; if (inBase) baseLeft.splice(j, 1);
+                    return <circle key={`c${k}`} cx={pts[k][0]} cy={pts[k][1]} r="0.3" fill="none" stroke={col} stroke-width="0.07" stroke-dasharray={base && !inBase ? '0.12 0.1' : undefined} />;
+                  })}
+                  {pts.slice(1).map((q, k) => {
+                    const a0 = pts[k]; const mx = (a0[0] + q[0]) / 2; const my = (a0[1] + q[1]) / 2;
+                    const ang = (Math.atan2(q[1] - a0[1], q[0] - a0[0]) * 180) / Math.PI;
+                    return <polygon key={`a${k}`} points="0.13,0 -0.09,0.11 -0.09,-0.11" fill={col} transform={`translate(${mx} ${my}) rotate(${ang})`} />;
+                  })}
+                  <circle cx={pts[0][0]} cy={pts[0][1]} r="0.07" fill={col} />
+                </g>
+              );
+            })}
           </svg>
         )}
       </div>
@@ -146,9 +181,12 @@ function ChartCard({ p, g, wins }) {
 
 function PredBody({ p, copy, g, label, wins = [] }) {
   const nums = p.numbers || [];
+  const colorOf = {};
+  wins.forEach((w, i) => { if (!colorOf[`${w.kind}${w.number}`]) colorOf[`${w.kind}${w.number}`] = winColor(i); });
   const wonN = new Set(wins.filter((w) => w.kind === '4D').map((w) => w.number));
   const wonT = new Set(wins.filter((w) => w.kind === 'Top3').map((w) => w.number));
-  const impWon = (set) => wins.some((w) => w.kind === '4D' && contains(w.number, set));
+  const impIdx = (set) => wins.findIndex((w) => w.kind === '4D' && contains(w.number, set));
+  const impWon = (set) => impIdx(set) >= 0;
   return (
     <div class="pd-sheet">
       <div class="pd-band date">{label}</div>
@@ -157,16 +195,16 @@ function PredBody({ p, copy, g, label, wins = [] }) {
         <div class="pd-imp">
           <div class="pd-imp-h">{t('Important 3 digit')}</div>
           <div class="pd-imp-row">
-            {p.important3.slice(0, 2).map((set, i) => <button key={i} class={impWon(set) ? 'pd-imp-n ring' : 'pd-imp-n'} onClick={() => copy(set.join(''))}>•••{set.join('')}•••</button>)}
+            {p.important3.slice(0, 2).map((set, i) => <button key={i} class={impWon(set) ? 'pd-imp-n ring' : 'pd-imp-n'} style={impWon(set) ? `--rc:${winColor(impIdx(set))}` : undefined} onClick={() => copy(set.join(''))}>•••{set.join('')}•••</button>)}
           </div>
         </div>
       )}
       {p.chart && p.chart.length > 0 && <div class="pd-chart-bg"><ChartCard p={p} g={g} wins={wins} /></div>}
-      {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} class={wonN.has(n) ? 'ring' : ''} onClick={() => copy(n)}><span>{n}</span></button>)}</div>}
+      {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} class={wonN.has(n) ? 'ring' : ''} style={wonN.has(n) ? `--rc:${colorOf['4D' + n]}` : undefined} onClick={() => copy(n)}><span>{n}</span></button>)}</div>}
       {p.top3 && p.top3.length > 0 && (
         <div class="pd-top">
           <div class="pd-top-h">{t('Top 3 prediction')}</div>
-          <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} class={wonT.has(n) ? 'ring' : ''} onClick={() => copy(n)}><span>{n}</span></button>)}</div>
+          <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} class={wonT.has(n) ? 'ring' : ''} style={wonT.has(n) ? `--rc:${colorOf['Top3' + n]}` : undefined} onClick={() => copy(n)}><span>{n}</span></button>)}</div>
         </div>
       )}
       <div class="pd-brand"><Logo size={20} />Q Spot 4D</div>
@@ -179,12 +217,33 @@ function WinDetails({ p, wins }) {
   return (
     <div class="pd-win-box">
       <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}</div>
-      {wins.map((w, i) => (
-        <div key={i} class="pd-win-row">
-          <b>{w.number}</b><span class="pill gold">{t(w.prize)}</span>
-          <div class="meta">{formulaOf(p, w)}</div>
-        </div>
-      ))}
+      {wins.map((w, i) => {
+        const col = winColor(i);
+        const info = winInfo(p, w);
+        const all = String(w.number).split('');
+        const big = all.filter(isBig).length;
+        return (
+          <div key={i} class="pd-win-row" style={`--rc:${col}`}>
+            <i class="wdot" style={`background:${col}`} />
+            <b class="wnum">{w.number}</b><span class="pill gold">{t(w.prize)}</span>
+            {info.base ? (
+              <div class="wform">
+                <span class="meta">{t('3-digit base')}</span>
+                <span class="wbase">{info.base.join('')}</span>
+                <span class="meta">+ {t('extra digit')}</span>
+                <span class="wbase alt">{info.rest.join('')}</span>
+                <span class="meta">= {big} {t('Big')} + {4 - big} {t('Small')}</span>
+              </div>
+            ) : <div class="meta">{w.kind === 'Top3' ? t('Top 3 prediction (one digit doubled)') : t('From the daily prediction numbers')}</div>}
+            {info.path && (
+              <div class="wpath">
+                <span class="meta">{t('Chart path')}</span>
+                {info.path.map(([r, c], k) => <span key={k} class="wstep"><b>{p.chart[r * 4 + c]}</b>{k < info.path.length - 1 && <em>{ARROW(info.path[k], info.path[k + 1])}</em>}</span>)}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
