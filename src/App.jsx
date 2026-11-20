@@ -17,6 +17,7 @@ import { Menu } from './screens/Menu.jsx';
 import { Profile } from './screens/Profile.jsx';
 import { Settings } from './screens/Settings.jsx';
 import { HowTo } from './screens/HowTo.jsx';
+import { Feedback } from './screens/Feedback.jsx';
 import { Splash } from './screens/Splash.jsx';
 import { Agree } from './screens/Agree.jsx';
 import { Legal } from './screens/Legal.jsx';
@@ -106,7 +107,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else CapApp.exitApp();
     }).then((h) => { handle = h; }).catch(() => {});
@@ -146,6 +147,7 @@ export function App() {
   else if (seg[0] === 'prediction') { screen = <PredictionDetail data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
   else if (seg[0] === 'analysis') { screen = seg[1] === 'top3' ? <AnalysisTop3 data={data} gameId={seg[2]} date={seg[3]} /> : seg[1] === 'history' ? <AnalysisHistory data={data} gameId={seg[2]} date={seg[3]} /> : <AnalysisToday data={data} gameId={seg[2]} date={seg[3]} />; nav = false; }
   else if (seg[0] === 'predhist') { screen = <PredHistoryPage data={data} gameId={seg[1]} toast={showToast} />; nav = false; }
+  else if (seg[0] === 'feedback') { screen = <Feedback user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'howto') { screen = <HowTo />; nav = false; }
   else if (seg[0] === 'lucky') { screen = <Lucky user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications user={user} data={data} />; nav = false; }

@@ -242,6 +242,13 @@ const ROWS = [
   ['Hide this post', 'Sembunyikan hantaran ini', '隐藏这条帖子', 'இந்தப் பதிவை மறை', 'លាក់ប្រកាសនេះ'],
   ['Post hidden', 'Hantaran disembunyikan', '帖子已隐藏', 'பதிவு மறைக்கப்பட்டது', 'បានលាក់ប្រកាស'],
   ['Report post', 'Laporkan hantaran', '举报帖子', 'பதிவை புகார் செய்', 'រាយការណ៍ប្រកាស'],
+  ['Feedback', 'Maklum balas', '反馈', 'கருத்து', 'មតិកែលម្អ'],
+  ['Suggestion', 'Cadangan', '建议', 'பரிந்துரை', 'សំណូមពរ'],
+  ['Problem', 'Masalah', '问题', 'சிக்கல்', 'បញ្ហា'],
+  ['Tell us what to improve. Your message opens in your email app, ready to send to us.', 'Beritahu kami apa yang perlu diperbaiki. Mesej anda dibuka dalam aplikasi e-mel, sedia dihantar.', '告诉我们需要改进的地方。你的留言会在邮件应用中打开，可直接发送给我们。', 'எதை மேம்படுத்தலாம் என்று சொல்லுங்கள். உங்கள் செய்தி மின்னஞ்சல் செயலியில் திறக்கும், எங்களுக்கு அனுப்பலாம்.', 'ប្រាប់យើងអ្វីដែលត្រូវកែលម្អ។ សាររបស់អ្នកនឹងបើកក្នុងកម្មវិធីអ៊ីមែល រួចអាចផ្ញើមកយើង។'],
+  ['Write your feedback here', 'Tulis maklum balas anda di sini', '在此填写反馈', 'உங்கள் கருத்தை இங்கே எழுதுங்கள்', 'សរសេរមតិកែលម្អរបស់អ្នកនៅទីនេះ'],
+  ['Send feedback', 'Hantar maklum balas', '发送反馈', 'கருத்தை அனுப்பு', 'ផ្ញើមតិកែលម្អ'],
+  ['Opening your email app…', 'Membuka aplikasi e-mel anda…', '正在打开邮件应用…', 'மின்னஞ்சல் செயலி திறக்கிறது…', 'កំពុងបើកកម្មវិធីអ៊ីមែល…'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],
