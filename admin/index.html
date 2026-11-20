@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Q Spot 4D · Admin</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;font:15px/1.45 system-ui,sans-serif;background:#0d0f14;color:#e8e6df;padding:16px;max-width:560px;margin:auto}
+  h1{font-size:20px;margin:6px 0 2px;color:#E8B94A} .sub{color:#9a978c;font-size:13px;margin-bottom:14px}
+  label{display:block;margin:12px 0 4px;font-size:13px;color:#b9b6aa}
+  input,select,textarea{width:100%;box-sizing:border-box;background:#171a21;color:#fff;border:1px solid #2a2f3a;border-radius:10px;padding:11px;font:inherit}
+  textarea{min-height:70px;font-family:ui-monospace,monospace}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  button{background:#E8B94A;color:#1a1405;border:0;border-radius:12px;padding:13px 16px;font:600 15px system-ui;width:100%;margin-top:14px}
+  button.g{background:#232834;color:#e8e6df}
+  .box{background:#171a21;border:1px solid #2a2f3a;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;word-break:break-word}
+  .err{color:#ff8a80}.ok{color:#8be28b}
+  code{font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+<h1>Q Spot 4D · Admin</h1>
+<div class="sub">Manual result entry. Numbers only. Only the admin Google account can save.</div>
+<div id="app"></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const ADMIN = 'nkmasstech@gmail.com';
+const app = initializeApp({
+  apiKey: 'AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g', authDomain: 'qspot4d.firebaseapp.com', projectId: 'qspot4d',
+  storageBucket: 'qspot4d.firebasestorage.app', messagingSenderId: '1012098386722', appId: '1:1012098386722:web:a7bbf88c78f2611e84f37b'
+});
+const auth = getAuth(app), db = getFirestore(app);
+const ref = doc(db, 'pub', 'manual');
+const GAMES = { magnum: 'Magnum 4D', toto: 'Sports Toto 4D', damacai: 'Da Ma Cai 1+3D', singapore: 'Singapore 4D', gdlotto: 'GD Lotto' };
+const $ = (s) => document.querySelector(s);
+const nums = (s) => (String(s).match(/\d{4}/g) || []);
+const root = $('#app');
+
+function login() {
+  root.innerHTML = '<button id="in">Sign in with Google</button><div id="m" class="box err" style="display:none"></div>';
+  $('#in').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { const m = $('#m'); m.style.display = 'block'; m.textContent = e.message; } };
+}
+
+function form(user) {
+  const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+  root.innerHTML = `
+  <div class="sub">Signed in: ${user.email} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
+  <label>Game</label><select id="g">${Object.entries(GAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+  <div class="row"><div><label>Draw date</label><input id="d" type="date" value="${today}"></div><div><label>Draw no. (optional)</label><input id="n" inputmode="numeric" placeholder="e.g. 3631"></div></div>
+  <div class="row"><div><label>1st</label><input id="f" inputmode="numeric" maxlength="4"></div><div><label>2nd</label><input id="s" inputmode="numeric" maxlength="4"></div><div><label>3rd</label><input id="t" inputmode="numeric" maxlength="4"></div></div>
+  <label>Special / Starter numbers (10; if you paste 13 that include the top 3, they are removed)</label><textarea id="sp" placeholder="paste here"></textarea>
+  <label>Consolation numbers (10)</label><textarea id="co" placeholder="paste here"></textarea>
+  <button id="pv" class="g">Check</button>
+  <div id="out2"></div>`;
+  $('#out').onclick = (e) => { e.preventDefault(); signOut(auth); };
+  let draw = null;
+  $('#pv').onclick = () => {
+    const f = $('#f').value.trim(), s = $('#s').value.trim(), t = $('#t').value.trim();
+    let sp = nums($('#sp').value), co = nums($('#co').value);
+    const errs = [];
+    [f, s, t].forEach((x) => { if (!/^\d{4}$/.test(x)) errs.push('1st/2nd/3rd must be 4 digits each'); });
+    if (sp.length === 13) { for (const top of [f, s, t]) { const i = sp.indexOf(top); if (i >= 0) sp.splice(i, 1); } }
+    if (sp.length !== 10) errs.push('Special/Starter must be 10 numbers (found ' + sp.length + ')');
+    if (co.length !== 10) errs.push('Consolation must be 10 numbers (found ' + co.length + ')');
+    if (!$('#d').value) errs.push('Pick the draw date');
+    const o = $('#out2');
+    if (errs.length) { draw = null; o.innerHTML = '<div class="box err">' + [...new Set(errs)].join('<br>') + '</div>'; return; }
+    draw = { date: $('#d').value, drawNo: $('#n').value.trim(), first: f, second: s, third: t, special: sp.slice().sort(), consolation: co.slice().sort() };
+    o.innerHTML = `<div class="box"><b>${GAMES[$('#g').value]}</b> · ${draw.date}${draw.drawNo ? ' · #' + draw.drawNo : ''}<br>1st <code>${f}</code> · 2nd <code>${s}</code> · 3rd <code>${t}</code><br>Special: <code>${draw.special.join(' ')}</code><br>Consolation: <code>${draw.consolation.join(' ')}</code></div><button id="sv">Save this draw</button>`;
+    $('#sv').onclick = async () => {
+      const game = $('#g').value;
+      $('#sv').disabled = true;
+      try {
+        const snap = await getDoc(ref);
+        const cur = snap.exists() ? JSON.parse(snap.data().json || '{}') : {};
+        cur.games = cur.games || {};
+        const list = (cur.games[game] || []).filter((x) => x.date !== draw.date);
+        list.unshift(draw);
+        list.sort((a, b) => (a.date < b.date ? 1 : -1));
+        cur.games[game] = list.slice(0, 60);
+        cur.updated = new Date().toISOString();
+        await setDoc(ref, { json: JSON.stringify(cur) });
+        o.innerHTML = '<div class="box ok">Saved ✓ The app shows it within a few minutes.</div>';
+        ['f', 's', 't', 'n'].forEach((i) => { $('#' + i).value = ''; }); $('#sp').value = ''; $('#co').value = '';
+      } catch (e) { o.innerHTML = '<div class="box err">Save failed: ' + e.message + '</div>'; }
+    };
+  };
+}
+
+onAuthStateChanged(auth, (u) => {
+  if (!u) return login();
+  if (u.email !== ADMIN || !u.emailVerified) { root.innerHTML = '<div class="box err">This account is not allowed.</div><button id="o" class="g">Sign out</button>'; $('#o').onclick = () => signOut(auth); return; }
+  form(u);
+});
+</script>
+</body>
+</html>

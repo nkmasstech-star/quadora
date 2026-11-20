@@ -24,13 +24,45 @@ async function getJson(name) {
   }
 }
 
+// Manual draws entered on the admin page live in one small public Firestore document (read over plain REST, no SDK).
+const FS_URL = 'https://firestore.googleapis.com/v1/projects/qspot4d/databases/(default)/documents/pub/manual?key=AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g';
+async function getManual() {
+  if (import.meta.env.DEV) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch(FS_URL, { signal: ctrl.signal });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const raw = j && j.fields && j.fields.json && j.fields.json.stringValue;
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+// Manual draws win on the same date (so a correction replaces a wrong number); everything is shown newest first.
+function mergeManual(results, manual) {
+  if (!results || !manual || !manual.games) return results;
+  const games = { ...results.games };
+  Object.keys(manual.games).forEach((g) => {
+    const extra = (manual.games[g] || []).filter((d) => d && d.date && d.first && (d.special || []).length === 10 && (d.consolation || []).length === 10);
+    if (!extra.length) return;
+    const dates = new Set(extra.map((d) => d.date));
+    games[g] = [...extra, ...(games[g] || []).filter((d) => !dates.has(d.date))].sort((a, b) => (a.date < b.date ? 1 : -1));
+  });
+  return { ...results, games };
+}
+
 export async function loadAll() {
   if (import.meta.env.DEV && new URLSearchParams(location.search).has('demo')) {
     const m = await import('../dev/demo.json');
     const t = new Date(); m.default.results.games.magnum[0].date = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
     return { results: m.default.results, predictions: m.default.predictions, winnings: null, demo: true };
   }
-  const [results, predictions, predHistory, announcements] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('pred_history.json'), getJson('announcements.json')]);
+  const [base, predictions, predHistory, announcements, manual] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('pred_history.json'), getJson('announcements.json'), getManual()]);
+  const results = mergeManual(base, manual);
   return { results, predictions, predHistory, announcements: Array.isArray(announcements) ? announcements : [], demo: false };
 }
 
