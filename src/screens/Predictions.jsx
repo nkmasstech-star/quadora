@@ -14,23 +14,24 @@ const CARDS = [
   { id: 'damacai', label: 'Da Ma Cai', region: 'my', letter: 'D' },
   { id: 'singapore', label: 'Singapore', region: 'sg', letter: 'S' },
   { id: 'gdlotto', label: 'GD Lotto', region: 'kh', letter: 'G' },
-  { id: 'winnings', label: 'Winnings', region: 'all', letter: 'W' },
+  { id: 'straight', label: 'Straight', region: 'all', letter: '#' },
 ];
-const REGION_NAME = { my: 'Malaysia', sg: 'Singapore', kh: 'Cambodia', all: 'History' };
+const REGION_NAME = { my: 'Malaysia', sg: 'Singapore', kh: 'Cambodia', all: 'Chart' };
 const FILTERS = [['all', 'All'], ['my', 'Malaysia'], ['sg', 'Singapore'], ['kh', 'Cambodia']];
 
 function GameCard({ c, ready }) {
-  const to = c.id === 'winnings' ? '/winnings' : `/prediction/${c.id}`;
-  const g = c.id === 'winnings' ? null : gameById(c.id);
-  const when = g ? nextDrawLabel(g) : t('Past wins');
+  const special = c.id === 'straight';
+  const to = special ? '/straight' : `/prediction/${c.id}`;
+  const g = special ? null : gameById(c.id);
+  const when = g ? nextDrawLabel(g) : t('Straight Predictions');
   return (
     <button class="gcard" onClick={() => goWithAd(to, c.id)}>
       <div class="gcard-top">
         <span class="ring">{c.letter}</span>
-        {c.id !== 'winnings' && <span class={ready ? 'badge ready' : 'badge'}>{ready ? t('Ready') : t('Soon')}</span>}
+        {!special && <span class={ready ? 'badge ready' : 'badge'}>{ready ? t('Ready') : t('Soon')}</span>}
       </div>
       <div class="gcard-name">{t(c.label)}</div>
-      <div class="gcard-sub">{t(REGION_NAME[c.region])} · {when}</div>
+      <div class="gcard-sub">{special ? when : `${t(REGION_NAME[c.region])} · ${when}`}</div>
     </button>
   );
 }
@@ -121,6 +122,7 @@ function PredBody({ p, copy, g, label, wins = [] }) {
   const impWon = (set) => impIdx(set) >= 0;
   return (
     <div class="pd-sheet">
+      <div class="pd-brandtop"><Logo size={28} /><span>Q Spot <em>4D</em> {t('Predictions')}</span></div>
       <div class="pd-band date">{label}</div>
       <div class="pd-band title">{g.name.toUpperCase()}</div>
       {p.important3 && p.important3.length > 0 && (
@@ -139,7 +141,6 @@ function PredBody({ p, copy, g, label, wins = [] }) {
           <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} class={wonT.has(n) ? 'ring' : ''} style={wonT.has(n) ? `--rc:${colorOf['Top3' + n]}` : undefined} onClick={() => copy(n)}><span>{n}</span></button>)}</div>
         </div>
       )}
-      <div class="pd-brand"><Logo size={20} />Q Spot 4D</div>
     </div>
   );
 }
