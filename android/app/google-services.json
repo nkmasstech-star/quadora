@@ -1,0 +1,19 @@
+{
+  "project_info": {
+    "project_number": "1012098386722",
+    "project_id": "qspot4d",
+    "storage_bucket": "qspot4d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012098386722:android:92aa99bda412b32084f37b",
+        "android_client_info": { "package_name": "com.quadora.app" }
+      },
+      "oauth_client": [],
+      "api_key": [ { "current_key": "AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g" } ],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    }
+  ],
+  "configuration_version": "1"
+}
