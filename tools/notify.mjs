@@ -39,6 +39,13 @@ async function token(sa) {
 }
 
 let ok = true;
+if (process.argv.includes('--test')) {
+  const sa = JSON.parse(process.env.FCM_SA);
+  const at = await token(sa);
+  const r = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: 'POST', headers: { authorization: `Bearer ${at}`, 'content-type': 'application/json' }, body: JSON.stringify({ message: { topic: 'results', notification: { title: 'Q Spot 4D test', body: 'Push notifications are working.' }, android: { priority: 'high' } } }) });
+  console.log('test push ->', r.status, r.ok ? '' : await r.text());
+  process.exit(r.ok ? 0 : 1);
+}
 if (fresh.length && !DRY) {
   if (!process.env.FCM_SA) { console.log('FCM_SA not set: would notify', fresh.join(', ')); ok = false; } else {
     const sa = JSON.parse(process.env.FCM_SA);

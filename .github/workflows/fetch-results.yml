@@ -5,6 +5,9 @@ on:
       dry:
         description: 'Dry run (do not commit)'
         default: 'false'
+      test:
+        description: 'Send a test push only'
+        default: 'false'
   schedule:
     # draw days evenings (UTC): Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto ~17:30 IST
     - cron: '10,40 11-14 * * *'
@@ -21,10 +24,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Test push
+        if: github.event.inputs.test == 'true'
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+        run: node tools/notify.mjs --test
       - name: Fetch
+        if: github.event.inputs.test != 'true'
         run: node tools/fetch_results.mjs ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
       - name: Push notification for new draws
-        if: github.event.inputs.dry != 'true'
+        if: github.event.inputs.dry != 'true' && github.event.inputs.test != 'true'
         env:
           FCM_SA: ${{ secrets.FCM_SA }}
         run: node tools/notify.mjs
