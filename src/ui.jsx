@@ -113,3 +113,15 @@ export function Sheet({ title, onClose, children }) {
     document.body
   );
 }
+
+// Shown under Singapore results instead of an ad: credit to the source, and a clear "not official" note.
+export function SourceCredit({ name, site }) {
+  return (
+    <div class="pcard" role="note">
+      <div style="font-weight:700;margin-bottom:4px">{t('Results source')}</div>
+      <div class="meta" style="font-size:13px;line-height:1.5">
+        {t('Shown here as an extra convenience for you. These results belong to {n}. This is not the official result and this app is not connected with {n}. Please check the official site ({s}) before you act on any result.', { n: name, s: site })}
+      </div>
+    </div>
+  );
+}

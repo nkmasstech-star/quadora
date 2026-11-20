@@ -5,7 +5,7 @@ import { IconShare, IconChevron } from '../icons.jsx';
 import { t } from '../i18n.js';
 import { AnalysisCards } from './Analysis.jsx';
 import { AdBanner } from '../ads.jsx';
-import { Loading, BackBar, Hero, Panel, Top3, NumberGrid } from '../ui.jsx';
+import { Loading, BackBar, Hero, Panel, Top3, NumberGrid, SourceCredit } from '../ui.jsx';
 
 export function Detail({ data, gameId, toast }) {
   const game = gameById(gameId);
@@ -46,7 +46,7 @@ export function Detail({ data, gameId, toast }) {
             {draw.special && draw.special.length > 0 && (<div><div class="label">{t(game.special)}</div><NumberGrid numbers={draw.special} /></div>)}
             {draw.consolation && draw.consolation.length > 0 && (<div><div class="label">{t('Consolation')}</div><NumberGrid numbers={draw.consolation} /></div>)}
           </Panel>
-          <AdBanner />
+          {game.id === 'singapore' ? <SourceCredit name="Singapore Pools" site="singaporepools.com.sg" /> : <AdBanner />}
           <AnalysisCards g={game} draw={draw} latest={draws[0]} user={true} />
         </div>
       )}

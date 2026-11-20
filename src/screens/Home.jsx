@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { GAMES, gameById, fmtDate, nextDrawLabel, todayISO } from '../data/games.js';
 import { latestOf } from '../data/store.js';
 import { IconChevron, IconBars, IconClock, IconLock } from '../icons.jsx';
-import { Top3, NumberGrid, Loading, AppBar, Hero, Panel } from '../ui.jsx';
+import { Top3, NumberGrid, Loading, AppBar, Hero, Panel, SourceCredit } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { AnalysisCards } from './Analysis.jsx';
 import { AdBanner } from '../ads.jsx';
@@ -56,7 +56,7 @@ export function Home({ data, user }) {
       <div data-game={g.id} key={g.id} class="swap">
       {!draw && <Panel><div class="empty">{t('Results will appear here after the next draw.')}</div></Panel>}
       {draw && <ResultBody g={g} draw={draw} onHistory={user ? () => go(`/game/${g.id}`) : () => go('/locked')} />}
-      {draw && <AdBanner />}
+      {draw && (g.id === 'singapore' ? <SourceCredit name="Singapore Pools" site="singaporepools.com.sg" /> : <AdBanner />)}
       {draw && <AnalysisCards g={g} draw={draw} latest={draw} user={user} />}
       </div>
     </div>
