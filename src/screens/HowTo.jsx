@@ -5,6 +5,7 @@ const STEPS = [
   ['Results', 'See the latest draw results for every game. Tap a result to open all past draws.'],
   ['Analysis', 'Under every result you get Top 3, Today and History analysis cards.'],
   ['Predictions', 'Open a game to see the daily prediction chart, numbers and Top 3. Tap a number to copy it.'],
+  ['Straight', 'Open a game to see its A B C D chart for the next draw. After the result, winning numbers are marked and read aloud.'],
   ['Lucky Game', 'Choose a game, open 4 Mystery Boxes and save your lucky number. Scratch card gives one more number each day.'],
   ['Community', 'Post your own predictions, like and save others, and follow players. One post per day.'],
   ['Profile', 'Your posts, saved numbers and winning percentage. We check everything automatically when results arrive.'],

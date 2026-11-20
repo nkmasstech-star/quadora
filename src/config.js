@@ -19,7 +19,7 @@ export const DRAW_TIMES = {
 };
 export const PUBLISHER = 'Nehru Karupaiya';
 export const GOVERNING_LAW = 'India';
-export const LEGAL_UPDATED = '20 November 2026';
+export const LEGAL_UPDATED = '20 November 2026'
 
 // Ads (TEST placeholders for now; real AdMob units are added at release). Timings are easy to change here.
 export const AD_INTERSTITIAL_GAP_SEC = 180; // min seconds between two full-screen ads for one user

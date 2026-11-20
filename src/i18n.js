@@ -325,6 +325,7 @@ const ROWS = [
   ['Choose your sticker', 'Pilih pelekat anda', '选择你的贴纸', 'உங்கள் ஸ்டிக்கரைத் தேர்ந்தெடுங்கள்', 'ជ្រើសស្ទីគ័រ'],
   ['Voice on', 'Suara hidup', '语音开', 'குரல் இயக்கம்', 'សំឡេងបើក'],
   ['Voice off', 'Suara mati', '语音关', 'குரல் நிறுத்தம்', 'សំឡេងបិទ'],
+  ['Open a game to see its A B C D chart for the next draw. After the result, winning numbers are marked and read aloud.', 'Buka permainan untuk melihat carta A B C D bagi cabutan seterusnya. Selepas keputusan, nombor menang ditandakan dan dibacakan.', '打开游戏可查看下一期的 A B C D 图表。开奖后会标出中奖号码并朗读。', 'ஒரு விளையாட்டைத் திறந்தால் அடுத்த டிராவுக்கான A B C D அட்டவணை தெரியும். முடிவு வந்ததும் வெற்றி எண்கள் குறிக்கப்பட்டு சத்தமாக வாசிக்கப்படும்.', 'បើកហ្គេមដើម្បីមើលតារាង A B C D សម្រាប់ការចាប់ឆ្នោតបន្ទាប់។ ក្រោយលទ្ធផល លេខឈ្នះត្រូវបានសម្គាល់ និងអានឮៗ។'],
   // analysis
   ['Account', 'Akaun', '账户', 'கணக்கு', 'គណនី'],
   ['Add number', 'Tambah nombor', '添加号码', 'எண் சேர்', 'បន្ថែមលេខ'],
