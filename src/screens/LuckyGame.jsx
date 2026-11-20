@@ -43,9 +43,8 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
 
   const start = () => {
     ac();
-    // 12 boxes: every digit 0-9 once plus 2 random extras, shuffled
-    const base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
-    setDigits(shuffle(base)); setOpened([]); onStart(); play('start'); setPhase('play');
+    // 15 boxes: every box hides a random digit 0-9 (repeats and doubles are common)
+    setDigits(Array.from({ length: 15 }, () => Math.floor(Math.random() * 10))); setOpened([]); onStart(); play('start'); setPhase('play');
   };
   const pick = (i) => {
     if (busy.current || opened.includes(i) || opened.length >= 4) return;
@@ -72,7 +71,7 @@ export function LuckyGame({ game, onStart, onFinish, onClose }) {
           <div class="mb-gift">🎁</div>
           <div class="game-title">{t('Mystery Boxes')}</div>
           <div class="game-how">
-            <div>🎁 {t('12 mystery boxes hide the digits')}</div>
+            <div>🎁 {t('15 mystery boxes hide the digits')}</div>
             <div>👆 {t('Tap 4 boxes to open them')}</div>
             <div>✨ {t('The 4 digits you open become your lucky number')}</div>
           </div>

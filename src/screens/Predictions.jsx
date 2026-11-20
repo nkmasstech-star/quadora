@@ -4,7 +4,7 @@ import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel, Sheet } from '../ui.
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
 import { IconClock } from '../icons.jsx';
-import { IconDice, IconChevron, IconVote } from '../icons.jsx';
+import { IconDice, IconChevron, IconVote, Logo } from '../icons.jsx';
 import { goWithAd } from '../ads.jsx';
 import { drawsOf, checkPrediction, allWins } from '../data/store.js';
 
@@ -74,12 +74,12 @@ export function Predictions({ data, toast }) {
         <div class="cardrow">
           <button class="lucky-card" onClick={() => go('/lucky')}>
             <span class="aicon"><IconDice /></span>
-            <span class="atext"><b>{t('Lucky Game Number')}</b><small>{t('Play a quick game, your score is your number')}</small></span>
+            <span class="atext"><b>{t('Lucky Game Number')}</b></span>
             <span class="chev"><IconChevron /></span>
           </button>
           <button class="lucky-card" onClick={() => go('/poll')}>
             <span class="aicon"><IconVote /></span>
-            <span class="atext"><b>{t('Voting Poll')}</b><small>{t('Vote your 4 digits and see what others picked')}</small></span>
+            <span class="atext"><b>{t('Voting Poll')}</b></span>
             <span class="chev"><IconChevron /></span>
           </button>
         </div>
@@ -169,6 +169,7 @@ function PredBody({ p, copy, g, label, wins = [] }) {
           <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} class={wonT.has(n) ? 'ring' : ''} onClick={() => copy(n)}><span>{n}</span></button>)}</div>
         </div>
       )}
+      <div class="pd-brand"><Logo size={20} />Q Spot 4D</div>
     </div>
   );
 }
@@ -177,7 +178,7 @@ function WinDetails({ p, wins }) {
   if (!wins.length) return null;
   return (
     <div class="pd-win-box">
-      <div class="pd-win-h">🎉 {t('{n} numbers won', { n: wins.length })}</div>
+      <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}</div>
       {wins.map((w, i) => (
         <div key={i} class="pd-win-row">
           <b>{w.number}</b><span class="pill gold">{t(w.prize)}</span>

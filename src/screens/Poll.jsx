@@ -9,26 +9,37 @@ import { requestInterstitial, AdBanner } from '../ads.jsx';
 const PG = GAMES.filter((g) => POLL_GAMES.includes(g.id));
 const LETTERS = ['A', 'B', 'C', 'D'];
 
+const ORD = ['1st digit', '2nd digit', '3rd digit', '4th digit'];
 function Results({ game, mine }) {
   const r = tally(game, mine);
   return (
     <div>
-      <div class="meta" style="margin:4px 2px 10px">{t('{n} players voted', { n: r.total })}</div>
-      {LETTERS.map((L, i) => (
-        <div key={L} class="pollrow">
-          <div class="pollhead"><b>{L}</b><span class="meta">{t('Most picked: {d}', { d: r.top[i] })}</span></div>
-          <div class="pollbars">
-            {r.pct[i].map((p, d) => (
-              <div key={d} class={'pbar' + (d === r.top[i] ? ' top' : '') + (mine && Number(mine[i]) === d ? ' mine' : '')}>
-                <small>{Math.round(p)}%</small>
-                <span style={`height:${Math.max(6, p * 3.2)}px`} />
-                <i>{d}</i>
+      <div class="meta" style="margin:2px 2px 10px">{t('{n} players voted', { n: r.total })}</div>
+      <div class="pollwin">
+        <div class="meta" style="font-weight:700">{t('Most picked number')}</div>
+        <div class="pollmine">{r.top.map((d, i) => <span key={i}>{d}</span>)}</div>
+        <div class="meta" style="font-size:12px">{t('Each box shows the digit most players picked in that place.')}</div>
+      </div>
+      {LETTERS.map((L, i) => {
+        const order = r.pct[i].map((p, d) => ({ p, d })).sort((x, y) => y.p - x.p);
+        const max = order[0].p;
+        const myD = mine ? Number(mine[i]) : -1;
+        const myRank = order.findIndex((o) => o.d === myD) + 1;
+        return (
+          <div key={L} class="pollcard">
+            <div class="pollhead"><b>{L}</b><span class="meta">{t(ORD[i])}</span></div>
+            {order.slice(0, 5).map((o, k) => (
+              <div key={o.d} class={'prow' + (k === 0 ? ' top' : '') + (o.d === myD ? ' mine' : '')}>
+                <span class="pdig">{o.d}</span>
+                <span class="ptrack"><span style={`width:${Math.max(6, (o.p / max) * 100)}%`} /></span>
+                <span class="ppct">{o.p.toFixed(1)}%</span>
+                {o.d === myD && <em>{t('You')}</em>}
               </div>
             ))}
+            {myRank > 5 && <div class="meta" style="margin-top:6px">{t('Your digit {d} is number {r} here', { d: myD, r: myRank })}</div>}
           </div>
-        </div>
-      ))}
-      <div class="polltop">{t('Most picked number')}: <b>{r.top.join('')}</b></div>
+        );
+      })}
     </div>
   );
 }
