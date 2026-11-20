@@ -52,7 +52,7 @@ function form(user) {
   <div class="sub">Signed in: ${user.email} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
   <label>Quick: paste the whole result here, then tap Auto-fill</label><textarea id="all" style="min-height:110px" placeholder="Copy everything from the results page and paste here"></textarea>
   <button id="af" class="g" style="margin-top:8px">Auto-fill from paste</button><div id="afm" class="sub" style="margin-top:6px"></div>
-  <label>Game</label><select id="g">${Object.entries(GAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+  <label>Game</label><select id="g"><option value="">-- choose game --</option>${Object.entries(GAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
   <div class="row"><div><label>Draw date</label><input id="d" type="date" value="${today}"></div><div><label>Draw no. (optional)</label><input id="n" inputmode="numeric" placeholder="e.g. 3631"></div></div>
   <div class="row"><div><label>1st</label><input id="f" inputmode="numeric" maxlength="4"></div><div><label>2nd</label><input id="s" inputmode="numeric" maxlength="4"></div><div><label>3rd</label><input id="t" inputmode="numeric" maxlength="4"></div></div>
   <label>Special / Starter numbers (10; if you paste 13 that include the top 3, they are removed)</label><textarea id="sp" placeholder="paste here"></textarea>
@@ -87,6 +87,7 @@ function form(user) {
     if (sp.length !== 10) errs.push('Special/Starter must be 10 numbers (found ' + sp.length + ')');
     if (co.length !== 10) errs.push('Consolation must be 10 numbers (found ' + co.length + ')');
     if (!$('#d').value) errs.push('Pick the draw date');
+    if (!$('#g').value) errs.push('Choose the game first');
     const o = $('#out2');
     if (errs.length) { draw = null; o.innerHTML = '<div class="box err">' + [...new Set(errs)].join('<br>') + '</div>'; return; }
     draw = { date: $('#d').value, drawNo: $('#n').value.trim(), first: f, second: s, third: t, special: sp.slice().sort(), consolation: co.slice().sort() };
