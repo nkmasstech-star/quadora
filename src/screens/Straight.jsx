@@ -6,6 +6,9 @@ import { t, getLang } from '../i18n.js';
 import { IconChevron, IconClock, Logo } from '../icons.jsx';
 import { drawsOf, prizeEntries } from '../data/store.js';
 import { analyze } from '../data/analysis.js';
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { drawStartMs, updateDelayHours } from '../data/rules.js';
 
 const LETTER = { magnum: 'M', toto: 'T', damacai: 'D', singapore: 'S', gdlotto: 'G' };
 const shortName = (g) => (g.id === 'gdlotto' ? 'GD Lotto' : g.name);
@@ -37,6 +40,18 @@ export function straightChart(draws, seed) {
   const r = rng(seed);
   const cols = [0, 1, 2, 3].map(() => shuffle(top7, r).slice(0, 4));
   return { top7, cols };
+}
+
+// Until the next prediction is published, the chart of the draw that just finished stays on screen with its wins.
+// Publish time = draw start + 1h (result) + the usual 2h / 24h delay.
+export function showsLatest(g, draws) {
+  const L = draws[0];
+  if (!L) return false;
+  const [y, m, d] = L.date.split('-').map(Number);
+  let next = null;
+  for (let i = 1; i < 9; i += 1) { const x = new Date(Date.UTC(y, m - 1, d + i)); if (g.days.includes(x.getUTCDay())) { next = x.toISOString().slice(0, 10); break; } }
+  const delay = updateDelayHours(L.date, next || L.date, false);
+  return Date.now() < drawStartMs(g.id, L.date) + (1 + delay) * 3600e3;
 }
 
 export function StraightList({ data }) {
@@ -72,21 +87,31 @@ function useReader(cols, wins, auto) {
   const [lit, setLit] = useState(() => (auto ? {} : null)); // key "col-row" -> win index
   const stop = useRef(false);
   const full = () => { const m = {}; wins.forEach((w, k) => w.number.split('').forEach((d, i) => { const key = `${i}-${cols[i].indexOf(Number(d))}`; if (!(key in m)) m[key] = k; })); return m; };
-  const speak = (text, onStart) => new Promise((res) => {
-    let done = false; const fin = () => { if (!done) { done = true; res(); } };
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = LANG_TAG[getLang()] || 'en-US'; u.rate = 0.85;
-      u.onstart = onStart; u.onend = fin; u.onerror = fin;
-      window.speechSynthesis.speak(u);
-      setTimeout(fin, 2500);
-    } catch (e) { onStart(); setTimeout(fin, 650); }
-  });
+  const speak = async (text, onStart) => {
+    const lang = LANG_TAG[getLang()] || 'en-US';
+    if (Capacitor.isNativePlatform()) {
+      onStart();
+      try { await TextToSpeech.speak({ text, lang, rate: 0.9, pitch: 1, volume: 1, category: 'ambient' }); return; } catch (e) {
+        try { await TextToSpeech.speak({ text, lang: 'en-US', rate: 0.9, pitch: 1, volume: 1, category: 'ambient' }); return; } catch (e2) { /* fall through to silent */ }
+      }
+      await new Promise((r) => setTimeout(r, 650)); return;
+    }
+    await new Promise((res) => {
+      let done = false; const fin = () => { if (!done) { done = true; res(); } };
+      try {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang; u.rate = 0.85; u.onstart = onStart; u.onend = fin; u.onerror = fin;
+        window.speechSynthesis.speak(u);
+        setTimeout(fin, 2500);
+      } catch (e) { onStart(); setTimeout(fin, 650); }
+    });
+  };
   const play = async () => {
     stop.current = false;
     if (!wins.length) return;
     if (!soundOn()) { setLit(full()); return; }
     try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    try { if (Capacitor.isNativePlatform()) await TextToSpeech.stop(); } catch (e) { /* ignore */ }
     const m = {}; setLit({});
     for (let k = 0; k < wins.length; k += 1) {
       const ds = wins[k].number.split('');
@@ -101,7 +126,7 @@ function useReader(cols, wins, auto) {
     }
     setLit(full());
   };
-  useEffect(() => { if (auto && wins.length) play(); else if (wins.length) setLit(full()); return () => { stop.current = true; try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }; }, []);
+  useEffect(() => { if (auto && wins.length) play(); else if (wins.length) setLit(full()); return () => { stop.current = true; try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } try { if (Capacitor.isNativePlatform()) TextToSpeech.stop(); } catch (e) { /* ignore */ } }; }, []);
   return { lit: lit || full(), play };
 }
 
@@ -110,18 +135,6 @@ function StraightSheet({ g, iso, cols, draw, auto }) {
   const { lit, play } = useReader(cols, wins, auto);
   return (
     <div>
-      {wins.length > 0 && (
-        <div class="pd-win-box">
-          <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}
-            <button class="speak" onClick={play} aria-label={t('Read aloud')}>🔊</button></div>
-          {wins.map((w, k) => (
-            <div key={k} class="pd-win-row" style={`--rc:${COLORS[k % COLORS.length]}`}>
-              <i class="wdot" style={`background:${COLORS[k % COLORS.length]}`} />
-              <b class="wnum">{w.number}</b><span class="pill gold">{w.prize === 'Special' ? t(g.special) : t(w.prize)}</span>
-            </div>
-          ))}
-        </div>
-      )}
       <div class="pd-sheet">
         <div class="pd-band date">{fmtShort(iso)}</div>
         <div class="pd-band title">{g.name.toUpperCase()}</div>
@@ -137,6 +150,18 @@ function StraightSheet({ g, iso, cols, draw, auto }) {
           </div>
         </div>
       </div>
+      {wins.length > 0 && (
+        <div class="pd-win-box" style="margin-top:12px">
+          <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}
+            <button class="speak" onClick={play} aria-label={t('Read aloud')}>🔊</button></div>
+          {wins.map((w, k) => (
+            <div key={k} class="pd-win-row" style={`--rc:${COLORS[k % COLORS.length]}`}>
+              <i class="wdot" style={`background:${COLORS[k % COLORS.length]}`} />
+              <b class="wnum">{w.number}</b><span class="pill gold">{w.prize === 'Special' ? t(g.special) : t(w.prize)}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -146,17 +171,19 @@ export function StraightChart({ data, gameId }) {
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draws = drawsOf(data.results, gameId);
-  const iso = nextDrawISO(g, draws);
-  const { cols } = straightChart(draws, `${gameId}${iso}`);
+  const latest = showsLatest(g, draws);
+  const iso = latest ? draws[0].date : nextDrawISO(g, draws);
+  const { cols } = straightChart(latest ? draws.slice(1) : draws, `${gameId}${iso}`);
+  const histCount = Math.min(30, draws.length - (latest ? 1 : 0) - 1);
   return (
     <div data-game={g.id} class="pd">
       <BackBar title={t('Straight Predictions')} />
-      <div style="margin-top:12px"><StraightSheet g={g} iso={iso} cols={cols} draw={null} /></div>
-      {draws.length > 1 && (
+      <div style="margin-top:12px"><StraightSheet key={iso} g={g} iso={iso} cols={cols} draw={latest ? draws[0] : null} auto /></div>
+      {histCount > 0 && (
         <div class="acards" style="margin-top:14px">
           <button class="acard" onClick={() => go(`/straighthist/${g.id}`)}>
             <span class="aicon"><IconClock /></span>
-            <span class="atext"><b>{t('History Straight Charts')}</b><small>{t('Last {n} draws', { n: Math.min(30, draws.length - 1) })}</small></span>
+            <span class="atext"><b>{t('History Straight Charts')}</b><small>{t('Last {n} draws', { n: histCount })}</small></span>
             <span class="chev"><IconChevron /></span>
           </button>
         </div>
@@ -170,7 +197,8 @@ export function StraightHistoryPage({ data, gameId }) {
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draws = drawsOf(data.results, gameId);
-  const list = draws.slice(0, 30).map((d, i) => ({ d, older: draws.slice(i + 1) })).filter((x) => x.older.length > 0)
+  const off = showsLatest(g, draws) ? 1 : 0;
+  const list = draws.slice(off, off + 30).map((d, i) => ({ d, older: draws.slice(off + i + 1) })).filter((x) => x.older.length > 0)
     .map(({ d, older }) => { const { cols } = straightChart(older, `${gameId}${d.date}`); return { d, cols, wins: straightWins(cols, d) }; });
   const [open, setOpen] = useState(() => (import.meta.env.DEV && location.search.includes('openph') ? (list.find((x) => x.wins.length) || {}).d?.date : null));
   return (
