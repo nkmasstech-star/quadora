@@ -16,6 +16,15 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        debug {
+            // Fixed DEBUG key (public repo, debug builds only) so its SHA-1 stays the same across builds and Google sign-in works.
+            storeFile file('qspot-debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

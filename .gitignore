@@ -8,3 +8,6 @@ android/local.properties
 android/capacitor-cordova-android-plugins/
 *.keystore
 *.jks
+
+# Debug-only key (public, never used for release)
+!android/app/qspot-debug.keystore

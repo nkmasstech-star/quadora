@@ -8,11 +8,39 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:1012098386722:android:92aa99bda412b32084f37b",
-        "android_client_info": { "package_name": "com.quadora.app" }
+        "android_client_info": {
+          "package_name": "com.quadora.app"
+        }
       },
-      "oauth_client": [],
-      "api_key": [ { "current_key": "AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g" } ],
-      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+      "oauth_client": [
+        {
+          "client_id": "1012098386722-u76kph0066qh4un63jro1t29r8l9jhni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quadora.app",
+            "certificate_hash": "217cae398db5f08c268bb2849c654beeec2be7c0"
+          }
+        },
+        {
+          "client_id": "1012098386722-q12rpiapb89nq57pi7n8esncorsubt5e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1012098386722-q12rpiapb89nq57pi7n8esncorsubt5e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
