@@ -97,83 +97,15 @@ function contains(num, set) {
   for (const d of set.map(String)) { const i = pool.indexOf(d); if (i < 0) return false; pool.splice(i, 1); }
   return pool;
 }
-// find a connected up/down/left/right path in the 4x3 chart that spells the number
-function findPath(chart, num) {
-  if (!chart || chart.length < 12) return null;
-  const want = String(num).split('').sort().join('');
-  const R = 3; const C = 4;
-  const go = (path) => {
-    if (path.length === want.length) {
-      return path.map(([r, c]) => String(chart[r * C + c])).sort().join('') === want ? path : null;
-    }
-    const [r, c] = path[path.length - 1];
-    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nr = r + dr; const nc = c + dc;
-      if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
-      if (path.some(([a, b]) => a === nr && b === nc)) continue;
-      if (!want.includes(String(chart[nr * C + nc]))) continue;
-      const res = go([...path, [nr, nc]]); if (res) return res;
-    }
-    return null;
-  };
-  for (let r = 0; r < R; r += 1) for (let c = 0; c < C; c += 1) { const res = go([[r, c]]); if (res) return res; }
-  return null;
-}
-function formulaOf(p, w) {
-  if (w.kind === 'Top3') return t('Top 3 prediction (one digit doubled)');
-  const imp = (p.important3 || []).find((set) => contains(w.number, set));
-  if (!imp) return t('From the daily prediction numbers');
-  const rest = contains(w.number, imp);
-  const all = String(w.number).split('');
-  const big = all.filter(isBig).length;
-  return `${w.number} = ${imp.join('')} + ${rest.join('')}  ·  ${big} ${t('Big')} + ${4 - big} ${t('Small')}`;
-}
-
 const WIN_COLORS = ['#FF5A5F', '#2BB3FF', '#8B5CF6', '#22C55E', '#F97316', '#E11D8A'];
 const winColor = (i) => WIN_COLORS[i % WIN_COLORS.length];
-const ARROW = (a, b) => (b[0] > a[0] ? '↓' : b[0] < a[0] ? '↑' : b[1] > a[1] ? '→' : '←');
-// everything the win box and the chart need about one winning number
-function winInfo(p, w) {
-  if (w.kind !== '4D') return { path: null, base: null, rest: null };
-  const imp = (p.important3 || []).find((set) => contains(w.number, set));
-  const path = findPath(p.chart, imp ? imp.join('') : w.number);
-  return { path, base: imp ? imp.map(String) : null, rest: imp ? contains(w.number, imp) : null };
-}
 
-function ChartCard({ p, g, wins }) {
-  const items = wins.map((w, i) => ({ w, i, ...winInfo(p, w) })).filter((x) => x.path);
+function ChartCard({ p, g }) {
   return (
     <div class="pd-chart-wrap">
       <div class="pd-chart-title">{shortName(g)} {t('Chart')}</div>
       <div class="pd-chart">
         {p.chart.map((d, i) => <div key={i}>{d}</div>)}
-        {items.length > 0 && (
-          <svg class="pd-lines" viewBox="0 0 4 3" aria-hidden="true">
-            {items.map(({ path, i, base, w }) => {
-              const col = winColor(i);
-              const off = (i % 3) * 0.07 - 0.07;
-              const pts = path.map(([r, c]) => [c + 0.5 + off, r + 0.5 + off]);
-              const baseLeft = base ? [...base] : [];
-              return (
-                <g key={i}>
-                  <polyline points={pts.map((q) => q.join(',')).join(' ')} fill="none" stroke={col} stroke-width="0.09" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" />
-                  {path.map(([r, c], k) => {
-                    const dgt = String(p.chart[r * 4 + c]);
-                    const j = baseLeft.indexOf(dgt);
-                    const inBase = j >= 0; if (inBase) baseLeft.splice(j, 1);
-                    return <circle key={`c${k}`} cx={pts[k][0]} cy={pts[k][1]} r="0.3" fill="none" stroke={col} stroke-width="0.07" stroke-dasharray={base && !inBase ? '0.12 0.1' : undefined} />;
-                  })}
-                  {pts.slice(1).map((q, k) => {
-                    const a0 = pts[k]; const mx = (a0[0] + q[0]) / 2; const my = (a0[1] + q[1]) / 2;
-                    const ang = (Math.atan2(q[1] - a0[1], q[0] - a0[0]) * 180) / Math.PI;
-                    return <polygon key={`a${k}`} points="0.13,0 -0.09,0.11 -0.09,-0.11" fill={col} transform={`translate(${mx} ${my}) rotate(${ang})`} />;
-                  })}
-                  <circle cx={pts[0][0]} cy={pts[0][1]} r="0.07" fill={col} />
-                </g>
-              );
-            })}
-          </svg>
-        )}
       </div>
     </div>
   );
@@ -199,7 +131,7 @@ function PredBody({ p, copy, g, label, wins = [] }) {
           </div>
         </div>
       )}
-      {p.chart && p.chart.length > 0 && <div class="pd-chart-bg"><ChartCard p={p} g={g} wins={wins} /></div>}
+      {p.chart && p.chart.length > 0 && <div class="pd-chart-bg"><ChartCard p={p} g={g} /></div>}
       {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} class={wonN.has(n) ? 'ring' : ''} style={wonN.has(n) ? `--rc:${colorOf['4D' + n]}` : undefined} onClick={() => copy(n)}><span>{n}</span></button>)}</div>}
       {p.top3 && p.top3.length > 0 && (
         <div class="pd-top">
@@ -212,38 +144,17 @@ function PredBody({ p, copy, g, label, wins = [] }) {
   );
 }
 
-function WinDetails({ p, wins }) {
+function WinDetails({ wins }) {
   if (!wins.length) return null;
   return (
     <div class="pd-win-box">
       <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}</div>
-      {wins.map((w, i) => {
-        const col = winColor(i);
-        const info = winInfo(p, w);
-        const all = String(w.number).split('');
-        const big = all.filter(isBig).length;
-        return (
-          <div key={i} class="pd-win-row" style={`--rc:${col}`}>
-            <i class="wdot" style={`background:${col}`} />
-            <b class="wnum">{w.number}</b><span class="pill gold">{t(w.prize)}</span>
-            {info.base ? (
-              <div class="wform">
-                <span class="meta">{t('3-digit base')}</span>
-                <span class="wbase">{info.base.join('')}</span>
-                <span class="meta">+ {t('extra digit')}</span>
-                <span class="wbase alt">{info.rest.join('')}</span>
-                <span class="meta">= {big} {t('Big')} + {4 - big} {t('Small')}</span>
-              </div>
-            ) : <div class="meta">{w.kind === 'Top3' ? t('Top 3 prediction (one digit doubled)') : t('From the daily prediction numbers')}</div>}
-            {info.path && (
-              <div class="wpath">
-                <span class="meta">{t('Chart path')}</span>
-                {info.path.map(([r, c], k) => <span key={k} class="wstep"><b>{p.chart[r * 4 + c]}</b>{k < info.path.length - 1 && <em>{ARROW(info.path[k], info.path[k + 1])}</em>}</span>)}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {wins.map((w, i) => (
+        <div key={i} class="pd-win-row" style={`--rc:${winColor(i)}`}>
+          <i class="wdot" style={`background:${winColor(i)}`} />
+          <b class="wnum">{w.number}</b><span class="pill gold">{t(w.prize)}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -266,7 +177,7 @@ function PredHistory({ rows, data, gid, copy, g }) {
             </button>
             {on && (
               <div>
-                <WinDetails p={p} wins={wins} />
+                <WinDetails wins={wins} />
                 <PredBody p={p} copy={copy} g={g} label={fmtShort(p.forDate)} wins={wins} />
               </div>
             )}
@@ -354,7 +265,7 @@ export function Winnings({ data, toast }) {
       {pv && (
         <Sheet title={`${pv.g.name} · ${fmtShort(sel.date)}`} onClose={() => setSel(null)}>
           <div data-game={pv.g.id}>
-            <WinDetails p={pv.p} wins={pv.wins} />
+            <WinDetails wins={pv.wins} />
             <PredBody p={pv.p} copy={copy} g={pv.g} label={fmtShort(sel.date)} wins={pv.wins} />
           </div>
         </Sheet>
