@@ -576,3 +576,61 @@ button:not([disabled]):active { transform: scale(0.96); }
 .ph-d { flex: 1; font-weight: 700; }
 .ph-d i { font-style: normal; color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 4px; }
 .ph-wins { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; font-weight: 700; margin: 0 0 8px; color: var(--gold-text); }
+
+/* mystery boxes */
+.game-wrap.mb { background: radial-gradient(circle at 50% 30%, #2a2150, #0b0a18 70%); }
+.mb-stars i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .2; animation: mbTw 3s ease-in-out infinite; }
+@keyframes mbTw { 50% { opacity: .9; transform: scale(1.8); } }
+.mb-gift { font-size: 54px; animation: mbBob 1.6s ease-in-out infinite; }
+@keyframes mbBob { 50% { transform: translateY(-8px) rotate(6deg); } }
+.mb-board { position: relative; z-index: 2; width: min(92%, 380px); text-align: center; color: #fff; }
+.mb-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 12px; }
+.mb-slots { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+.mb-slot { width: 52px; height: 62px; border-radius: 14px; border: 2px dashed rgba(255,255,255,.35); display: grid; place-items: center; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 32px; color: rgba(255,255,255,.4); }
+.mb-slot.on { border: 2px solid var(--gold); color: var(--gold); background: rgba(255,255,255,.08); animation: pop .4s var(--ease) both; }
+.mb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mb-box { position: relative; aspect-ratio: 1; border-radius: 16px; background: transparent; padding: 0; }
+.mb-body { position: absolute; left: 6%; right: 6%; bottom: 0; height: 68%; border-radius: 6px 6px 14px 14px; background: linear-gradient(var(--c), color-mix(in srgb, var(--c) 55%, #000)); display: grid; place-items: center; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 26px; color: rgba(255,255,255,.9); box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.mb-lid { position: absolute; left: 0; right: 0; top: 10%; height: 26%; border-radius: 8px; background: linear-gradient(color-mix(in srgb, var(--c) 80%, #fff), var(--c)); z-index: 2; transform-origin: left bottom; transition: transform .5s var(--ease); box-shadow: 0 3px 8px rgba(0,0,0,.35); }
+.mb-lid::after { content: ''; position: absolute; left: 44%; width: 12%; top: 0; bottom: 0; background: rgba(255,255,255,.55); }
+.mb-box.open .mb-lid { transform: translateY(-14px) rotate(-38deg); }
+.mb-box.shake { animation: mbShake .55s ease both; }
+@keyframes mbShake { 0%,100% { transform: rotate(0); } 15% { transform: rotate(-9deg) scale(1.05); } 35% { transform: rotate(9deg) scale(1.05); } 55% { transform: rotate(-7deg); } 75% { transform: rotate(6deg); } }
+.mb-digit { position: absolute; left: 0; right: 0; top: 6%; text-align: center; z-index: 3; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 40px; color: #fff; text-shadow: 0 0 16px var(--c), 0 0 4px #000; animation: mbRise .6s var(--ease) both; }
+@keyframes mbRise { from { transform: translateY(24px) scale(.3); opacity: 0; } to { transform: translateY(-4px) scale(1); opacity: 1; } }
+.mb-burst i { position: absolute; left: 50%; top: 40%; width: 8px; height: 8px; border-radius: 50%; background: var(--c); z-index: 1; animation: mbBurst .7s ease-out both; }
+@keyframes mbBurst { from { transform: translate(-50%, -50%) rotate(var(--a)) translateY(0); opacity: 1; } to { transform: translate(-50%, -50%) rotate(var(--a)) translateY(-54px); opacity: 0; } }
+.mb-hint { margin-top: 16px; color: rgba(255,255,255,.7); font-size: 14px; }
+
+/* chart card */
+.pd-chart-bg { background: #E7EAF2; padding: 14px 0 16px; }
+.pd-chart-wrap { width: 62%; min-width: 210px; max-width: 250px; margin: 0 auto; background: #14204A; border-radius: 18px; padding: 8px 8px 10px; box-shadow: 0 14px 28px rgba(16,22,43,.38), 0 3px 8px rgba(16,22,43,.25); }
+.pd-chart-title { text-align: center; color: var(--gold); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .4px; padding: 4px 0 8px; }
+.pd-chart-wrap .pd-chart { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); border-radius: 10px; overflow: hidden; }
+.pd-chart-wrap .pd-chart div { aspect-ratio: 1; display: grid; place-items: center; font-size: 24px; padding: 0; }
+.pd-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .9; }
+.pd-nums button.ring span, .pd-top-row button.ring span { display: inline-block; padding: 0 14px; border: 3px solid #FF5A5F; border-radius: 50%; transform: rotate(-3deg); box-shadow: 0 0 0 1px rgba(255,90,95,.35); }
+.pd-nums button.ring span { line-height: 1.5; }
+.pd-top-row button.ring { background: var(--gold); }
+.pd-imp-n.ring { box-shadow: 0 0 0 3px #FF5A5F; }
+.pd-win-box { margin: 8px 0 10px; padding: 10px 12px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--gold); }
+.pd-win-h { font-weight: 700; margin-bottom: 6px; }
+.pd-win-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 6px 0; border-top: 1px solid var(--border); }
+.pd-win-row b { font-family: 'Space Grotesk', sans-serif; font-size: 20px; letter-spacing: 1px; }
+.pd-win-row .meta { flex-basis: 100%; font-size: 12.5px; }
+
+/* long-text safety (Tamil etc.) */
+html, body { overflow-x: hidden; max-width: 100%; }
+.app, .screen, .page { max-width: 100%; min-width: 0; }
+.pf-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pf-stats div { min-width: 0; overflow: hidden; }
+.pf-stats span { display: block; font-size: 10.5px; line-height: 1.25; overflow-wrap: anywhere; hyphens: auto; }
+.pf-btns { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+.pf-btns .btn, .pf-main > .btn { height: auto; min-height: 46px; padding: 8px 10px; line-height: 1.25; white-space: normal; font-size: 13.5px; }
+.pf-main, .pf-wrap { min-width: 0; max-width: 100%; }
+.tabs { overflow-x: auto; scrollbar-width: none; }
+.tab { white-space: nowrap; flex: none; }
+.chip-btn { white-space: nowrap; }
+.hit, .acard, .row, .pd-win-row { min-width: 0; }
+.atext, .hit > span { min-width: 0; overflow-wrap: anywhere; }
+.btn { white-space: normal; }

@@ -28,3 +28,6 @@ export function buildAlerts(user, results) {
   out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   return out;
 }
+
+export const notifOn = () => { try { return localStorage.getItem('qd_notif') !== '0'; } catch (e) { return true; } };
+export const setNotif = (v) => { try { localStorage.setItem('qd_notif', v ? '1' : '0'); } catch (e) { /* ignore */ } };

@@ -1,8 +1,9 @@
 import { useState } from 'preact/hooks';
 import { gameById, fmtShort, todayISO, nextDrawLabel } from '../data/games.js';
-import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel } from '../ui.jsx';
+import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel, Sheet } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
+import { IconClock } from '../icons.jsx';
 import { IconDice, IconChevron } from '../icons.jsx';
 import { drawsOf, checkPrediction, allWins } from '../data/store.js';
 
@@ -48,7 +49,7 @@ export function Predictions({ data, toast }) {
 
   return (
     <div>
-      <AppBar title="Q Spot 4D" tagline={t('4D Predictions · Results · Analysis')} go={go} />
+      <AppBar title="Q Spot 4D" tagline={t('4D Analysis · Predictions · Results')} go={go} />
 
       <div class="hero">
         <div class="hero-text">
@@ -77,12 +78,67 @@ export function Predictions({ data, toast }) {
   );
 }
 
-function Dots({ set }) {
-  return <span class="dots">{set.join('')}</span>;
+const sortD = (n) => String(n).split('').sort().join('');
+const isBig = (d) => Number(d) >= 5;
+const shortName = (g) => (g.id === 'gdlotto' ? 'GD Lotto' : g.name);
+// does the 4-digit number contain all digits of a 3-digit set?
+function contains(num, set) {
+  const pool = String(num).split('');
+  for (const d of set.map(String)) { const i = pool.indexOf(d); if (i < 0) return false; pool.splice(i, 1); }
+  return pool;
+}
+// find a connected up/down/left/right path in the 4x3 chart that spells the number
+function findPath(chart, num) {
+  if (!chart || chart.length < 12) return null;
+  const ds = String(num).split('');
+  const R = 3; const C = 4;
+  const go = (path) => {
+    if (path.length === ds.length) return path;
+    const [r, c] = path[path.length - 1];
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr; const nc = c + dc;
+      if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
+      if (path.some(([a, b]) => a === nr && b === nc)) continue;
+      if (String(chart[nr * C + nc]) !== ds[path.length]) continue;
+      const res = go([...path, [nr, nc]]); if (res) return res;
+    }
+    return null;
+  };
+  for (let r = 0; r < R; r += 1) for (let c = 0; c < C; c += 1) if (String(chart[r * C + c]) === ds[0]) { const res = go([[r, c]]); if (res) return res; }
+  return null;
+}
+function formulaOf(p, w) {
+  if (w.kind === 'Top3') return t('Top 3 prediction (one digit doubled)');
+  const imp = (p.important3 || []).find((set) => contains(w.number, set));
+  if (!imp) return t('From the daily prediction numbers');
+  const rest = contains(w.number, imp);
+  const all = String(w.number).split('');
+  const big = all.filter(isBig).length;
+  return `${w.number} = ${imp.join('')} + ${rest.join('')}  ·  ${big} ${t('Big')} + ${4 - big} ${t('Small')}`;
 }
 
-function PredBody({ p, copy, g, label }) {
+function ChartCard({ p, g, wins }) {
+  const lines = wins.filter((w) => w.kind === '4D').map((w) => findPath(p.chart, w.number)).filter(Boolean);
+  return (
+    <div class="pd-chart-wrap">
+      <div class="pd-chart-title">{shortName(g)} {t('Chart')}</div>
+      <div class="pd-chart">
+        {p.chart.map((d, i) => <div key={i}>{d}</div>)}
+        {lines.length > 0 && (
+          <svg class="pd-lines" viewBox="0 0 4 3" preserveAspectRatio="none" aria-hidden="true">
+            {lines.map((path, k) => <polyline key={k} points={path.map(([r, c]) => `${c + 0.5},${r + 0.5}`).join(' ')} fill="none" stroke="#FF5A5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />)}
+          </svg>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PredBody({ p, copy, g, label, wins = [] }) {
   const nums = p.numbers || [];
+  const wonN = new Set(wins.filter((w) => w.kind === '4D').map((w) => w.number));
+  const wonT = new Set(wins.filter((w) => w.kind === 'Top3').map((w) => w.number));
+  const impWon = (set) => wins.some((w) => w.kind === '4D' && contains(w.number, set));
   return (
     <div class="pd-sheet">
       <div class="pd-band date">{label}</div>
@@ -91,29 +147,43 @@ function PredBody({ p, copy, g, label }) {
         <div class="pd-imp">
           <div class="pd-imp-h">{t('Important 3 digit')}</div>
           <div class="pd-imp-row">
-            {p.important3.slice(0, 2).map((set, i) => <button key={i} class="pd-imp-n" onClick={() => copy(set.join(''))}>•••{set.join('')}•••</button>)}
+            {p.important3.slice(0, 2).map((set, i) => <button key={i} class={impWon(set) ? 'pd-imp-n ring' : 'pd-imp-n'} onClick={() => copy(set.join(''))}>•••{set.join('')}•••</button>)}
           </div>
         </div>
       )}
-      {p.chart && p.chart.length > 0 && <div class="pd-chart">{p.chart.map((d, i) => <div key={i}>{d}</div>)}</div>}
-      {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} onClick={() => copy(n)}>{n}</button>)}</div>}
+      {p.chart && p.chart.length > 0 && <div class="pd-chart-bg"><ChartCard p={p} g={g} wins={wins} /></div>}
+      {nums.length > 0 && <div class="pd-nums">{nums.map((n, i) => <button key={i} class={wonN.has(n) ? 'ring' : ''} onClick={() => copy(n)}><span>{n}</span></button>)}</div>}
       {p.top3 && p.top3.length > 0 && (
         <div class="pd-top">
           <div class="pd-top-h">{t('Top 3 prediction')}</div>
-          <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} onClick={() => copy(n)}>{n}</button>)}</div>
+          <div class="pd-top-row">{p.top3.map((n, i) => <button key={i} class={wonT.has(n) ? 'ring' : ''} onClick={() => copy(n)}><span>{n}</span></button>)}</div>
         </div>
       )}
     </div>
   );
 }
 
+function WinDetails({ p, wins }) {
+  if (!wins.length) return null;
+  return (
+    <div class="pd-win-box">
+      <div class="pd-win-h">🎉 {t('{n} numbers won', { n: wins.length })}</div>
+      {wins.map((w, i) => (
+        <div key={i} class="pd-win-row">
+          <b>{w.number}</b><span class="pill gold">{t(w.prize)}</span>
+          <div class="meta">{formulaOf(p, w)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PredHistory({ rows, data, gid, copy, g }) {
-  const [open, setOpen] = useState(null);
   const draws = drawsOf(data.results, gid);
   const list = rows.slice().sort((a, b) => (a.forDate < b.forDate ? 1 : -1)).slice(0, 30);
+  const [open, setOpen] = useState(() => (import.meta.env.DEV && location.search.includes('openph') ? (list.find((p) => checkPrediction(p, draws.find((d) => d.date === p.forDate)).length) || {}).forDate : null));
   return (
     <div>
-      <div class="section-title"><h2>{t('History Predictions')}</h2><span>{t('Last {n} draws', { n: list.length })}</span></div>
       {list.map((p) => {
         const wins = checkPrediction(p, draws.find((d) => d.date === p.forDate));
         const on = open === p.forDate;
@@ -126,13 +196,28 @@ function PredHistory({ rows, data, gid, copy, g }) {
             </button>
             {on && (
               <div>
-                {wins.length > 0 && <div class="ph-wins">{wins.map((w, i) => <span key={i}>🎉 {w.number} · {t(w.prize)}</span>)}</div>}
-                <PredBody p={p} copy={copy} g={g} label={fmtShort(p.forDate)} />
+                <WinDetails p={p} wins={wins} />
+                <PredBody p={p} copy={copy} g={g} label={fmtShort(p.forDate)} wins={wins} />
               </div>
             )}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export function PredHistoryPage({ data, gameId, toast }) {
+  const g = gameById(gameId);
+  if (!g) return <div class="empty">{t('Game not found.')}</div>;
+  if (data.status === 'loading' && !data.predictions) return <Loading />;
+  const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[gameId]) || [];
+  const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
+  return (
+    <div data-game={g.id} class="pd">
+      <BackBar title={t('History Predictions')} />
+      <Hero kicker={t(g.region)} title={g.name} pill={t('Last {n} draws', { n: Math.min(30, rows.length) })} />
+      {rows.length === 0 ? <Panel><div class="empty">{t('No history yet.')}</div></Panel> : <div style="margin-top:10px"><PredHistory rows={rows} data={data} gid={gameId} copy={copy} g={g} /></div>}
     </div>
   );
 }
@@ -151,13 +236,31 @@ export function PredictionDetail({ data, gameId, toast }) {
       {!p && <Panel><div class="empty">{t('Prediction for this game will appear after the daily update.')}</div></Panel>}
       {p && <PredBody p={p} copy={copy} g={g} label={p.forDate ? fmtShort(p.forDate) : t('Next draw')} />}
       {p && <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:8px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>}
-      {rows.length > 0 && <PredHistory rows={rows} data={data} gid={gameId} copy={copy} g={g} />}
+      {rows.length > 0 && (
+        <div class="acards" style="margin-top:14px">
+          <button class="acard" onClick={() => go(`/predhist/${g.id}`)}>
+            <span class="aicon"><IconClock /></span>
+            <span class="atext"><b>{t('History Predictions')}</b><small>{t('Last {n} draws', { n: Math.min(30, rows.length) })}</small></span>
+            <span class="chev"><IconChevron /></span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-export function Winnings({ data }) {
+export function Winnings({ data, toast }) {
+  const [sel, setSel] = useState(null);
   const wins = allWins(data);
+  const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast && toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
+  const preview = (w) => {
+    const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[w.game]) || [];
+    const p = rows.find((r) => r.forDate === w.date);
+    if (!p) return null;
+    const draw = drawsOf(data.results, w.game).find((d) => d.date === w.date);
+    return { p, g: gameById(w.game), wins: checkPrediction(p, draw) };
+  };
+  const pv = sel ? preview(sel) : null;
   return (
     <div>
       <BackBar title={t('Winnings')} />
@@ -169,14 +272,22 @@ export function Winnings({ data }) {
             const g = gameById(w.game);
             if (!g) return null;
             return (
-              <div key={i} class="hit" data-game={g.id}>
+              <button key={i} class="hit" data-game={g.id} style="width:100%;text-align:left" onClick={() => setSel(w)}>
                 <span class="n">{w.number}</span>
                 <span style="flex:1"><span style="display:block;font-weight:700;font-size:14px">{g.name}</span><span class="meta">{fmtShort(w.date)} · {w.date.slice(0, 4)}</span></span>
                 <span class="pill gold">{w.prize === 'Special' ? t(g.special) : t(w.prize)}</span>
-              </div>
+              </button>
             );
           })}
         </div>
+      )}
+      {pv && (
+        <Sheet title={`${pv.g.name} · ${fmtShort(sel.date)}`} onClose={() => setSel(null)}>
+          <div data-game={pv.g.id}>
+            <WinDetails p={pv.p} wins={pv.wins} />
+            <PredBody p={pv.p} copy={copy} g={pv.g} label={fmtShort(sel.date)} wins={pv.wins} />
+          </div>
+        </Sheet>
       )}
     </div>
   );

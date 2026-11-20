@@ -5,6 +5,7 @@ import { BackBar } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t, LANGS, getLang } from '../i18n.js';
 import { APP_NAME } from '../config.js';
+import { notifOn, setNotif } from '../data/alerts.js';
 
 const THEMES = [
   { id: 'light', name: 'Light', bg: '#F3F5FA', line: '#D9DFEC', gold: '#E3A82A' },
@@ -15,6 +16,7 @@ const THEMES = [
 
 export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDelete, onRefresh, toast }) {
   const [confirmDel, setConfirmDel] = useState(false);
+  const [notif, setN] = useState(notifOn());
   const updated = data.results && data.results.updated ? data.results.updated.slice(0, 16).replace('T', ' ') : t('No update yet');
   return (
     <div>
@@ -31,6 +33,10 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
             ))}
           </span>
         </div>
+        <button class="row" role="switch" aria-checked={notif} onClick={() => { const v = !notif; setNotif(v); setN(v); toast(v ? t('Notifications on') : t('Notifications off')); }}>
+          <span style="flex:1;text-align:left">{t('Notifications')}</span>
+          <span class={notif ? 'toggle on' : 'toggle'} />
+        </button>
         <div class="row" style="display:block">
           <div style="margin-bottom:10px">{t('Language')}</div>
           <div class="langrow" style="margin:0">

@@ -178,7 +178,7 @@ export function Lucky({ user, toast }) {
     const id = setTimeout(() => setCount((c) => c - 1), 1000);
     return () => clearTimeout(id);
   }, [adOpen, count]);
-  useEffect(() => { if (import.meta.env.DEV && user && location.search.includes('autospin')) finishGame(4350); }, []);
+  useEffect(() => { if (import.meta.env.DEV && user && location.search.includes('autospin')) finishGame('4350'); }, []);
 
   if (!user) return (<div><BackBar title={t('Lucky Game Number')} /><Locked onLogin={() => go('/login')} /></div>);
 
@@ -195,7 +195,7 @@ export function Lucky({ user, toast }) {
   };
   const finishGame = (score) => {
     setPlaying(false);
-    const n = String(Math.max(0, Math.min(9999, score))).padStart(4, '0');
+    const n = String(score).padStart(4, '0');
     setNum(n); setDigits(n.split('').map(Number)); setDone(false); setSaved(false); setSpinning(true); setSpinKey((k) => k + 1);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { setSpinning(false); setDone(true); }, 1500 + 3 * 350 + 250);

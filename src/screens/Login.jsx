@@ -25,7 +25,7 @@ export function Login({ onGuest, onAuth, toast }) {
         <Logo size={52} />
         <div>
           <div class="display" style="font-weight:700;font-size:32px;line-height:1;letter-spacing:-0.5px">Q Spot <span style="color:var(--gold-text)">4D</span></div>
-          <div class="sub" style="margin-top:2px">{t('4D Predictions · Results · Analysis')}</div>
+          <div class="sub" style="margin-top:2px">{t('4D Analysis · Predictions · Results')}</div>
         </div>
       </div>
 

@@ -3,6 +3,9 @@ import { drawsOf, latestOf } from '../data/store.js';
 import { analyze, pct } from '../data/analysis.js';
 import { BackBar, Hero, Panel, Loading } from '../ui.jsx';
 import { t } from '../i18n.js';
+import { go } from '../App.jsx';
+import { IconBars, IconClock, IconChevron, IconLock } from '../icons.jsx';
+import { useState } from 'preact/hooks';
 
 function Bars({ rows, max, accent }) {
   const m = max || Math.max(1, ...rows.map((r) => r.v));
@@ -162,6 +165,51 @@ export function AnalysisHistory({ data, gameId, date }) {
       <BackBar title={t('History analysis')} />
       <Hero kicker={g.name} title={t('Patterns over time')} pill={t('{n} draws', { n: draws.length })} />
       {draws.length === 0 ? <Panel><div class="empty">{t('History analysis appears once draws are stored.')}</div></Panel> : <Report s={analyze(draws)} history />}
+    </div>
+  );
+}
+
+const onlyTop3 = (d) => ({ ...d, special: [], consolation: [] });
+
+export function AnalysisTop3({ data, gameId, date }) {
+  const g = gameById(gameId);
+  const [mode, setMode] = useState('draw');
+  if (!g) return <div class="empty">{t('Game not found.')}</div>;
+  if (data.status === 'loading' && !data.results) return <Loading />;
+  const all = drawsOf(data.results, gameId);
+  const draw = date ? all.find((d) => d.date === date) : latestOf(data.results, gameId);
+  const list = (mode === 'draw' ? (draw ? [draw] : []) : all.filter((d) => !date || d.date <= date)).map(onlyTop3);
+  return (
+    <div data-game={g.id}>
+      <BackBar title={t('Top 3 analysis')} />
+      <Hero kicker={g.name} title={t('1st, 2nd and 3rd prize only')} pill={draw ? fmtShort(draw.date) : '-'} />
+      <div class="chipwrap" style="margin-top:12px">
+        <button class={mode === 'draw' ? 'chip-btn on' : 'chip-btn'} onClick={() => setMode('draw')}>{t('This draw')}</button>
+        <button class={mode === 'all' ? 'chip-btn on' : 'chip-btn'} onClick={() => setMode('all')}>{t('All draws')}</button>
+      </div>
+      {list.length === 0 ? <Panel><div class="empty">{t('Analysis appears after the latest result is in.')}</div></Panel> : <Report s={analyze(list)} history={mode === 'all'} />}
+    </div>
+  );
+}
+
+// Three separate cards under a result: Top 3, Today's (or this draw's) and History analysis
+export function AnalysisCards({ g, draw, latest, user }) {
+  const isLatest = !latest || draw.date === latest.date;
+  const dest = (k) => (user ? `/analysis/${k}/${g.id}/${draw.date}` : '/locked');
+  const rows = [
+    ['top3', <IconBars />, t('Top 3 analysis'), t('Only 1st, 2nd and 3rd prize')],
+    ['today', <IconBars />, isLatest ? t("Today's result analysis") : t('Analysis of this draw'), t('Doubles, hot digits, formats and more')],
+    ['history', <IconClock />, t('History analysis'), t('Patterns across all stored draws')],
+  ];
+  return (
+    <div class="acards">
+      {rows.map(([k, ic, title, sub]) => (
+        <button key={k} class="acard" onClick={() => go(dest(k))}>
+          <span class="aicon">{ic}</span>
+          <span class="atext"><b>{title}</b><small>{sub}</small></span>
+          <span class="chev">{user ? <IconChevron /> : <IconLock />}</span>
+        </button>
+      ))}
     </div>
   );
 }
