@@ -14,7 +14,7 @@ import { PostCard, WinBadge, Composer } from './Community.jsx';
 function AvatarPicker({ current, onPick, onClose, left }) {
   const [th, setTh] = useState(Math.floor(current / 100) % 10);
   return (
-    <Sheet title={t('Choose your avatar')} onClose={onClose}>
+    <Sheet title={t('Choose your sticker')} onClose={onClose}>
       <div class="meta" style="margin-bottom:8px">{t('Avatar changes left: {n}', { n: left })}</div>
       <div class="chipwrap" style="margin:0 0 12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">
         {AVATAR_THEMES.map((a, i) => <button key={a.name} class={th === i ? 'chip-btn on small' : 'chip-btn small'} style="flex:none" onClick={() => setTh(i)}>{t(a.name)}</button>)}

@@ -760,3 +760,6 @@ html, body { overflow-x: hidden; max-width: 100%; }
 
 @keyframes stBlink { 0%, 100% { box-shadow: 0 0 0 3px var(--rc); } 50% { box-shadow: 0 0 0 6px var(--rc), 0 0 16px var(--rc); } }
 .st-c.on { animation: stBlink 1s ease-in-out 4; }
+
+.speak { margin-left: 10px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-size: 12.5px; font-weight: 600; }
+.speak.on { border-color: var(--gold); }

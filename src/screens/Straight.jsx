@@ -63,7 +63,7 @@ export function StraightList({ data }) {
 
 const COLORS = ['#FF5A5F', '#2BB3FF', '#8B5CF6', '#22C55E', '#F97316', '#E11D8A'];
 const LANG_TAG = { en: 'en-US', ms: 'ms-MY', zh: 'zh-CN', ta: 'ta-IN', km: 'km-KH' };
-const soundOn = () => { try { return localStorage.getItem('qd_sound') !== '0'; } catch (e) { return true; } };
+const soundOn = () => { try { return localStorage.getItem('qd_voice') !== '0'; } catch (e) { return true; } };
 
 // reads each winning number aloud digit by digit and lights up that digit in its column
 function useReader(cols, wins, auto) {
@@ -110,12 +110,15 @@ function useReader(cols, wins, auto) {
     setLit(full());
   };
   useEffect(() => { if (auto && wins.length) play(); else if (wins.length) setLit(full()); return () => { stop.current = true; try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } try { if (Capacitor.isNativePlatform()) TextToSpeech.stop(); } catch (e) { /* ignore */ } }; }, []);
-  return { lit: lit || full(), play };
+  const halt = () => { stop.current = true; try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } try { if (Capacitor.isNativePlatform()) TextToSpeech.stop(); } catch (e) { /* ignore */ } setLit(full()); };
+  return { lit: lit || full(), play, halt };
 }
 
 function StraightSheet({ g, iso, cols, draw, auto }) {
   const wins = straightWins(cols, draw);
-  const { lit, play } = useReader(cols, wins, auto);
+  const { lit, play, halt } = useReader(cols, wins, auto);
+  const [voice, setVoice] = useState(soundOn());
+  const toggleVoice = () => { const v = !voice; try { localStorage.setItem('qd_voice', v ? '1' : '0'); } catch (e) { /* ignore */ } setVoice(v); if (v) play(); else halt(); };
   return (
     <div>
       <div class="pd-sheet">
@@ -136,7 +139,7 @@ function StraightSheet({ g, iso, cols, draw, auto }) {
       {wins.length > 0 && (
         <div class="pd-win-box" style="margin-top:12px">
           <div class="pd-win-h">🎉 {wins.length === 1 ? t('1 number won') : t('{n} numbers won', { n: wins.length })}
-            <button class="speak" onClick={play} aria-label={t('Read aloud')}>🔊</button></div>
+            <button class={voice ? 'speak on' : 'speak'} onClick={toggleVoice}>{voice ? '🔊' : '🔇'} {voice ? t('Voice on') : t('Voice off')}</button></div>
           {wins.map((w, k) => (
             <div key={k} class="pd-win-row" style={`--rc:${COLORS[k % COLORS.length]}`}>
               <i class="wdot" style={`background:${COLORS[k % COLORS.length]}`} />
