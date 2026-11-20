@@ -3,7 +3,24 @@
 import { useState, useEffect } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { t } from './i18n.js';
-import { AD_INTERSTITIAL_GAP_SEC, AD_BANNER_REFRESH_SEC, AD_PREDICTION_GAMES } from './config.js';
+import { AD_INTERSTITIAL_GAP_SEC, AD_BANNER_REFRESH_SEC, AD_PREDICTION_GAMES, AD_TEST, ADMOB_BANNER_ID, ADMOB_INTERSTITIAL_ID } from './config.js';
+import { Capacitor } from '@capacitor/core';
+
+const NATIVE = Capacitor.isNativePlatform();
+let admob = null;
+let ready = null;
+// Real AdMob (Android app only). In the browser the placeholder ads below are used.
+function initAdMob() {
+  if (!NATIVE) return Promise.resolve(false);
+  if (!ready) {
+    ready = import('@capacitor-community/admob').then(async (m) => {
+      admob = m;
+      await m.AdMob.initialize({ initializeForTesting: AD_TEST });
+      return true;
+    }).catch(() => false);
+  }
+  return ready;
+}
 import { go } from './App.jsx';
 
 const DUMMY = [
@@ -15,6 +32,7 @@ const DUMMY = [
 
 // Inline banner (shown inside the page, never floating, never next to buttons). Refreshes while the user stays.
 export function AdBanner({ native }) {
+  if (NATIVE) return null; // the app shows one real bottom banner instead (see InterstitialHost)
   const [n, setN] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setN((x) => x + 1), AD_BANNER_REFRESH_SEC * 1000);
@@ -46,7 +64,33 @@ export function goWithAd(path, gameId) {
 export function InterstitialHost() {
   const [cb, setCb] = useState(null);
   const [left, setLeft] = useState(3);
-  useEffect(() => { listener = (done) => { setLeft(3); setCb(() => done); }; return () => { listener = null; }; }, []);
+  useEffect(() => {
+    if (NATIVE) {
+      // real ads: one bottom banner + full-screen ad on request
+      initAdMob().then(async (ok) => {
+        if (!ok) return;
+        try {
+          await admob.AdMob.showBanner({ adId: ADMOB_BANNER_ID, adSize: admob.BannerAdSize.ADAPTIVE_BANNER, position: admob.BannerAdPosition.BOTTOM_CENTER, margin: 64, isTesting: AD_TEST });
+        } catch (e) { /* no banner */ }
+      });
+      listener = (done) => {
+        initAdMob().then(async (ok) => {
+          if (!ok) { done(); return; }
+          let finished = false;
+          const fin = () => { if (!finished) { finished = true; done(); } };
+          try {
+            const h = await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.Dismissed, () => { h.remove(); fin(); });
+            const f = await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.FailedToShow, () => { f.remove(); fin(); });
+            await admob.AdMob.prepareInterstitial({ adId: ADMOB_INTERSTITIAL_ID, isTesting: AD_TEST });
+            await admob.AdMob.showInterstitial();
+          } catch (e) { fin(); }
+        });
+      };
+      return () => { listener = null; };
+    }
+    listener = (done) => { setLeft(3); setCb(() => done); };
+    return () => { listener = null; };
+  }, []);
   useEffect(() => {
     if (!cb || left <= 0) return undefined;
     const id = setTimeout(() => setLeft((x) => x - 1), 1000);
