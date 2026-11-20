@@ -1,0 +1,39 @@
+name: Release AAB
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Decode upload key
+        env:
+          KS_B64: ${{ secrets.UPLOAD_KEYSTORE_B64 }}
+        run: |
+          test -n "$KS_B64" || { echo "UPLOAD_KEYSTORE_B64 secret missing"; exit 1; }
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+      - name: Build signed AAB
+        working-directory: android
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
+          KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: qspot-upload
+        run: ./gradlew bundleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qspot4d-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14
