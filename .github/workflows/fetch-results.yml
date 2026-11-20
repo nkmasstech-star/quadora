@@ -1,0 +1,35 @@
+name: Fetch results
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: 'Dry run (do not commit)'
+        default: 'false'
+  schedule:
+    # draw days evenings (UTC): Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto ~17:30 IST
+    - cron: '10,40 11-14 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: fetch-results
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch
+        run: node tools/fetch_results.mjs ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain public/data/results.json)" ]; then
+            git config user.name "qspot-bot"
+            git config user.email "qspot-bot@users.noreply.github.com"
+            git add public/data/results.json
+            git commit -m "Auto: new draw results"
+            git pull --rebase -q
+            git push
+          fi
