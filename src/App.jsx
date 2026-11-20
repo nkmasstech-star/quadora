@@ -13,6 +13,9 @@ import { AnalysisToday, AnalysisHistory, AnalysisTop3 } from './screens/Analysis
 import { Lucky } from './screens/Lucky.jsx';
 import { Poll } from './screens/Poll.jsx';
 import { InterstitialHost } from './ads.jsx';
+import { NotifBanner } from './NotifBanner.jsx';
+import { setBadge, inboxOf, seenOf } from './data/inbox.js';
+import { buildAlerts } from './data/alerts.js';
 import { Community } from './screens/Community.jsx';
 import { Notifications } from './screens/Notifications.jsx';
 import { Menu } from './screens/Menu.jsx';
@@ -89,6 +92,19 @@ export function App() {
       StatusBar.setBackgroundColor({ color: bg }).catch(() => {});
     } catch (e) { /* web */ }
   }, [theme]);
+  // red dot on the bell = unread likes/follows + result alerts and announcements not opened yet
+  useEffect(() => {
+    const calc = () => {
+      if (!user) { setBadge(0); return; }
+      const seen = new Set(seenOf(user.uid));
+      const alerts = buildAlerts(user, data.results).filter((x) => !seen.has(x.id)).length;
+      const anns = ((data && data.announcements) || []).filter((x) => !seen.has(x.id)).length;
+      setBadge(inboxOf(user.uid).filter((x) => !x.read).length + alerts + anns);
+    };
+    calc();
+    window.addEventListener('qd-inbox', calc); window.addEventListener('qd-badge', calc);
+    return () => { window.removeEventListener('qd-inbox', calc); window.removeEventListener('qd-badge', calc); };
+  }, [user && user.uid, data]);
   const setTheme = (t) => { store.set('qd_theme', t); setThemeState(t); };
 
   const [menuOpen, setMenuOpen] = useState(!!(import.meta.env.DEV && location.search.includes('menu')));
@@ -181,6 +197,7 @@ export function App() {
         </nav>
       )}
       <InterstitialHost />
+      <NotifBanner user={user} data={data} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {toast && <div class="toast" role="status">{toast}</div>}
     </div>

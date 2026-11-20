@@ -7,6 +7,7 @@ import { Avatar, AVATAR_THEMES } from '../avatars.jsx';
 import { setAvatar, renameUser, validName } from '../data/account.js';
 import { NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
 import { gameById, fmtShort } from '../data/games.js';
+import { addInbox } from '../data/inbox.js';
 import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, delLucky, delPick, evalEntry, visiblePosts } from '../data/community.js';
 import { PostCard, WinBadge, Composer } from './Community.jsx';
 
@@ -122,7 +123,7 @@ export function Profile({ user, uid, data, toast, onUser }) {
           {st.pct == null && <div class="meta" style="font-size:12px;text-align:center">{t('Winning % shows after 4 checked posts. Checked: {n}', { n: st.resolved })}</div>}
           {own
             ? <div class="pf-btns"><button class="btn ghost" onClick={() => setNameOpen(true)}>{t('Edit profile')}</button><button class="btn" onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))}>{t('Place your prediction')}</button></div>
-            : <button class={following ? 'btn ghost' : 'btn'} onClick={() => { toggleFollow(user.uid, id); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
+            : <button class={following ? 'btn ghost' : 'btn'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
         </div>
       </div>
 

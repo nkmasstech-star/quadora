@@ -30,8 +30,8 @@ export async function loadAll() {
     const t = new Date(); m.default.results.games.magnum[0].date = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
     return { results: m.default.results, predictions: m.default.predictions, winnings: null, demo: true };
   }
-  const [results, predictions, predHistory] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('pred_history.json')]);
-  return { results, predictions, predHistory, demo: false };
+  const [results, predictions, predHistory, announcements] = await Promise.all([getJson('results.json'), getJson('predictions.json'), getJson('pred_history.json'), getJson('announcements.json')]);
+  return { results, predictions, predHistory, announcements: Array.isArray(announcements) ? announcements : [], demo: false };
 }
 
 export const drawsOf = (results, gameId) => (results && results.games && results.games[gameId]) || [];

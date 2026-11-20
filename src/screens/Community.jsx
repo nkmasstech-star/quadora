@@ -3,6 +3,7 @@ import { createPortal } from 'preact/compat';
 import { AppBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { AdBanner } from '../ads.jsx';
+import { addInbox } from '../data/inbox.js';
 import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
@@ -56,7 +57,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
   const guard = (fn) => () => { if (!me) { toast(t('Log in to do this')); return; } fn(); onChange(); };
   const share = async () => {
     const text = `${u.name}: ${p.picks.map((k) => `${(gameById(k.game) || {}).name} (${k.format}) ${k.sets.join(' ')}`).join(' | ')}\nvia Q Spot 4D`;
-    try { if (navigator.share) await navigator.share({ text }); else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Copied')); } } catch (e) { /* cancelled */ }
+    try { if (navigator.share) await navigator.share({ text }); else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Copied')); } if (me && !mine) addInbox(p.uid, { type: 'share', from: me.name, fromUid: me.uid, postId: p.id }); } catch (e) { /* cancelled */ }
   };
   const [rep, setRep] = useState(false);
   const [menu, setMenu] = useState(null);
@@ -72,7 +73,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
         </span>
         {!mine && me && <button class="plain-btn more-btn" aria-label={t('More options')} aria-haspopup="menu" onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}>⋯</button>}
         {menu && <PostMenu p={p} me={me} name={u.name} anchor={menu} onClose={() => setMenu(null)} onReport={() => setRep(true)} onChange={onChange} toast={toast} />}
-        {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { toggleFollow(me.uid, p.uid); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
+        {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { const was = following; toggleFollow(me.uid, p.uid); if (!was) addInbox(p.uid, { type: 'follow', from: me.name, fromUid: me.uid }); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 
       {p.picks.map((k, i) => {
@@ -87,7 +88,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
       {ev.resolved && <div class={ev.won ? 'res-line won' : 'res-line'}>{ev.won ? t('Matched the result') : t('Did not match the result')}</div>}
 
       <div class="post-foot">
-        <button class={liked ? 'act on' : 'act'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => toggleLike(p.id))}><IconHeart on={liked} /><span>{likeCount(p)}</span></button>
+        <button class={liked ? 'act on' : 'act'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => { const was = !!myLikes()[p.id]; toggleLike(p.id); if (!was && !mine) addInbox(p.uid, { type: 'like', from: me.name, fromUid: me.uid, postId: p.id }); })}><IconHeart on={liked} /><span>{likeCount(p)}</span></button>
         <button class="act" aria-label={t('Share')} onClick={share}><IconShare /><span>{t('Share')}</span></button>
         <button class={saved ? 'act on' : 'act'} aria-pressed={saved} aria-label={t('Save')} onClick={guard(() => toggleSave(me.uid, p.id))}><IconBookmark on={saved} /><span>{saved ? t('Saved') : t('Save')}</span></button>
       </div>

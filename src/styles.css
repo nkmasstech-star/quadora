@@ -683,3 +683,12 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .pbar.mine i { text-decoration: underline; }
 .polltop { text-align: center; font-size: 15px; margin-top: 4px; }
 .polltop b { font-family: 'Space Grotesk', sans-serif; letter-spacing: 3px; font-size: 20px; }
+
+/* notification banner + items */
+.nbanner { position: fixed; z-index: 80; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(calc(100% - 20px), 420px); display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35); animation: nbIn .35s var(--ease) both; }
+.nbanner .n { font-size: 22px; }
+.nbanner b { display: block; font-size: 14px; }
+.nbanner small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+@keyframes nbIn { from { transform: translate(-50%, -140%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+.nitem.new { border-color: var(--gold); }
+.ndot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); flex: none; }

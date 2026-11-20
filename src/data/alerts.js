@@ -1,5 +1,6 @@
 import { myLucky, myPicks, savedPosts, userPosts, evalEntry, evalPost } from './community.js';
 import { gameById } from './games.js';
+import { t } from '../i18n.js';
 
 // Builds the in-app notification list: every saved lucky number, private pick, saved post and own post
 // whose draw result is out, with the match result.
@@ -30,4 +31,13 @@ export function buildAlerts(user, results) {
 }
 
 export const notifOn = () => { try { return localStorage.getItem('qd_notif') !== '0'; } catch (e) { return true; } };
-export const setNotif = (v) => { try { localStorage.setItem('qd_notif', v ? '1' : '0'); } catch (e) { /* ignore */ } };
+export const setNotif = (v) => { try { localStorage.setItem('qd_notif', v ? '1' : '0'); } catch (e) { /* ignore */ } window.dispatchEvent(new Event('qd-notif')); };
+
+export const alertTitle = (a) => t(a.title.replace(/\d{4}/, '{n}'), { n: (a.title.match(/\d{4}/) || [''])[0] });
+export const ago = (ms) => {
+  const m = Math.floor((Date.now() - ms) / 60000);
+  if (m < 1) return t('Just now');
+  if (m < 60) return t('{n} min ago', { n: m });
+  if (m < 1440) return t('{n} h ago', { n: Math.floor(m / 60) });
+  return t('{n} d ago', { n: Math.floor(m / 1440) });
+};

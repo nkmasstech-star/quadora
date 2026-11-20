@@ -34,6 +34,7 @@ export function Loading() {
 
 import { IconMenu, IconBell, IconBack } from './icons.jsx';
 import { t } from './i18n.js';
+import { useBadge } from './data/inbox.js';
 
 export const openMenu = () => window.dispatchEvent(new Event('qd-menu'));
 
@@ -45,7 +46,7 @@ export function AppBar({ title, tagline, go, right }) {
         <div class="app-title">{title}</div>
         {tagline && <div class="tagline">{tagline}</div>}
       </div>
-      {right || <button class="icon-btn bell" aria-label={t('Notifications')} onClick={() => go('/notifications')}><IconBell />{(() => { try { return localStorage.getItem('qd_notif') !== '0'; } catch (e) { return true; } })() && <i class="dot" />}</button>}
+      {right || <button class="icon-btn bell" aria-label={t('Notifications')} onClick={() => go('/notifications')}><IconBell />{useBadge() > 0 && <i class="dot" />}</button>}
     </div>
   );
 }
