@@ -9,14 +9,15 @@ on:
         description: 'stop time HH:MM UTC'
         default: '12:00'
   schedule:
-    # Singapore 18:30 SGT + Malaysia 19:00 MYT (10:30 / 11:00 UTC) on Wed, Sat, Sun
-    - cron: '5 10 * * 0,3,6'
-    # GD Lotto 19:15 Cambodia (12:15 UTC), daily
-    - cron: '55 11 * * *'
+    # one window 10:00-12:00 UTC daily: Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto ~11:30 UTC.
+    # 3 start times because GitHub sometimes delays or skips a schedule; a late duplicate just stops at 12:00.
+    - cron: '55 9 * * *'
+    - cron: '20 10 * * *'
+    - cron: '45 10 * * *'
 permissions:
   contents: write
 concurrency:
-  group: live-probe-${{ github.event.schedule || 'manual' }}
+  group: live-probe
   cancel-in-progress: false
 jobs:
   probe:
@@ -29,8 +30,9 @@ jobs:
           node-version: 22
       - name: Probe
         run: |
-          if [ "${{ github.event.schedule }}" = "5 10 * * 0,3,6" ]; then node tools/live_probe.mjs my-sg 11:50;
-          elif [ "${{ github.event.schedule }}" = "55 11 * * *" ]; then node tools/live_probe.mjs gd 12:55;
+          if [ -n "${{ github.event.schedule }}" ]; then
+            if [ "$(date -u +%H%M)" -ge 1200 ]; then echo "window over"; exit 0; fi
+            node tools/live_probe.mjs evening-$(date -u +%H%M) 12:00;
           else node tools/live_probe.mjs "${{ github.event.inputs.label }}" "${{ github.event.inputs.stop }}"; fi
       - name: Save report
         run: |
