@@ -12,7 +12,7 @@ import { Search } from './screens/Search.jsx';
 import { AnalysisToday, AnalysisHistory, AnalysisTop3 } from './screens/Analysis.jsx';
 import { Lucky } from './screens/Lucky.jsx';
 import { Poll } from './screens/Poll.jsx';
-import { InterstitialHost, BannerHost } from './ads.jsx';
+import { InterstitialHost } from './ads.jsx';
 import { NotifBanner } from './NotifBanner.jsx';
 import { setBadge, inboxOf, seenOf } from './data/inbox.js';
 import { buildAlerts } from './data/alerts.js';
@@ -222,7 +222,6 @@ export function App() {
         </nav>
       )}
       <InterstitialHost />
-      <BannerHost path={path} />
       <NotifBanner user={user} data={data} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {toast && <div class="toast" role="status">{toast}</div>}
