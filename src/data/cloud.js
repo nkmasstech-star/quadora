@@ -41,9 +41,10 @@ export function stopUser() { unsubs.forEach((u) => u()); unsubs = []; uidNow = n
 export async function saveProfile(u) {
   const ref = doc(db, 'users', u.uid);
   const snap = await getDoc(ref);
-  if (snap.exists()) { C.users[u.uid] = { uid: u.uid, ...snap.data() }; return; }
+  if (snap.exists()) { C.users[u.uid] = { uid: u.uid, ...snap.data() }; return C.users[u.uid]; }
   await setDoc(ref, { name: u.name, avatar: u.avatar, followers: 0, created: Date.now() });
   C.users[u.uid] = { uid: u.uid, name: u.name, avatar: u.avatar, followers: 0 };
+  return C.users[u.uid];
 }
 export async function updateProfile(uid, patch) { C.users[uid] = { ...(C.users[uid] || { uid }), ...patch }; fire(); await updateDoc(doc(db, 'users', uid), patch); }
 

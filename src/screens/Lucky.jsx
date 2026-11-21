@@ -171,16 +171,9 @@ export function Lucky({ user, toast }) {
   const [spinKey, setSpinKey] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [done, setDone] = useState(false);
-  const [adOpen, setAdOpen] = useState(false);
-  const [count, setCount] = useState(3);
   const [playing, setPlaying] = useState(false);
   const timer = useRef(null);
   useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => {
-    if (!adOpen || count <= 0) return undefined;
-    const id = setTimeout(() => setCount((c) => c - 1), 1000);
-    return () => clearTimeout(id);
-  }, [adOpen, count]);
   useEffect(() => { if (import.meta.env.DEV && user && location.search.includes('autospin')) finishGame('4350'); }, []);
 
   if (!user) return (<div><BackBar title={t('Lucky Game Number')} /><Locked onLogin={() => go('/login')} /></div>);
@@ -193,7 +186,7 @@ export function Lucky({ user, toast }) {
   const openGame = () => {
     if (spinning) return;
     if (full) { toast(t('You have used all 4 sets today. Come back tomorrow.')); return; }
-    if (needAd) { setAdOpen(true); setCount(3); return; }
+    if (needAd) { requestRewarded(claim); return; }
     setPlaying(true);
   };
   const finishGame = (score) => {
@@ -203,7 +196,7 @@ export function Lucky({ user, toast }) {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { setSpinning(false); setDone(true); }, 1500 + 3 * 350 + 250);
   };
-  const claim = () => { update((s) => { s.unlocked = true; }); setAdOpen(false); setPlaying(true); };
+  const claim = () => { update((s) => { s.unlocked = true; }); setPlaying(true); };
   const save = () => { addLucky(user.uid, num, game, fmt); setSaved(true); toast(t('Saved to your profile')); };
   const gobj = GAMES.find((g) => g.id === game);
 
@@ -246,16 +239,6 @@ export function Lucky({ user, toast }) {
 
       {playing && <LuckyGame game={game} onStart={() => update((st) => { st.used += 1; })} onFinish={finishGame} onClose={() => setPlaying(false)} />}
 
-      {adOpen && (
-        <div class="ad-wrap">
-          <div class="ad-box">
-            <div class="ad-tag">{t('Ad (test)')}</div>
-            <div class="ad-body">{t('A short ad will play here.')}</div>
-            <button class="btn" disabled={count > 0} onClick={claim}>{count > 0 ? t('Wait {n}s', { n: count }) : t('Unlock 3 more sets')}</button>
-            <button class="btn text" style="margin-top:6px" onClick={() => setAdOpen(false)}>{t('Close')}</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

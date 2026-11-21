@@ -29,7 +29,7 @@ export const AD_PREDICTION_GAMES = ['magnum', 'singapore', 'gdlotto']; // full-s
 export const POLL_GAMES = ['magnum', 'toto', 'damacai', 'singapore', 'gdlotto'];
 
 // Test build helpers (set to false before the Play Store release).
-export const TEST_MODE = true;
+export const TEST_MODE = !!import.meta.env.DEV;
 
 // AdMob (personal AdMob account). Test ads everywhere except the Play release build (release workflow sets VITE_ADS_LIVE=1).
 export const AD_TEST = import.meta.env.VITE_ADS_LIVE !== '1';

@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { Logo } from '../icons.jsx';
 import { t } from '../i18n.js';
-import { googleSignIn } from '../data/account.js';
+import { googleSignIn, syncCloudProfile } from '../data/account.js';
 import { webSignIn } from '../firebase.js';
 import { go } from '../App.jsx';
 import { Capacitor } from '@capacitor/core';
@@ -22,7 +22,7 @@ export function Login({ onGuest, onAuth, toast }) {
         const fb = await webSignIn(idToken, accessToken);
         const r = googleSignIn({ uid: fb.uid, name: u.displayName || 'Player', email: u.email, dob: null });
         if (r.error) { setErr(r.error); return; }
-        onAuth(r.user);
+        onAuth(await syncCloudProfile(r.user));
       } catch (e) {
         const m = String((e && e.message) || e || '');
         if (/cancel/i.test(m)) return; // user closed the Google sheet

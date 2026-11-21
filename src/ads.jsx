@@ -85,18 +85,29 @@ export function InterstitialHost() {
   useEffect(() => {
     if (NATIVE) {
       // real ads: full-screen ad on request (the banner is handled by BannerHost, only on result pages)
-      listener = (done) => {
+      let ready2 = false; let loading = false;
+      const preload = () => {
+        if (loading || ready2) return;
+        loading = true;
         initAdMob().then(async (ok) => {
-          if (!ok) { done(); return; }
-          let finished = false;
-          const fin = () => { if (!finished) { finished = true; done(); } };
+          if (!ok) { loading = false; return; }
+          try { await admob.AdMob.prepareInterstitial({ adId: ADMOB_INTERSTITIAL_ID, isTesting: AD_TEST }); ready2 = true; } catch (e) { /* try again later */ }
+          loading = false;
+        });
+      };
+      preload();
+      listener = (done) => {
+        if (!ready2) { done(); preload(); return; } // ad not loaded yet: open the page at once
+        ready2 = false;
+        let finished = false; const subs = [];
+        const fin = () => { if (finished) return; finished = true; subs.forEach((h) => { try { h.remove(); } catch (e) { /* ignore */ } }); done(); setTimeout(preload, 1000); };
+        (async () => {
           try {
-            const h = await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.Dismissed, () => { h.remove(); fin(); });
-            const f = await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.FailedToShow, () => { f.remove(); fin(); });
-            await admob.AdMob.prepareInterstitial({ adId: ADMOB_INTERSTITIAL_ID, isTesting: AD_TEST });
+            subs.push(await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.Dismissed, fin));
+            subs.push(await admob.AdMob.addListener(admob.InterstitialAdPluginEvents.FailedToShow, fin));
             await admob.AdMob.showInterstitial();
           } catch (e) { fin(); }
-        });
+        })();
       };
       return () => { listener = null; };
     }

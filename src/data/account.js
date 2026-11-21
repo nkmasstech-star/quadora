@@ -37,10 +37,20 @@ export function googleSignIn(profile) {
   if (u && p.uid && u.uid !== p.uid) { u.uid = p.uid; write(K_USERS, users); }
   if (!u) { u = { uid: p.uid || uid(), name: cleanName(p.name) || 'Player', email: e, avatar: Math.floor(Math.random() * 1000), nameEdits: 0, avatarEdits: 0, created: Date.now() }; users.push(u); write(K_USERS, users); }
   write(K_SESSION, u.uid);
-  if (p.uid) saveProfile(pub(u)).catch(() => {});
   return { user: pub(u) };
 }
 
+// After sign-in: an existing player keeps the name and sticker saved on the server (new phone or re-install).
+export async function syncCloudProfile(user) {
+  try {
+    const cp = await saveProfile(user);
+    if (!cp) return user;
+    const users = read(K_USERS, []);
+    const u = users.find((x) => x.uid === user.uid);
+    if (u && (u.name !== cp.name || u.avatar !== cp.avatar)) { u.name = cp.name || u.name; u.avatar = cp.avatar != null ? cp.avatar : u.avatar; write(K_USERS, users); }
+    return pub(u) || user;
+  } catch (e) { return user; }
+}
 export function logOut() { try { localStorage.removeItem(K_SESSION); } catch (e) { /* ignore */ } webSignOut(); }
 
 // Text only: letters (any language) and spaces. No digits, emoji or symbols. Max 25 characters.
