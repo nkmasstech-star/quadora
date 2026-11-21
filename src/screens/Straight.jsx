@@ -6,6 +6,7 @@ import { t, getLang } from '../i18n.js';
 import { IconChevron, IconClock, Logo } from '../icons.jsx';
 import { drawsOf } from '../data/store.js';
 import { straightChart, straightWins } from '../data/straight.js';
+import { STRAIGHT_START } from '../config.js';
 import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { drawStartMs, updateDelayHours } from '../data/rules.js';
@@ -29,7 +30,7 @@ function nextDrawISO(g, draws) {
 // Publish time = draw start + 1h (result) + the usual 2h / 24h delay.
 export function showsLatest(g, draws) {
   const L = draws[0];
-  if (!L) return false;
+  if (!L || L.date < STRAIGHT_START) return false;
   const [y, m, d] = L.date.split('-').map(Number);
   let next = null;
   for (let i = 1; i < 9; i += 1) { const x = new Date(Date.UTC(y, m - 1, d + i)); if (g.days.includes(x.getUTCDay())) { next = x.toISOString().slice(0, 10); break; } }
@@ -160,7 +161,7 @@ export function StraightChart({ data, gameId }) {
   const latest = showsLatest(g, draws);
   const iso = latest ? draws[0].date : nextDrawISO(g, draws);
   const { cols } = straightChart(latest ? draws.slice(1) : draws, `${gameId}${iso}`);
-  const histCount = Math.min(30, draws.length - (latest ? 1 : 0) - 1);
+  const histCount = Math.min(30, draws.slice(latest ? 1 : 0).filter((d) => d.date >= STRAIGHT_START).length);
   return (
     <div data-game={g.id} class="pd">
       <BackBar title={t('Straight Predictions')} />
@@ -184,7 +185,7 @@ export function StraightHistoryPage({ data, gameId }) {
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draws = drawsOf(data.results, gameId);
   const off = showsLatest(g, draws) ? 1 : 0;
-  const list = draws.slice(off, off + 30).map((d, i) => ({ d, older: draws.slice(off + i + 1) })).filter((x) => x.older.length > 0)
+  const list = draws.slice(off, off + 30).map((d, i) => ({ d, older: draws.slice(off + i + 1) })).filter((x) => x.older.length > 0 && x.d.date >= STRAIGHT_START)
     .map(({ d, older }) => { const { cols } = straightChart(older, `${gameId}${d.date}`); return { d, cols, wins: straightWins(cols, d) }; });
   const [open, setOpen] = useState(() => (import.meta.env.DEV && location.search.includes('openph') ? (list.find((x) => x.wins.length) || {}).d?.date : null));
   return (
