@@ -107,6 +107,7 @@ export async function cloudDeleteAccount(uid) {
     const l = await getDocs(collection(db, 'users', uid, 'likes')); await Promise.all(l.docs.map((d) => deleteDoc(d.ref)));
     const f = await getDocs(collection(db, 'users', uid, 'following')); await Promise.all(f.docs.map((d) => deleteDoc(d.ref)));
     await deleteDoc(doc(db, 'users', uid));
+    if (auth.currentUser && auth.currentUser.uid === uid) await auth.currentUser.delete().catch(() => {}); // remove the sign-in record too
   } catch (e) { fail(e); }
 }
 
