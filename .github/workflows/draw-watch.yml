@@ -1,0 +1,50 @@
+name: Draw watch (evening loop)
+# One long run each evening that checks for new results every 3 minutes, so a late or skipped
+# GitHub schedule cannot delay results. Covers Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto 19:15 ICT.
+on:
+  workflow_dispatch:
+    inputs:
+      stop:
+        description: 'stop time HH:MM UTC'
+        default: '13:45'
+  schedule:
+    - cron: '50 9 * * *'
+    - cron: '35 10 * * *'
+    - cron: '20 11 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: draw-watch
+  cancel-in-progress: false
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 280
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Loop until stop time
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+          STOP: ${{ github.event.inputs.stop || '13:45' }}
+        run: |
+          git config user.name "qspot-bot"
+          git config user.email "qspot-bot@users.noreply.github.com"
+          stop_s=$(date -u -d "today $STOP" +%s)
+          if [ "$(date -u +%s)" -ge "$stop_s" ]; then echo "past stop time, nothing to do"; exit 0; fi
+          while [ "$(date -u +%s)" -lt "$stop_s" ]; do
+            git pull --rebase -q || true
+            node tools/fetch_results.mjs || true
+            node tools/notify.mjs || true
+            node tools/gen_predictions.mjs || true
+            node tools/notify.mjs --pred || true
+            if [ -n "$(git status --porcelain public/data tools/notified.json)" ]; then
+              git add public/data tools/notified.json
+              git commit -q -m "Auto: new draw results (draw watch)"
+              for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+              echo "pushed at $(date -u +%H:%M)"
+            fi
+            sleep 180
+          done
