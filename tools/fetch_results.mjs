@@ -36,6 +36,42 @@ function build(date, drawNo, nums) {
   return { date, drawNo: drawNo ? String(drawNo) : '', first, second, third, special, consolation };
 }
 
+// ---- 4dpredict.app home page (MAIN source for all 5 games; shows the latest draw of each) ----
+const P4D_URL = 'https://www.4dpredict.app/';
+const P4D_TITLE = {
+  magnum: /^MAGNUM 4D Classic/i,
+  toto: /^TOTO 4D/i,
+  damacai: /^DAMACAI 1\+3D/i,
+  singapore: /^SINGAPORE POOLS/i,
+  gdlotto: /^GRAND DRAGON LOTTO(?!\s*6D)/i,
+};
+let p4dCache = null;
+export function parse4dPredict(html) {
+  const out = {};
+  for (const part of html.split('<span class="lottery-title">').slice(1)) {
+    const title = part.slice(0, part.indexOf('</span>')).trim();
+    const game = Object.keys(P4D_TITLE).find((g) => P4D_TITLE[g].test(title));
+    if (!game || out[game]) continue;
+    const dm = part.match(/[?&]d=(\d{4}-\d{2}-\d{2})/);
+    const iSp = part.search(/>\s*SPECIAL\s*</i);
+    const iCo = part.search(/>\s*CONSOLATION\s*</i);
+    if (!dm || iSp < 0 || iCo < iSp) continue;
+    const cells = (x) => [...x.matchAll(/<td[^>]*>\s*(\d{4})\s*<\/td>/g)].map((m) => m[1]);
+    const top = cells(part.slice(0, iSp)).slice(0, 3);
+    const sp = cells(part.slice(iSp, iCo));
+    const tail = part.slice(iCo + 20);
+    const stop = tail.search(/class="table-container|<\/section/);
+    const co = cells(stop > 0 ? tail.slice(0, stop) : tail);
+    const d = build(dm[1], '', [...top, ...sp.slice(0, 10), ...co.slice(0, 10)]);
+    if (d && sp.length === 10 && co.length === 10) out[game] = [d];
+  }
+  return out;
+}
+async function from4dPredict(game) {
+  if (!p4dCache) { const r = await get(P4D_URL); p4dCache = parse4dPredict(await r.text()); }
+  return p4dCache[game] || [];
+}
+
 // ---- lotteryguru history page (Toto, Singapore; also used as a fallback for Magnum/Damacai) ----
 function parseLotteryGuru(html) {
   const text = html
@@ -110,12 +146,13 @@ async function fromDamacai() {
   return out;
 }
 
+// Order = priority. 4dpredict.app is the main source; the rest are backups (and fill any missed older draws).
 const SOURCES = {
-  magnum: [fromMagnum, () => fromLotteryGuru('magnum')],
-  damacai: [fromDamacai, () => fromLotteryGuru('damacai')],
-  toto: [() => fromLotteryGuru('toto')],
-  singapore: [() => fromLotteryGuru('singapore')],
-  // gdlotto: added after the live feed route is confirmed (manual entry covers it until then)
+  magnum: [() => from4dPredict('magnum'), fromMagnum, () => fromLotteryGuru('magnum')],
+  damacai: [() => from4dPredict('damacai'), fromDamacai, () => fromLotteryGuru('damacai')],
+  toto: [() => from4dPredict('toto'), () => fromLotteryGuru('toto')],
+  singapore: [() => from4dPredict('singapore'), () => fromLotteryGuru('singapore')],
+  gdlotto: [() => from4dPredict('gdlotto')], // admin page manual entry is still merged in the app as a backup
 };
 
 const data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
@@ -126,15 +163,17 @@ for (const game of Object.keys(SOURCES)) {
   const have = data.games[game] || [];
   const latest = have.length ? have[0].date : '0000-00-00';
   let found = null;
+  let any = false;
   for (const src of SOURCES[game]) {
     try {
       const res = await src();
       console.log(`[${game}] source returned ${res.length} complete draws`);
-      if (res.length) { found = res; break; }
+      if (res.length) { any = true; found = [...(found || []), ...res]; if (res.some((d) => d.date > latest)) break; }
     } catch (e) { console.log(`[${game}] source failed: ${e.message}`); }
     await sleep(800);
   }
-  if (!found) { report.push(`${game}: no data`); continue; }
+  if (!any) { report.push(`${game}: no data`); continue; }
+  { const seen = new Set(); found = found.filter((d) => (seen.has(d.date) ? false : (seen.add(d.date), true))); } // first source wins per date
   const fresh = found.filter((d) => d.date > latest && !have.some((h) => h.date === d.date));
   if (!fresh.length) { report.push(`${game}: up to date (${latest})`); continue; }
   fresh.sort((a, b) => (a.date < b.date ? 1 : -1));
