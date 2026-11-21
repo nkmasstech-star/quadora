@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Q Spot 4D · Moderation</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;font:15px/1.45 system-ui,sans-serif;background:#0d0f14;color:#e8e6df;padding:16px;max-width:560px;margin:auto}
+  h1{font-size:20px;margin:6px 0 2px;color:#E8B94A} .sub{color:#9a978c;font-size:13px;margin-bottom:14px}
+  label{display:block;margin:12px 0 4px;font-size:13px;color:#b9b6aa}
+  input,select,textarea{width:100%;box-sizing:border-box;background:#171a21;color:#fff;border:1px solid #2a2f3a;border-radius:10px;padding:11px;font:inherit}
+  textarea{min-height:70px;font-family:ui-monospace,monospace}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  button{background:#E8B94A;color:#1a1405;border:0;border-radius:12px;padding:13px 16px;font:600 15px system-ui;width:100%;margin-top:14px}
+  button.g{background:#232834;color:#e8e6df}
+  .box{background:#171a21;border:1px solid #2a2f3a;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;word-break:break-word}
+  .err{color:#ff8a80}.ok{color:#8be28b}
+  code{font-family:ui-monospace,monospace}
+  .post{background:#171a21;border:1px solid #2a2f3a;border-radius:12px;padding:12px;margin-top:12px}
+  .post.hot{border-color:#ff8a80}
+  .meta{color:#9a978c;font-size:12px}
+  .btns{display:flex;gap:8px}.btns button{margin-top:10px;padding:10px}
+  button.r{background:#5a1f1f;color:#ffd6d2}
+  .tabs{display:flex;gap:8px;margin-top:8px}.tabs button{margin-top:0;padding:9px}
+</style>
+</head>
+<body>
+<h1>Q Spot 4D · Moderation</h1>
+<div class="sub">Reported community posts. Posts with 3+ reports are hidden in the app until you keep or delete them. <a href="./" style="color:#E8B94A">Result entry →</a></div>
+<div id="app"></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, query, orderBy, where, limit, getDocs, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const ADMIN = 'nkmasstech@gmail.com';
+const app = initializeApp({
+  apiKey: 'AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g', authDomain: 'qspot4d.firebaseapp.com', projectId: 'qspot4d',
+  storageBucket: 'qspot4d.firebasestorage.app', messagingSenderId: '1012098386722', appId: '1:1012098386722:web:a7bbf88c78f2611e84f37b'
+});
+const auth = getAuth(app), db = getFirestore(app);
+const GAMES = { magnum: 'Magnum', toto: 'Toto', damacai: 'Da Ma Cai', singapore: 'Singapore', gdlotto: 'GD Lotto' };
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const root = $('#app');
+const names = {};
+async function nameOf(uid) {
+  if (names[uid]) return names[uid];
+  try { const s = await getDoc(doc(db, 'users', uid)); names[uid] = s.exists() ? (s.data().name || 'Player') : 'Player (deleted)'; } catch (e) { names[uid] = 'Player'; }
+  return names[uid];
+}
+
+function login() {
+  root.innerHTML = '<button id="in">Sign in with Google</button><div id="m" class="box err" style="display:none"></div>';
+  $('#in').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { const m = $('#m'); m.style.display = 'block'; m.textContent = e.message; } };
+}
+
+async function card(d, mode) {
+  const p = d.data();
+  const who = await nameOf(p.uid);
+  let reasons = '';
+  if ((p.reports || 0) > 0) {
+    try {
+      const rs = await getDocs(collection(db, 'posts', d.id, 'reports'));
+      const c = {}; rs.forEach((r) => { const k = r.data().reason || 'Other'; c[k] = (c[k] || 0) + 1; });
+      reasons = Object.entries(c).map(([k, n]) => `${esc(k)} ×${n}`).join(' · ');
+    } catch (e) { reasons = 'reasons not readable'; }
+  }
+  const picks = (p.picks || []).map((k) => `<div><b>${esc(GAMES[k.game] || k.game)}</b> ${esc(k.format)} · ${esc(k.forDate)}<br><code>${(k.sets || []).map(esc).join(' ')}</code></div>`).join('');
+  const el = document.createElement('div');
+  el.className = 'post' + ((p.reports || 0) >= 3 ? ' hot' : '');
+  el.innerHTML = `<div><b>${esc(who)}</b> <span class="meta">· ${new Date(p.at).toLocaleString()} · ❤ ${p.up || 0} · reports ${p.reports || 0}${(p.reports || 0) >= 3 ? ' (hidden in app)' : ''}</span></div>
+    ${reasons ? `<div class="meta" style="margin-top:4px">${reasons}</div>` : ''}
+    <div style="margin-top:8px">${picks}</div>
+    <div class="btns">${(p.reports || 0) > 0 ? '<button class="g k">Keep (clear reports)</button>' : ''}<button class="r x">Delete post</button></div>
+    <div class="m meta"></div>`;
+  const msg = el.querySelector('.m');
+  const keep = el.querySelector('.k');
+  if (keep) keep.onclick = async () => {
+    keep.disabled = true;
+    try {
+      const rs = await getDocs(collection(db, 'posts', d.id, 'reports'));
+      await Promise.all(rs.docs.map((r) => deleteDoc(r.ref)));
+      await updateDoc(d.ref, { reports: 0 });
+      msg.textContent = 'Kept ✓ Visible in the app again.'; msg.className = 'm meta ok';
+    } catch (e) { msg.textContent = 'Failed: ' + e.message; msg.className = 'm meta err'; keep.disabled = false; }
+  };
+  el.querySelector('.x').onclick = async (ev) => {
+    if (!confirm('Delete this post for everyone? This cannot be undone.')) return;
+    ev.target.disabled = true;
+    try {
+      const rs = await getDocs(collection(db, 'posts', d.id, 'reports'));
+      await Promise.all(rs.docs.map((r) => deleteDoc(r.ref)));
+      await deleteDoc(d.ref);
+      el.style.opacity = '0.4'; msg.textContent = 'Deleted ✓'; msg.className = 'm meta ok';
+    } catch (e) { msg.textContent = 'Failed: ' + e.message; msg.className = 'm meta err'; ev.target.disabled = false; }
+  };
+  return el;
+}
+
+async function show(mode) {
+  const list = $('#list');
+  list.innerHTML = '<div class="meta">Loading…</div>';
+  try {
+    const q = mode === 'reported'
+      ? query(collection(db, 'posts'), where('reports', '>', 0), orderBy('reports', 'desc'), limit(50))
+      : query(collection(db, 'posts'), orderBy('at', 'desc'), limit(50));
+    const snap = await getDocs(q);
+    list.innerHTML = snap.empty ? `<div class="box">${mode === 'reported' ? 'No reported posts. 👍' : 'No posts yet.'}</div>` : '';
+    for (const d of snap.docs) list.appendChild(await card(d, mode));
+  } catch (e) { list.innerHTML = '<div class="box err">' + esc(e.message) + '</div>'; }
+}
+
+function main(u) {
+  root.innerHTML = `<div class="sub">Signed in: ${esc(u.email)} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
+    <div class="tabs"><button id="t1">Reported</button><button id="t2" class="g">Latest posts</button></div><div id="list"></div>`;
+  $('#out').onclick = (e) => { e.preventDefault(); signOut(auth); };
+  $('#t1').onclick = () => { $('#t1').className = ''; $('#t2').className = 'g'; show('reported'); };
+  $('#t2').onclick = () => { $('#t2').className = ''; $('#t1').className = 'g'; show('latest'); };
+  show('reported');
+}
+
+onAuthStateChanged(auth, (u) => {
+  if (!u) return login();
+  if (u.email !== ADMIN || !u.emailVerified) { root.innerHTML = '<div class="box err">This account is not allowed.</div><button id="o" class="g">Sign out</button>'; $('#o').onclick = () => signOut(auth); return; }
+  main(u);
+});
+</script>
+</body>
+</html>

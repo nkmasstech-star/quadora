@@ -33,7 +33,8 @@ service cloud.firestore {
         && request.resource.data.picks.size() <= 2 && request.resource.data.up == 0 && request.resource.data.reports == 0;
       allow update: if signedIn() && ((resource.data.uid == request.auth.uid && onlyChanges(['picks', 'edited']))
         || (onlyChanges(['up']) && stepsBy1('up'))
-        || (onlyChanges(['reports']) && request.resource.data.reports == resource.data.reports + 1));
+        || (onlyChanges(['reports']) && request.resource.data.reports == resource.data.reports + 1)
+        || (isAdmin() && onlyChanges(['reports']) && request.resource.data.reports == 0));
       allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
       // one report per player per post (create only, never edited)
       match /reports/{uid} {
