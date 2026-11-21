@@ -2,8 +2,12 @@ name: Live result probe (test)
 on:
   workflow_dispatch:
     inputs:
-      label: { description: 'label', default: 'manual' }
-      stop: { description: 'stop time HH:MM UTC', default: '12:00' }
+      label:
+        description: 'label'
+        default: 'manual'
+      stop:
+        description: 'stop time HH:MM UTC'
+        default: '12:00'
   schedule:
     # Singapore 18:30 SGT + Malaysia 19:00 MYT (10:30 / 11:00 UTC) on Wed, Sat, Sun
     - cron: '5 10 * * 0,3,6'
@@ -11,7 +15,9 @@ on:
     - cron: '55 11 * * *'
 permissions:
   contents: write
-concurrency: { group: live-probe-${{ github.event.schedule || 'manual' }}, cancel-in-progress: false }
+concurrency:
+  group: live-probe-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -19,7 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+        with:
+          node-version: 22
       - name: Probe
         run: |
           if [ "${{ github.event.schedule }}" = "5 10 * * 0,3,6" ]; then node tools/live_probe.mjs my-sg 11:50;
