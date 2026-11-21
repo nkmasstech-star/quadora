@@ -29,13 +29,26 @@ export function fmtShort(dateOrIso) {
   return `${dayName(d.getDay())}, ${d.getDate()} ${monthName(d.getMonth())}`;
 }
 
+// Extra Tuesday draws for the Malaysian games (same list the server uses).
+import SPECIAL_DRAWS from '../../public/data/special_draws.json';
+const SPECIAL = new Set(SPECIAL_DRAWS.malaysia || []);
+const MY = new Set(['magnum', 'toto', 'damacai']);
+export const isSpecialDraw = (gameId, iso) => MY.has(gameId) && SPECIAL.has(iso);
+const isoOf = (x, utc) => (utc ? x.toISOString().slice(0, 10) : `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`);
+// true when the game draws on this date (regular weekday or a special draw); date = ISO string or Date (local)
+export function isDrawDay(game, date) {
+  const iso = typeof date === 'string' ? date : isoOf(date, false);
+  const [y, m, d] = iso.split('-').map(Number);
+  return game.days.includes(new Date(Date.UTC(y, m - 1, d)).getUTCDay()) || isSpecialDraw(game.id, iso);
+}
+
 export function nextDraw(game) {
   const base = new Date();
   base.setHours(0, 0, 0, 0);
   for (let i = 0; i < 8; i += 1) {
     const x = new Date(base);
     x.setDate(base.getDate() + i);
-    if (game.days.includes(x.getDay())) return { date: x, today: i === 0 };
+    if (isDrawDay(game, x)) return { date: x, today: i === 0 };
   }
   return null;
 }

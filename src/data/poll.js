@@ -1,5 +1,6 @@
 // Voting layer: one vote per player per game per draw; totals are the real votes of all players (Firestore, see cloud.js).
 import { gameById, drawStartMs } from './rules.js';
+import { isDrawDay } from './games.js';
 import { DRAW_TIMES } from '../config.js';
 import { C, watchPoll, cloudVote, cloudMyVote } from './cloud.js';
 
@@ -14,7 +15,7 @@ export function pollDraw(gameId, now = Date.now()) {
   const opToday = new Date(now + dt.utc * MS_H).toISOString().slice(0, 10);
   for (let i = 0; i < 9; i += 1) {
     const date = addDays(opToday, i);
-    if (g.days.includes(dowOf(date)) && drawStartMs(gameId, date) > now) return date;
+    if (isDrawDay(g, date) && drawStartMs(gameId, date) > now) return date;
   }
   return opToday;
 }

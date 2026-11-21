@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { gameById, GAMES, fmtShort, todayISO } from '../data/games.js';
+import { gameById, GAMES, fmtShort, todayISO, isDrawDay, isSpecialDraw } from '../data/games.js';
 import { Loading, BackBar, Panel } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t, getLang } from '../i18n.js';
@@ -21,7 +21,7 @@ function nextDrawISO(g, draws) {
   for (let i = 0; i < 9; i += 1) {
     const x = new Date(base); x.setDate(base.getDate() + i);
     const iso = `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
-    if (g.days.includes(x.getDay()) && !done.has(iso)) return iso;
+    if (isDrawDay(g, iso) && !done.has(iso)) return iso;
   }
   return todayISO();
 }
@@ -33,8 +33,8 @@ export function showsLatest(g, draws) {
   if (!L || L.date < STRAIGHT_START) return false;
   const [y, m, d] = L.date.split('-').map(Number);
   let next = null;
-  for (let i = 1; i < 9; i += 1) { const x = new Date(Date.UTC(y, m - 1, d + i)); if (g.days.includes(x.getUTCDay())) { next = x.toISOString().slice(0, 10); break; } }
-  const delay = updateDelayHours(L.date, next || L.date, false);
+  for (let i = 1; i < 9; i += 1) { const x = new Date(Date.UTC(y, m - 1, d + i)); if (isDrawDay(g, x.toISOString().slice(0, 10))) { next = x.toISOString().slice(0, 10); break; } }
+  const delay = updateDelayHours(L.date, next || L.date, !!next && isSpecialDraw(g.id, next));
   return Date.now() < drawStartMs(g.id, L.date) + (1 + delay) * 3600e3;
 }
 

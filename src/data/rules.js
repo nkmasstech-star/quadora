@@ -1,5 +1,5 @@
 // Draw timing + prediction auto-update rules (shared by the app and the future data pipeline).
-import { GAMES } from './games.js';
+import { GAMES, isDrawDay, isSpecialDraw } from './games.js';
 import { DRAW_TIMES, EDIT_BEFORE_HOURS } from '../config.js';
 
 const MS_H = 3600e3;
@@ -23,13 +23,14 @@ export function targetDraw(gameId, now = Date.now()) {
   const opToday = new Date(now + dt.utc * MS_H).toISOString().slice(0, 10);
   for (let i = 0; i < 9; i += 1) {
     const date = addDays(opToday, i);
-    if (g.days.includes(dowOf(date)) && cutoffMs(gameId, date) > now) return date;
+    if (isDrawDay(g, date) && cutoffMs(gameId, date) > now) return date;
   }
   return opToday;
 }
 
 // How long after a result before the next prediction is published (hours).
 //   next draw is the very next day -> 2h ; next draw is a special draw -> 12h ; otherwise (regular, 2+ days away) -> 24h
+export { isSpecialDraw };
 export function updateDelayHours(resultDate, nextDrawDate, nextIsSpecial) {
   const gap = Math.round((Date.parse(nextDrawDate) - Date.parse(resultDate)) / 86400e3);
   if (gap <= 1) return 2;

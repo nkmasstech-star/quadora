@@ -22,7 +22,23 @@ async function sync() {
   } catch (e) { /* push is optional; the app works without it */ }
 }
 
+// Tapping a push opens the page it is about (data.route, e.g. /game/magnum or /prediction/toto).
+const ROUTE_OK = /^\/(game|prediction)\/[a-z]+$|^\/predictions$|^\/home$/;
+async function listenTaps() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
+    await FirebaseMessaging.addListener('notificationActionPerformed', (e) => {
+      const d = (e && e.notification && e.notification.data) || {};
+      const r = typeof d.route === 'string' ? d.route : '';
+      const go = () => { location.hash = ROUTE_OK.test(r) ? r : '/home'; };
+      setTimeout(go, 600); // let the app finish opening first
+    });
+  } catch (e) { /* optional */ }
+}
+
 export function initPush() {
+  listenTaps();
   setTimeout(sync, 4000); // after the splash, so the permission prompt does not fight it
   window.addEventListener('qd-notif', sync);
 }
