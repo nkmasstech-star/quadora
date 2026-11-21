@@ -35,3 +35,4 @@ export const TEST_MODE = true;
 export const AD_TEST = import.meta.env.VITE_ADS_LIVE !== '1';
 export const ADMOB_BANNER_ID = 'ca-app-pub-1116963475189668/2300589539';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-1116963475189668/4879932670';
+export const ADMOB_REWARDED_ID = 'ca-app-pub-1116963475189668/9571655026';

@@ -4,7 +4,7 @@ import { BackBar, Hero, Panel } from '../ui.jsx';
 import { t } from '../i18n.js';
 import { POLL_GAMES } from '../config.js';
 import { pollDraw, myVote, castVote, tally } from '../data/poll.js';
-import { requestInterstitial, AdBanner } from '../ads.jsx';
+import { requestRewarded } from '../ads.jsx';
 
 const PG = GAMES.filter((g) => POLL_GAMES.includes(g.id));
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -65,7 +65,7 @@ export function Poll({ user, toast }) {
     if (!full) return;
     if (castVote(user.uid, game, vals.join(''))) { toast(t('Vote saved')); tick((n) => n + 1); }
   };
-  const reveal = () => requestInterstitial(() => setShown(true));
+  const reveal = () => requestRewarded(() => setShown(true));
   const g = GAMES.find((x) => x.id === game);
 
   return (
@@ -103,13 +103,12 @@ export function Poll({ user, toast }) {
         <Panel>
           <div class="meta" style="text-align:center">{t('Your vote for {g}', { g: g.name })}</div>
           <div class="pollmine">{mine.split('').map((d, i) => <span key={i}>{d}</span>)}</div>
-          {!shown && <button class="btn" onClick={reveal}>{t('See what others picked')}</button>}
-          {!shown && <div class="meta" style="text-align:center;margin-top:8px">{t('A short ad plays first.')}</div>}
+          {!shown && <button class="btn" onClick={reveal}>{t('Watch an ad to see what others picked')}</button>}
+          {!shown && <div class="meta" style="text-align:center;margin-top:8px">{t('Your choice: a short ad unlocks the results.')}</div>}
         </Panel>
       )}
 
       {mine && shown && <Panel title={t('What players picked')}><Results game={game} mine={mine} /></Panel>}
-      {mine && shown && <AdBanner />}
 
       <div class="meta" style="margin-top:14px;line-height:1.5">{t('Votes are for fun only and do not decide any result. No win is guaranteed. 18+')}</div>
     </div>

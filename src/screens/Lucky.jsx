@@ -7,6 +7,7 @@ import { Locked } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { FORMATS, addLucky } from '../data/community.js';
 import { targetDraw } from '../data/rules.js';
+import { requestRewarded } from '../ads.jsx';
 
 const MAXSETS = 4;
 const KEY = 'qd_lucky';
@@ -83,6 +84,7 @@ function FormatPick({ value, onChange }) {
 }
 
 function ScratchCard({ user, toast, game }) {
+  const more = () => requestRewarded(() => { setSaved(false); make(); });
   const [card, setCard] = useState(() => loadScratch(user.uid));
   const [open, setOpen] = useState(false);
   const [fmt, setFmt] = useState('Straight');
@@ -148,6 +150,7 @@ function ScratchCard({ user, toast, game }) {
               <div>
                 <FormatPick value={fmt} onChange={setFmt} />
                 <button class="btn" style="margin-top:12px" disabled={saved} onClick={save}>{saved ? t('Saved') : t('Save to profile')}</button>
+                <button class="btn ghost" style="margin-top:10px" onClick={more}>{t('Watch an ad for one more card')}</button>
               </div>
             )}
             {!card.revealed && <div class="meta" style="text-align:center;margin-top:8px">{t('Scratch with your finger to reveal')}</div>}
