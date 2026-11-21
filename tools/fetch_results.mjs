@@ -174,7 +174,10 @@ for (const game of Object.keys(SOURCES)) {
   }
   if (!any) { report.push(`${game}: no data`); continue; }
   { const seen = new Set(); found = found.filter((d) => (seen.has(d.date) ? false : (seen.add(d.date), true))); } // first source wins per date
-  const fresh = found.filter((d) => d.date > latest && !have.some((h) => h.date === d.date));
+  // guard: a "new" draw with exactly the same numbers as a recent stored draw is a stale page, not a real result
+  const sig = (d) => [d.first, d.second, d.third, ...d.special, ...d.consolation].join(',');
+  const recent = new Set(have.slice(0, 10).map(sig));
+  const fresh = found.filter((d) => d.date > latest && !have.some((h) => h.date === d.date) && !recent.has(sig(d)));
   if (!fresh.length) { report.push(`${game}: up to date (${latest})`); continue; }
   fresh.sort((a, b) => (a.date < b.date ? 1 : -1));
   data.games[game] = [...fresh, ...have].slice(0, 400);
