@@ -166,10 +166,17 @@ export function buildPrediction(draw, seed) {
 // ---------- dates ----------
 const addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10); };
 const dow = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); };
-const nextDrawDate = (g, iso) => { for (let i = 1; i <= 8; i += 1) { const d = addDays(iso, i); if (g.days.includes(dow(d))) return d; } return addDays(iso, 1); };
+// special Tuesday draws for the Malaysian games (public/data/special_draws.json)
+const SPECIAL = new Set((read('special_draws.json', { malaysia: [] }).malaysia) || []);
+const MY = new Set(['magnum', 'toto', 'damacai']);
+const isDrawDay = (g, d) => g.days.includes(dow(d)) || (MY.has(g.id) && SPECIAL.has(d));
+const nextDrawDate = (g, iso) => { for (let i = 1; i <= 8; i += 1) { const d = addDays(iso, i); if (isDrawDay(g, d)) return d; } return addDays(iso, 1); };
 const drawStartMs = (g, iso) => { const [y, m, d] = iso.split('-').map(Number); return Date.UTC(y, m - 1, d, g.h, g.m) - g.utc * 3600e3; };
-// Publish delay after a result: next draw is the very next day -> 2h; otherwise 24h (special-draw 12h needs the special-draw calendar).
-const delayH = (resultIso, nextIso) => (Math.round((Date.parse(nextIso) - Date.parse(resultIso)) / 86400e3) <= 1 ? 2 : 24);
+// Publish delay after a result: next draw is the very next day -> 2h; next draw is a special draw -> 12h; otherwise 24h.
+const delayH = (resultIso, nextIso) => {
+  if (Math.round((Date.parse(nextIso) - Date.parse(resultIso)) / 86400e3) <= 1) return 2;
+  return SPECIAL.has(nextIso) ? 12 : 24;
+};
 
 // ---------- main ----------
 const results = read('results.json', null);

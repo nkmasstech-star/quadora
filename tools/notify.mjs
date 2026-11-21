@@ -10,6 +10,31 @@ const STATE = 'tools/notified.json';
 const DRY = process.argv.includes('--dry');
 const FS_URL = 'https://firestore.googleapis.com/v1/projects/qspot4d/databases/(default)/documents/pub/manual?key=AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g';
 
+// --pred: one push when new predictions are published (state in notified.json under _pred = { game: forDate }).
+if (process.argv.includes('--pred')) {
+  const pred = JSON.parse(fs.readFileSync('public/data/predictions.json', 'utf8'));
+  const st = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : {};
+  const was = st._pred || null;
+  const nowP = {}; Object.entries(pred.games || {}).forEach(([g, p]) => { if (p && p.forDate) nowP[g] = p.forDate; });
+  const fresh = was ? Object.keys(nowP).filter((g) => nowP[g] !== was[g]) : [];
+  console.log('predictions', JSON.stringify(nowP), was ? '' : '(first run: recording only)', 'new:', fresh.join(',') || 'none');
+  let sent = true;
+  if (fresh.length && !DRY) {
+    if (!process.env.FCM_SA) { console.log('FCM_SA not set: would notify predictions', fresh.join(', ')); sent = false; } else {
+      const sa = JSON.parse(process.env.FCM_SA);
+      const at = await token(sa);
+      const names = fresh.map((g) => NAMES[g]).join(', ');
+      const r = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
+        method: 'POST', headers: { authorization: `Bearer ${at}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ message: { topic: 'results', notification: { title: 'New predictions are ready', body: `${names}. For entertainment only.` }, data: { route: fresh.length === 1 ? `/prediction/${fresh[0]}` : '/predictions' }, android: { priority: 'high' } } }),
+      });
+      console.log('prediction push ->', r.status);
+      if (!r.ok) { console.log(await r.text()); sent = false; }
+    }
+  }
+  if (sent && !DRY) { st._pred = nowP; fs.writeFileSync(STATE, JSON.stringify(st, null, 1)); }
+  process.exit(0);
+}
 const results = JSON.parse(fs.readFileSync('public/data/results.json', 'utf8'));
 let manual = {};
 try {
@@ -53,11 +78,11 @@ if (fresh.length && !DRY) {
     for (const g of fresh) {
       const r = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
         method: 'POST', headers: { authorization: `Bearer ${at}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ message: { topic: 'results', notification: { title: `${NAMES[g]} result is out`, body: 'Tap to see the winning numbers.' }, android: { priority: 'high' } } }),
+        body: JSON.stringify({ message: { topic: 'results', notification: { title: `${NAMES[g]} result is out`, body: 'Tap to see the winning numbers.' }, data: { route: `/game/${g}` }, android: { priority: 'high' } } }),
       });
       console.log(g, 'push ->', r.status);
       if (!r.ok) { console.log(await r.text()); ok = false; }
     }
   }
 }
-if (ok && !DRY) fs.writeFileSync(STATE, JSON.stringify(latest, null, 1));
+if (ok && !DRY) fs.writeFileSync(STATE, JSON.stringify({ ...latest, _pred: prev._pred || {} }, null, 1));

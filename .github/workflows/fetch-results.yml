@@ -42,6 +42,11 @@ jobs:
       - name: Make predictions
         if: github.event.inputs.dry != 'true' && github.event.inputs.test != 'true'
         run: node tools/gen_predictions.mjs
+      - name: Push notification for new predictions
+        if: github.event.inputs.dry != 'true' && github.event.inputs.test != 'true'
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+        run: node tools/notify.mjs --pred
       - name: Commit if changed
         run: |
           if [ -n "$(git status --porcelain public/data tools/notified.json)" ]; then
