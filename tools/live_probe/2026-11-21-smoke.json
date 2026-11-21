@@ -1,0 +1,43 @@
+{
+ "label": "smoke",
+ "url": "https://www.4dpredict.app/",
+ "intervalSec": 30,
+ "changes": [
+  {
+   "at": "2026-11-21T04:29:11.125Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-18",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-18",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0630 3507 6174"
+    },
+    "damacai": {
+     "date": "2026-11-18",
+     "digits": 23,
+     "hidden": 0,
+     "first": "7103 1201 7431"
+    },
+    "singapore": {
+     "date": "2026-11-18",
+     "digits": 23,
+     "hidden": 0,
+     "first": "9290 1031 1280"
+    },
+    "gdlotto": {
+     "date": "2026-11-20",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0911 3442 2948"
+    }
+   }
+  }
+ ]
+}
