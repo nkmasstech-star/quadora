@@ -162,11 +162,13 @@ for (const game of Object.keys(SOURCES)) {
   if (ONLY.length && !ONLY.includes(game)) continue;
   const have = data.games[game] || [];
   const latest = have.length ? have[0].date : '0000-00-00';
+  const sig = (d) => [d.first, d.second, d.third, ...d.special, ...d.consolation].join(',');
+  const recent = new Set(have.slice(0, 10).map(sig));
   let found = null;
   let any = false;
   for (const src of SOURCES[game]) {
     try {
-      const res = await src();
+      const res = (await src()).filter((d) => !recent.has(sig(d))); // drop stale pages (old numbers under a new date)
       console.log(`[${game}] source returned ${res.length} complete draws`);
       if (res.length) { any = true; found = [...(found || []), ...res]; if (res.some((d) => d.date > latest)) break; }
     } catch (e) { console.log(`[${game}] source failed: ${e.message}`); }
@@ -174,9 +176,6 @@ for (const game of Object.keys(SOURCES)) {
   }
   if (!any) { report.push(`${game}: no data`); continue; }
   { const seen = new Set(); found = found.filter((d) => (seen.has(d.date) ? false : (seen.add(d.date), true))); } // first source wins per date
-  // guard: a "new" draw with exactly the same numbers as a recent stored draw is a stale page, not a real result
-  const sig = (d) => [d.first, d.second, d.third, ...d.special, ...d.consolation].join(',');
-  const recent = new Set(have.slice(0, 10).map(sig));
   const fresh = found.filter((d) => d.date > latest && !have.some((h) => h.date === d.date) && !recent.has(sig(d)));
   if (!fresh.length) { report.push(`${game}: up to date (${latest})`); continue; }
   fresh.sort((a, b) => (a.date < b.date ? 1 : -1));
