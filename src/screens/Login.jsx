@@ -2,12 +2,13 @@ import { useState } from 'preact/hooks';
 import { Logo } from '../icons.jsx';
 import { t } from '../i18n.js';
 import { googleSignIn } from '../data/account.js';
+import { webSignIn } from '../firebase.js';
 import { go } from '../App.jsx';
 import { Capacitor } from '@capacitor/core';
 
 export function Login({ onGuest, onAuth, toast }) {
   const [err, setErr] = useState('');
-  // On the phone this opens the real Google sign-in. In a browser (development) it stays the demo account.
+  // The phone opens the real Google sign-in; the same Google token signs in Firestore so posts and votes belong to the player.
   const google = async () => {
     if (Capacitor.isNativePlatform()) {
       try {
@@ -15,7 +16,11 @@ export function Login({ onGuest, onAuth, toast }) {
         const res = await FirebaseAuthentication.signInWithGoogle();
         const u = res && res.user;
         if (!u || !u.email) { setErr('Google sign-in did not return an email. Please try again.'); return; }
-        const r = googleSignIn({ name: u.displayName || 'Player', email: u.email, dob: null });
+        const idToken = res.credential && res.credential.idToken;
+        const accessToken = res.credential && res.credential.accessToken;
+        if (!idToken && !accessToken) { setErr('Google sign-in did not return a token. Please try again.'); return; }
+        const fb = await webSignIn(idToken, accessToken);
+        const r = googleSignIn({ uid: fb.uid, name: u.displayName || 'Player', email: u.email, dob: null });
         if (r.error) { setErr(r.error); return; }
         onAuth(r.user);
       } catch (e) {
@@ -25,10 +30,8 @@ export function Login({ onGuest, onAuth, toast }) {
       }
       return;
     }
-    const r = googleSignIn();
-    if (r.error) { setErr(r.error); return; }
-    toast(t('Test mode: demo Google account'));
-    onAuth(r.user);
+    if (import.meta.env.DEV) { const r = googleSignIn({ name: 'Nehru', email: 'nehru@test.com', dob: null }); if (!r.error) onAuth(r.user); return; }
+    setErr('Please use the Q Spot 4D Android app to sign in.');
   };
   return (
     <div class="login">

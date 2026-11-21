@@ -1,6 +1,7 @@
-// TEST account layer: accounts live only on this phone (localStorage).
-// When Firebase Auth (Google sign-in) is connected, replace the bodies of these functions; the screens do not change.
+// Account layer: the signed-in player's session is kept on this phone; the public profile (name, avatar) lives in Firestore via cloud.js.
 import { MIN_AGE, NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
+import { saveProfile, updateProfile, cloudDeleteAccount } from './cloud.js';
+import { webSignOut } from '../firebase.js';
 
 const K_USERS = 'qd_users';
 const K_SESSION = 'qd_session';
@@ -24,21 +25,23 @@ export const ageFrom = (dobISO) => {
   return a;
 };
 
-// Test stand-in for "Continue with Google". With Firebase this returns the real Google name/email/birthday.
+// Called after the real Google sign-in (profile.uid is the Firebase uid). Dev builds may pass a test profile.
 export function googleSignIn(profile) {
-  const p = profile || { name: 'Google Player', email: 'google.demo@gmail.com', dob: null };
+  const p = profile;
+  if (!p || !p.email) return { error: 'Google sign-in did not return an email. Please try again.' };
   const age = ageFrom(p.dob);
   if (age != null && age < MIN_AGE) return { error: 'You must be 18 or older to create an account.' };
   const e = p.email.toLowerCase();
   const users = read(K_USERS, []);
   let u = users.find((x) => x.email === e);
-  if (!u) { u = { uid: uid(), name: cleanName(p.name) || 'Player', email: e, avatar: Math.floor(Math.random() * 1000), nameEdits: 0, avatarEdits: 0, created: Date.now() }; users.push(u); write(K_USERS, users); }
+  if (u && p.uid && u.uid !== p.uid) { u.uid = p.uid; write(K_USERS, users); }
+  if (!u) { u = { uid: p.uid || uid(), name: cleanName(p.name) || 'Player', email: e, avatar: Math.floor(Math.random() * 1000), nameEdits: 0, avatarEdits: 0, created: Date.now() }; users.push(u); write(K_USERS, users); }
   write(K_SESSION, u.uid);
+  if (p.uid) saveProfile(pub(u)).catch(() => {});
   return { user: pub(u) };
 }
-export const googleDemo = () => googleSignIn();
 
-export function logOut() { try { localStorage.removeItem(K_SESSION); } catch (e) { /* ignore */ } }
+export function logOut() { try { localStorage.removeItem(K_SESSION); } catch (e) { /* ignore */ } webSignOut(); }
 
 // Text only: letters (any language) and spaces. No digits, emoji or symbols. Max 25 characters.
 export function cleanName(s) { return String(s || '').replace(/[^\p{L}\p{M} ]/gu, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX); }
@@ -52,7 +55,7 @@ export function renameUser(name) {
   if ((u.nameEdits || 0) >= NAME_EDITS) return { error: 'You have used all name changes.' };
   const n = name.trim();
   if (!validName(n)) return { error: 'Use letters only (2 to 25 characters). No numbers, emoji or symbols.' };
-  u.name = n; u.nameEdits = (u.nameEdits || 0) + 1; write(K_USERS, users);
+  u.name = n; u.nameEdits = (u.nameEdits || 0) + 1; write(K_USERS, users); updateProfile(u.uid, { name: n }).catch(() => {});
   return { user: pub(u) };
 }
 
@@ -63,14 +66,14 @@ export function setAvatar(avatar) {
   if (!u) return { error: 'Not signed in.' };
   if (avatar === u.avatar) return { user: pub(u) };
   if ((u.avatarEdits || 0) >= AVATAR_EDITS) return { error: 'You have used all avatar changes.' };
-  u.avatar = avatar; u.avatarEdits = (u.avatarEdits || 0) + 1; write(K_USERS, users);
+  u.avatar = avatar; u.avatarEdits = (u.avatarEdits || 0) + 1; write(K_USERS, users); updateProfile(u.uid, { avatar }).catch(() => {});
   return { user: pub(u) };
 }
 
 export function deleteAccount() {
   const id = read(K_SESSION, null);
+  if (id) cloudDeleteAccount(id).finally(webSignOut);
   write(K_USERS, read(K_USERS, []).filter((x) => x.uid !== id));
-  write('qd_posts', read('qd_posts', []).filter((p) => p.uid !== id));
   ['qd_saved_', 'qd_picks_', 'qd_luckyn_', 'qd_follows_'].forEach((k) => { try { localStorage.removeItem(k + id); } catch (e) { /* ignore */ } });
   logOut();
 }

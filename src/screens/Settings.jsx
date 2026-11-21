@@ -61,7 +61,7 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
           <div class="section-title"><h2>{t('Delete my data')}</h2></div>
           <div class="rows">
             {[
-              ['posts', t('Delete my posts'), myPosts().filter((p) => p.uid === user.uid).length, clearMyPosts],
+              ['posts', t('Delete my posts'), myPosts(user.uid).length, clearMyPosts],
               ['picks', t('Delete my saved predictions'), myPicks(user.uid).length, clearMyPicks],
               ['lucky', t('Delete my saved lucky numbers'), myLucky(user.uid).length, clearMyLucky],
             ].map(([k, label, n, fn]) => (

@@ -30,6 +30,8 @@ import { Agree } from './screens/Agree.jsx';
 import { Legal } from './screens/Legal.jsx';
 import { Locked } from './ui.jsx';
 import { currentUser, logOut, deleteAccount, googleSignIn } from './data/account.js';
+import { startPosts, startUser, stopUser } from './data/cloud.js';
+import { auth } from './firebase.js';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -70,6 +72,7 @@ export function App() {
   const [splash, setSplash] = useState(!(import.meta.env.DEV && location.search.includes('nosplash')));
   const [agreed, setAgreed] = useState(() => store.get('qd_agreed') === '1' || !!(import.meta.env.DEV && location.search.includes('agreed')));
   const [, setLangTick] = useState(0);
+  const [, setCloudTick] = useState(0);
   const setLang = (l) => { applyLang(l); setLangTick((n) => n + 1); };
   useEffect(() => { applyLang(localStorage.getItem('qd_lang') || 'en'); }, []);
   if (import.meta.env.DEV) { const q = new URLSearchParams(location.search).get('lang'); if (q) applyLang(q); }
@@ -123,6 +126,23 @@ export function App() {
   }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // live Community / Poll data: public feed for everyone, personal likes/follows after sign-in
+  useEffect(() => {
+    startPosts();
+    const bump = () => setCloudTick((n) => n + 1);
+    const err = () => showToast(t('Could not save. Check your internet or log in again.'));
+    window.addEventListener('qd-data', bump); window.addEventListener('qd-cloud-error', err);
+    return () => { window.removeEventListener('qd-data', bump); window.removeEventListener('qd-cloud-error', err); };
+  }, []);
+  useEffect(() => {
+    if (!user) { stopUser(); return; }
+    startUser(user.uid);
+    // the phone remembers the player; if the server sign-in was lost, ask to log in again so posting keeps working
+    auth.authStateReady().then(() => {
+      if (!auth.currentUser && !import.meta.env.DEV) { logOut(); setUserState(null); store.del('qd_guest'); setGuest(false); go('/login'); showToast(t('Please log in again.')); }
+    });
+  }, [user && user.uid]);
 
   useEffect(() => {
     let handle;
