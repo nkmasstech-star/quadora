@@ -1,0 +1,475 @@
+{
+ "label": "manual-evening",
+ "url": "https://www.4dpredict.app/",
+ "intervalSec": 30,
+ "changes": [
+  {
+   "at": "2026-11-21T11:36:17.892Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 4,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 15,
+     "hidden": 11,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:37:48.653Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 4,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 16,
+     "hidden": 10,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:38:18.894Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 16,
+     "hidden": 10,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:39:19.377Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 17,
+     "hidden": 9,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:40:19.862Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 18,
+     "hidden": 8,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:41:50.688Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 19,
+     "hidden": 7,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:43:21.437Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 20,
+     "hidden": 6,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:44:21.932Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 21,
+     "hidden": 5,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:45:22.431Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 22,
+     "hidden": 4,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:46:22.971Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "---- ---- ----"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:48:23.931Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "---- ---- 8581"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:50:24.904Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "---- 3345 8581"
+    }
+   }
+  },
+  {
+   "at": "2026-11-21T11:51:25.433Z",
+   "status": 200,
+   "games": {
+    "toto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "0213 4770 8756"
+    },
+    "magnum": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "5117 2167 3148"
+    },
+    "damacai": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "8785 1759 1792"
+    },
+    "singapore": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 0,
+     "first": "2270 8202 4485"
+    },
+    "gdlotto": {
+     "date": "2026-11-21",
+     "digits": 23,
+     "hidden": 3,
+     "first": "2746 3345 8581"
+    }
+   }
+  }
+ ]
+}
