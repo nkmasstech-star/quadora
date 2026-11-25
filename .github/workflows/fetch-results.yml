@@ -8,11 +8,6 @@ on:
       test:
         description: 'Send a test push only'
         default: 'false'
-  schedule:
-    # draw days evenings (UTC): Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto ~17:30 IST
-    - cron: '10,40 11-14 * * *'
-    # hourly, so predictions are published after their delay (2h / 24h after a result) even outside the fetch window
-    - cron: '20 * * * *'
 permissions:
   contents: write
 concurrency:
