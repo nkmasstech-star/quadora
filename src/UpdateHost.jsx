@@ -13,6 +13,7 @@ import { PLAY_URL } from './config.js';
 const WHATS_NEW = [
   'Faster, clearer Google sign-in',
   'Winning History Predictions: only the past predictions that won',
+  'Straight charts history now shows only winning charts',
   'New app icon',
   'Update alerts inside the app',
 ];

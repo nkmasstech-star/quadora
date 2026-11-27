@@ -153,6 +153,14 @@ function StraightSheet({ g, iso, cols, draw, auto }) {
   );
 }
 
+// past straight charts that actually won something (looks back up to 60 draws)
+function winningCharts(g, draws) {
+  const off = showsLatest(g, draws) ? 1 : 0;
+  return draws.slice(off, off + 60).map((d, i) => ({ d, older: draws.slice(off + i + 1) })).filter((x) => x.older.length > 0 && x.d.date >= STRAIGHT_START)
+    .map(({ d, older }) => { const { cols } = straightChart(older, `${g.id}${d.date}`); return { d, cols, wins: straightWins(cols, d) }; })
+    .filter((x) => x.wins.length > 0);
+}
+
 export function StraightChart({ data, gameId }) {
   const g = gameById(gameId);
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
@@ -161,7 +169,7 @@ export function StraightChart({ data, gameId }) {
   const latest = showsLatest(g, draws);
   const iso = latest ? draws[0].date : nextDrawISO(g, draws);
   const { cols } = straightChart(latest ? draws.slice(1) : draws, `${gameId}${iso}`);
-  const histCount = Math.min(30, draws.slice(latest ? 1 : 0).filter((d) => d.date >= STRAIGHT_START).length);
+  const histCount = winningCharts(g, draws).length;
   return (
     <div data-game={g.id} class="pd">
       <BackBar title={t('Straight Predictions')} />
@@ -171,7 +179,7 @@ export function StraightChart({ data, gameId }) {
         <div class="acards" style="margin-top:14px">
           <button class="acard" onClick={() => go(`/straighthist/${g.id}`)}>
             <span class="aicon"><IconClock /></span>
-            <span class="atext"><b>{t('History Straight Charts')}</b><small>{t('Last {n} draws', { n: histCount })}</small></span>
+            <span class="atext"><b>{t('Winning History Straight Charts')}</b><small>{t('{n} wins', { n: histCount })}</small></span>
             <span class="chev"><IconChevron /></span>
           </button>
         </div>
@@ -185,13 +193,12 @@ export function StraightHistoryPage({ data, gameId }) {
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.results) return <Loading />;
   const draws = drawsOf(data.results, gameId);
-  const off = showsLatest(g, draws) ? 1 : 0;
-  const list = draws.slice(off, off + 30).map((d, i) => ({ d, older: draws.slice(off + i + 1) })).filter((x) => x.older.length > 0 && x.d.date >= STRAIGHT_START)
-    .map(({ d, older }) => { const { cols } = straightChart(older, `${gameId}${d.date}`); return { d, cols, wins: straightWins(cols, d) }; });
+  const list = winningCharts(g, draws);
   const [open, setOpen] = useState(() => (import.meta.env.DEV && location.search.includes('openph') ? (list.find((x) => x.wins.length) || {}).d?.date : null));
   return (
     <div data-game={g.id} class="pd">
-      <BackBar title={t('History Straight Charts')} />
+      <BackBar title={t('Winning History Straight Charts')} />
+      {list.length === 0 && <div class="empty" style="margin-top:14px">{t('Winning predictions will be listed here after each draw.')}</div>}
       <div style="margin-top:10px">
         {list.map(({ d, cols, wins }) => {
           const on = open === d.date;
