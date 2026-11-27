@@ -157,9 +157,17 @@ function WinDetails({ wins }) {
   );
 }
 
+// only past predictions that actually won something
+function winningRows(rows, data, gid) {
+  const draws = drawsOf(data.results, gid);
+  return rows.slice().sort((a, b) => (a.forDate < b.forDate ? 1 : -1))
+    .filter((p) => checkPrediction(p, draws.find((d) => d.date === p.forDate)).length > 0)
+    .slice(0, 60);
+}
+
 function PredHistory({ rows, data, gid, copy, g }) {
   const draws = drawsOf(data.results, gid);
-  const list = rows.slice().sort((a, b) => (a.forDate < b.forDate ? 1 : -1)).slice(0, 30);
+  const list = winningRows(rows, data, gid);
   const [open, setOpen] = useState(() => (import.meta.env.DEV && location.search.includes('openph') ? (list.find((p) => checkPrediction(p, draws.find((d) => d.date === p.forDate)).length) || {}).forDate : null));
   return (
     <div>
@@ -191,12 +199,13 @@ export function PredHistoryPage({ data, gameId, toast }) {
   if (!g) return <div class="empty">{t('Game not found.')}</div>;
   if (data.status === 'loading' && !data.predictions) return <Loading />;
   const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[gameId]) || [];
+  const nWin = winningRows(rows, data, gameId).length;
   const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
   return (
     <div data-game={g.id} class="pd">
-      <BackBar title={t('History Predictions')} />
-      <Hero kicker={t(g.region)} title={g.name} pill={t('Last {n} draws', { n: Math.min(30, rows.length) })} />
-      {rows.length === 0 ? <Panel><div class="empty">{t('No history yet.')}</div></Panel> : <div style="margin-top:10px"><PredHistory rows={rows} data={data} gid={gameId} copy={copy} g={g} /></div>}
+      <BackBar title={t('Winning History Predictions')} />
+      <Hero kicker={t(g.region)} title={g.name} pill={t('{n} wins', { n: nWin })} />
+      {nWin === 0 ? <Panel><div class="empty">{t('Winning predictions will be listed here after each draw.')}</div></Panel> : <div style="margin-top:10px"><PredHistory rows={rows} data={data} gid={gameId} copy={copy} g={g} /></div>}
     </div>
   );
 }
@@ -207,6 +216,7 @@ export function PredictionDetail({ data, gameId, toast }) {
   if (data.status === 'loading' && !data.predictions) return <Loading />;
   const p = ((data.predictions && data.predictions.games) || {})[gameId];
   const rows = (data.predHistory && data.predHistory.games && data.predHistory.games[gameId]) || [];
+  const nWin = winningRows(rows, data, gameId).length;
   const copy = async (n) => { try { await navigator.clipboard.writeText(n); toast(t('Copied {n}', { n })); } catch (e) { /* ignore */ } };
 
   return (
@@ -216,11 +226,11 @@ export function PredictionDetail({ data, gameId, toast }) {
       {!p && <Panel><div class="empty">{t('Prediction for this game will appear after the daily update.')}</div></Panel>}
       {p && <PredBody p={p} copy={copy} g={g} label={p.forDate ? fmtShort(p.forDate) : t('Next draw')} />}
       {p && <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:8px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>}
-      {rows.length > 0 && (
+      {nWin > 0 && (
         <div class="acards" style="margin-top:14px">
           <button class="acard" onClick={() => go(`/predhist/${g.id}`)}>
             <span class="aicon"><IconClock /></span>
-            <span class="atext"><b>{t('History Predictions')}</b><small>{t('Last {n} draws', { n: Math.min(30, rows.length) })}</small></span>
+            <span class="atext"><b>{t('Winning History Predictions')}</b><small>{t('{n} wins', { n: nWin })}</small></span>
             <span class="chev"><IconChevron /></span>
           </button>
         </div>

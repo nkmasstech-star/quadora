@@ -9,13 +9,17 @@ import { Capacitor } from '@capacitor/core';
 export function Login({ onGuest, onAuth, toast }) {
   const [err, setErr] = useState('');
   const [detail, setDetail] = useState('');
+  const [busy, setBusy] = useState(''); // '' | 'wait' (Google sheet open) | 'setup' (account picked, creating account)
   // The phone opens the real Google sign-in; the same Google token signs in Firestore so posts and votes belong to the player.
   const google = async () => {
+    if (busy) return;
     setErr(''); setDetail('');
     if (Capacitor.isNativePlatform()) {
+      setBusy('wait');
       try {
         const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
         const res = await FirebaseAuthentication.signInWithGoogle();
+        setBusy('setup');
         const u = res && res.user;
         if (!u || !u.email) { setErr('Google sign-in did not return an email. Please try again.'); return; }
         const idToken = res.credential && res.credential.idToken;
@@ -32,7 +36,7 @@ export function Login({ onGuest, onAuth, toast }) {
         const code = (e && (e.code || (e.data && e.data.code))) || '';
         setErr(/cancel/i.test(m) ? 'Sign-in was cancelled or no Google account was offered. Please try again.' : 'Google sign-in failed. Check your internet and try again.');
         setDetail(`${code ? code + ': ' : ''}${m}`.slice(0, 180));
-      }
+      } finally { setBusy(''); }
       return;
     }
     if (import.meta.env.DEV) { const r = googleSignIn({ name: 'Nehru', email: 'nehru@test.com', dob: null }); if (!r.error) onAuth(r.user); return; }
@@ -64,10 +68,20 @@ export function Login({ onGuest, onAuth, toast }) {
 
       <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px">
         {err && <div class="form-err" role="alert">{t(err)}{detail && <div style="font-size:11px;opacity:.75;margin-top:4px;word-break:break-word">{detail}</div>}</div>}
-        <button type="button" class="btn" onClick={google}>{t('Continue with Google')}</button>
+        <button type="button" class="btn" onClick={google} disabled={!!busy}>{busy ? t('Signing in…') : t('Continue with Google')}</button>
         <button type="button" class="btn ghost" onClick={onGuest}>{t('Continue as guest')}</button>
         <div class="meta" style="text-align:center;font-size:12px;line-height:1.5">{t('Guests can view predictions and today\'s results only.')}</div>
       </div>
+
+      {busy === 'setup' && (
+        <div class="login-busy" role="status" aria-live="polite">
+          <div class="lb-card">
+            <span class="lb-spin" />
+            <b>{t('Signing you in…')}</b>
+            <small>{t('Setting up your account. This takes a few seconds.')}</small>
+          </div>
+        </div>
+      )}
 
       <div class="legal">
         <p>{t('By continuing you agree to our')} <a href="#/legal/privacy" onClick={(e) => { e.preventDefault(); go('/legal/privacy'); }}>{t('Privacy Policy')}</a>, <a href="#/legal/terms" onClick={(e) => { e.preventDefault(); go('/legal/terms'); }}>{t('Terms of Use')}</a> {t('and')} <a href="#/legal/disclaimer" onClick={(e) => { e.preventDefault(); go('/legal/disclaimer'); }}>{t('Disclaimer')}</a>.</p>

@@ -827,3 +827,14 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .exit-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
 .exit-box .btn { width: 100%; }
 .exit-stars { font-size: 30px; letter-spacing: 4px; color: #E8B94A; }
+
+/* login: busy overlay after the Google account is picked */
+.login-busy{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,18,.45);backdrop-filter:blur(2px)}
+.lb-card{background:var(--surface);color:var(--text);border-radius:18px;padding:22px 26px;min-width:230px;max-width:80vw;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.lb-card small{font-size:12px;opacity:.7;line-height:1.4}
+.lb-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(232,185,74,.25);border-top-color:#E8B94A;animation:lbspin .8s linear infinite;margin-bottom:4px}
+@keyframes lbspin{to{transform:rotate(360deg)}}
+
+/* what's new list (update dialog) */
+.wn-list{margin:4px 0 0;padding:0 0 0 18px;font-size:13.5px;line-height:1.55;align-self:stretch;text-align:left}
+.wn-list li{margin:3px 0}
