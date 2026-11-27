@@ -2,14 +2,14 @@ import { useState, useMemo } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { AppBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
-import { AdBanner } from '../ads.jsx';
+import { NativeAdCard } from '../ads.jsx';
 import { addInbox } from '../data/inbox.js';
 import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
 import { Avatar } from '../avatars.jsx';
 import { IconHeart, IconBookmark, IconShare } from '../icons.jsx';
-import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts, hidePost } from '../data/community.js';
+import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts, hidePost, leaderboard, BOARD_PERIODS } from '../data/community.js';
 
 const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto');
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
@@ -168,6 +168,36 @@ export function Fab({ onClick, label }) {
   return createPortal(<button class="fab" aria-label={label} onClick={onClick}>＋</button>, document.body);
 }
 
+const PERIODS = [['week', 'Weekly'], ['month', 'Monthly'], ['all', 'All time']];
+function Leaderboard({ results, me }) {
+  const [period, setPeriod] = useState('week');
+  const rows = leaderboard(period, results, me);
+  return (
+    <div>
+      <div class="seg" style="margin:4px 0 12px">
+        {PERIODS.map(([k, l]) => <button key={k} type="button" class={period === k ? 'on' : ''} onClick={() => setPeriod(k)}>{t(l)}</button>)}
+      </div>
+      <div class="board pcard">
+        <div class="board-h"><b>{t('Top 10 players')}</b><small>{t('Ranked by winning ratio of posts in this period')}</small></div>
+        {rows.length === 0 && <div class="empty" style="padding:18px 6px">{t('Not enough checked posts yet. Post your predictions and climb the board!')}</div>}
+        {rows.map((r, i) => {
+          const u = userInfo(r.uid, me);
+          return (
+            <button key={r.uid} class={me && r.uid === me.uid ? 'board-row me' : 'board-row'} onClick={() => go(me && r.uid === me.uid ? '/profile' : `/user/${r.uid}`)}>
+              <span class={`board-rank r${i + 1}`}>{i + 1}</span>
+              <Avatar id={u.avatar} size={38} />
+              <span class="board-name"><b>{u.name}</b><small>{t('{w} wins of {n} posts', { w: r.won, n: r.resolved })}</small></span>
+              <span class="board-pct">{r.pct}%</span>
+            </button>
+          );
+        })}
+        <div class="meta" style="font-size:11.5px;margin-top:8px">{t('Minimum {n} checked posts in the period to appear.', { n: BOARD_PERIODS[period].min })}</div>
+      </div>
+      <div style="margin-top:12px"><NativeAdCard key={`board${period}`} /></div>
+    </div>
+  );
+}
+
 export function Community({ user, data, toast }) {
   const [, setTick] = useState(0);
   const [tab, setTab] = useState('all');
@@ -192,12 +222,15 @@ export function Community({ user, data, toast }) {
       <div class="tabs" role="tablist" style="margin-top:12px">
         <button role="tab" aria-selected={tab === 'all'} class={tab === 'all' ? 'tab on' : 'tab'} onClick={() => setTab('all')}>{t('All')}</button>
         <button role="tab" aria-selected={tab === 'following'} class={tab === 'following' ? 'tab on' : 'tab'} onClick={() => setTab('following')}>{t('Following')}</button>
+        <button role="tab" aria-selected={tab === 'board'} class={tab === 'board' ? 'tab on' : 'tab'} onClick={() => setTab('board')}>{t('Leaderboard')}</button>
       </div>
 
-      {shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
-      {shown.slice(0, 40).map((p, i) => [
+      {tab === 'board' && <Leaderboard results={results} me={user} />}
+
+      {tab !== 'board' && shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
+      {tab !== 'board' && shown.slice(0, 40).map((p, i) => [
         <PostCard key={p.id} p={p} me={user} results={results} stats={stats(p.uid)} onChange={refresh} toast={toast} onEdit={(x) => setComposer({ edit: x })} />,
-        (i + 1) % AD_FEED_EVERY === 0 ? <AdBanner key={`ad${i}`} native /> : null,
+        (i + 1) % AD_FEED_EVERY === 0 ? <NativeAdCard key={`ad${tab}${i}`} /> : null,
       ])}
 
       <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />

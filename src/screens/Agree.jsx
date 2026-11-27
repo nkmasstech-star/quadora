@@ -4,23 +4,32 @@ import { t } from '../i18n.js';
 import { Logo } from '../icons.jsx';
 import { DOCS } from './Legal.jsx';
 
-// Shown once, before login. The user must accept the Disclaimer and Privacy Policy to enter the app.
+// Shown once, before login. One simple page: short key points first, then the full Disclaimer, Privacy Policy and Terms in one scroll.
+const POINTS = [
+  'For information and entertainment only. We do not sell tickets, take bets or pay prizes.',
+  'Predictions are guesses. Nobody can predict a lottery draw.',
+  'Results are collected from public sources. Always check the official operator.',
+  'We use your Google name and email only to run your account. We never sell your data.',
+  'You must be 18 or older and follow the laws where you live.',
+];
+
 export function Agree({ onAccept }) {
-  const [tab, setTab] = useState('disclaimer');
   const [ok, setOk] = useState(false);
-  const d = DOCS[tab];
   const decline = () => { try { CapApp.exitApp(); } catch (e) { /* web */ } };
   return (
     <div class="agree">
-      <div class="agree-head"><Logo size={40} /><div><div class="app-title" style="text-align:left;font-size:20px">{t('Before you start')}</div><div class="tagline" style="text-align:left">{t('Please read and accept to continue')}</div></div></div>
-      <div class="seg" style="margin:12px 0 10px">
-        <button type="button" class={tab === 'disclaimer' ? 'on' : ''} onClick={() => setTab('disclaimer')}>{t('Disclaimer')}</button>
-        <button type="button" class={tab === 'privacy' ? 'on' : ''} onClick={() => setTab('privacy')}>{t('Privacy Policy')}</button>
-        <button type="button" class={tab === 'terms' ? 'on' : ''} onClick={() => setTab('terms')}>{t('Terms')}</button>
-      </div>
+      <div class="agree-head"><Logo size={44} /><div><div class="app-title" style="text-align:left;font-size:20px">{t('Before you start')}</div><div class="tagline" style="text-align:left">{t('Please read and accept to continue')}</div></div></div>
       <div class="agree-doc pcard">
-        {d.body.map(([h, p]) => (
-          <div key={h} style="margin-bottom:14px"><div style="font-weight:700;margin-bottom:3px">{h}</div><div class="meta" style="line-height:1.6;font-size:13.5px">{p}</div></div>
+        <div class="agree-points">
+          {POINTS.map((p) => <div key={p} class="agree-pt"><i>✓</i><span>{t(p)}</span></div>)}
+        </div>
+        {['disclaimer', 'privacy', 'terms'].map((k) => (
+          <div key={k} class="agree-sec">
+            <div class="agree-sec-h">{t(DOCS[k].title)}</div>
+            {DOCS[k].body.map(([h, p]) => (
+              <div key={h} style="margin-bottom:10px"><div style="font-weight:700;font-size:13.5px;margin-bottom:2px">{t(h)}</div><div class="meta" style="line-height:1.55;font-size:13px">{t(p)}</div></div>
+            ))}
+          </div>
         ))}
       </div>
       <label class="switch agree-check">

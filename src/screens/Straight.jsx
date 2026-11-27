@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { gameById, GAMES, fmtShort, todayISO, isDrawDay, isSpecialDraw } from '../data/games.js';
-import { Loading, BackBar, Panel } from '../ui.jsx';
+import { Loading, BackBar, Panel, NehroopaCard } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t, getLang } from '../i18n.js';
 import { IconChevron, IconClock, Logo } from '../icons.jsx';
@@ -165,6 +165,7 @@ export function StraightChart({ data, gameId }) {
   return (
     <div data-game={g.id} class="pd">
       <BackBar title={t('Straight Predictions')} />
+      <NehroopaCard />
       <div style="margin-top:12px"><StraightSheet key={iso} g={g} iso={iso} cols={cols} draw={latest ? draws[0] : null} auto /></div>
       {histCount > 0 && (
         <div class="acards" style="margin-top:14px">

@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { t } from './i18n.js';
-import { AD_INTERSTITIAL_GAP_SEC, AD_BANNER_REFRESH_SEC, AD_PREDICTION_GAMES, AD_TEST, ADMOB_BANNER_ID, ADMOB_INTERSTITIAL_ID, ADMOB_REWARDED_ID } from './config.js';
+import { AD_INTERSTITIAL_GAP_SEC, AD_BANNER_REFRESH_SEC, AD_PREDICTION_GAMES, AD_TEST, ADMOB_BANNER_ID, ADMOB_INTERSTITIAL_ID, ADMOB_REWARDED_ID, ADMOB_NATIVE_ID, ADMOB_NATIVE_TEST_ID } from './config.js';
+import { useRef } from 'preact/hooks';
+import { registerPlugin } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 
 const NATIVE = Capacitor.isNativePlatform();
@@ -150,4 +152,74 @@ export function BannerHost({ path }) {
     return () => { dead = true; };
   }, [want]);
   return null;
+}
+
+// In-feed native ad: Google's NativeAdView is drawn by the app on top of this placeholder and follows it while scrolling.
+// It looks like a post card (icon, name, text, picture, button). Hidden while a sheet, menu or popup covers the page.
+const NativeAds = NATIVE ? registerPlugin('NativeAds') : null;
+const COVERS = '.sheet-wrap, .drawer-wrap.open, .post-menu, .ad-wrap, .rate-wrap, .exit-wrap';
+const cssVar = (n, el) => getComputedStyle(el || document.documentElement).getPropertyValue(n).trim();
+function hex(c) {
+  if (!c) return undefined;
+  if (c.startsWith('#')) return c.length === 4 ? '#' + c.slice(1).split('').map((x) => x + x).join('') : c.slice(0, 7);
+  const m = c.match(/\d+(\.\d+)?/g); if (!m) return undefined;
+  return '#' + m.slice(0, 3).map((x) => Math.round(+x).toString(16).padStart(2, '0')).join('');
+}
+const nativeH = (w) => Math.round(w * 0.5625 + 176);
+
+export function NativeAdCard() {
+  const ref = useRef(null);
+  const [state, setState] = useState('loading'); // loading | loaded | failed
+  const [h, setH] = useState(320);
+  const unit = AD_TEST ? ADMOB_NATIVE_TEST_ID : ADMOB_NATIVE_ID;
+  useEffect(() => {
+    const el = ref.current; if (!el) return undefined;
+    setH(nativeH(el.clientWidth || 340));
+    if (!NATIVE) return undefined;
+    if (!unit) { setState('failed'); return undefined; }
+    let id = null; let dead = false; let raf = 0; let sub = null; let last = '';
+    const loop = () => {
+      if (dead) return;
+      raf = requestAnimationFrame(loop);
+      if (id == null || !ref.current) return;
+      const r = ref.current.getBoundingClientRect();
+      const nav = document.querySelector('.nav-inner');
+      const fab = document.querySelector('.fab');
+      let bottom = window.innerHeight;
+      if (nav) bottom = Math.min(bottom, nav.getBoundingClientRect().top - 6);
+      if (fab) bottom = Math.min(bottom, fab.getBoundingClientRect().top - 6);
+      const visible = !document.querySelector(COVERS) && document.visibilityState === 'visible';
+      const k = [r.left, r.top, r.width, r.height, bottom, visible].map((v) => (typeof v === 'number' ? Math.round(v) : v)).join(',');
+      if (k === last) return;
+      last = k;
+      NativeAds.setBounds({ id, x: r.left, y: r.top, width: r.width, height: r.height, clipTop: 0, clipBottom: bottom, visible }).catch(() => {});
+    };
+    initAdMob().then(async () => {
+      if (dead) return;
+      try {
+        sub = await NativeAds.addListener('nativeAd', (e) => {
+          if (e.id !== id) return;
+          if (e.state === 'loaded') { setState('loaded'); last = ''; }
+          if (e.state === 'failed') setState('failed');
+        });
+        const th = { bg: hex(cssVar('--surface')), text: hex(cssVar('--text')), muted: hex(cssVar('--muted')), gold: hex(cssVar('--gold')), onGold: hex(cssVar('--on-gold')), border: hex(cssVar('--border')) };
+        const r = await NativeAds.create({ adUnitId: unit, theme: th });
+        if (dead) { NativeAds.destroy({ id: r.id }); return; }
+        id = r.id; loop();
+      } catch (e) { setState('failed'); }
+    });
+    return () => { dead = true; cancelAnimationFrame(raf); if (sub) sub.remove(); if (id != null) NativeAds.destroy({ id }).catch(() => {}); };
+  }, []);
+  if (state === 'failed') return <div ref={ref} />;
+  if (!NATIVE) {
+    return (
+      <div ref={ref} class="nad" style={`height:${h}px`}>
+        <div class="nad-head"><i class="nad-ic" /><div><b>{t('Sample ad')}</b><small><em>Ad</em> {t('Your ad could be here')}</small></div></div>
+        <div class="nad-media" />
+        <div class="nad-cta">{t('Open')}</div>
+      </div>
+    );
+  }
+  // the real ad is drawn by the app on top of this space; it stays empty until the ad has loaded
+  return <div ref={ref} class={state === 'loaded' ? 'nad-slot on' : 'nad-slot'} style={state === 'loaded' ? `height:${h}px` : 'height:0'} />;
 }

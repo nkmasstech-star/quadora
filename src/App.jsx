@@ -32,6 +32,8 @@ import { Locked } from './ui.jsx';
 import { currentUser, logOut, deleteAccount, googleSignIn } from './data/account.js';
 import { startPosts, startUser, stopUser } from './data/cloud.js';
 import { auth } from './firebase.js';
+import { countOpen, shouldAskRating, rateLater, rateNow } from './data/rate.js';
+import { Logo } from './icons.jsx';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -85,7 +87,7 @@ export function App() {
   const [theme, setThemeState] = useState(() => {
     if (import.meta.env.DEV) { const t = new URLSearchParams(location.search).get('theme'); if (t) store.set('qd_theme', t); }
     const t = store.get('qd_theme'); if (['light', 'black', 'charcoal', 'teal'].includes(t)) return t;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'black' : 'light';
+    return 'light'; // first install always starts in the light theme
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -112,6 +114,10 @@ export function App() {
   }, [user && user.uid, data]);
   const setTheme = (t) => { store.set('qd_theme', t); setThemeState(t); };
 
+  const [exitStep, setExitStep] = useState(null); // null | 'ask' | 'rate'
+  useEffect(() => { countOpen(); const h = () => setExitStep((x) => (x ? null : 'ask')); window.addEventListener('qd-exit', h); return () => window.removeEventListener('qd-exit', h); }, []);
+  const reallyExit = () => { setExitStep(null); try { CapApp.exitApp(); } catch (e) { /* web */ } };
+  const onExit = () => { if (shouldAskRating()) setExitStep('rate'); else reallyExit(); };
   const [menuOpen, setMenuOpen] = useState(!!(import.meta.env.DEV && location.search.includes('menu')));
   useEffect(() => { const h = () => setMenuOpen(true); window.addEventListener('qd-menu', h); return () => window.removeEventListener('qd-menu', h); }, []);
 
@@ -149,7 +155,7 @@ export function App() {
     CapApp.addListener('backButton', () => {
       if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/faq' || location.hash.startsWith('#/straight') || location.hash.startsWith('#/straighthist') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
-      else CapApp.exitApp();
+      else window.dispatchEvent(new Event('qd-exit'));
     }).then((h) => { handle = h; }).catch(() => {});
     return () => { if (handle) handle.remove(); };
   }, []);
@@ -211,7 +217,8 @@ export function App() {
       <main class={nav ? 'screen' : 'screen no-nav'}><div key={path} class={nav ? 'page' : 'page push'}>{screen}</div></main>
       {nav && (
         <nav class="nav" aria-label="Main">
-          <div class="nav-inner">
+          <div class="nav-inner" style={`--tabs:${TABS.length}`}>
+            <i class="nav-ind" style={`transform:translateX(${Math.max(0, TABS.findIndex((x) => x.path === active)) * 100}%)`} />
             {TABS.map(({ path: p, label, Icon }) => (
               <button key={p} class={active === p ? 'nav-item on' : 'nav-item'} aria-label={t(label)} aria-current={active === p ? 'page' : undefined} onClick={() => go(p)}>
                 <Icon />
@@ -224,6 +231,30 @@ export function App() {
       <InterstitialHost />
       <NotifBanner user={user} data={data} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
+      {exitStep && (
+        <div class="exit-wrap" role="dialog" aria-modal="true">
+          <div class="exit-scrim" onClick={() => setExitStep(null)} />
+          {exitStep === 'ask' ? (
+            <div class="exit-box">
+              <Logo size={52} />
+              <div class="exit-title">{t('Exit or stay?')}</div>
+              <div class="meta" style="text-align:center">{t('Do you want to close Q Spot?')}</div>
+              <div class="exit-btns">
+                <button class="btn ghost" onClick={() => setExitStep(null)}>{t('Stay')}</button>
+                <button class="btn" onClick={onExit}>{t('Exit')}</button>
+              </div>
+            </div>
+          ) : (
+            <div class="exit-box">
+              <div class="exit-stars">★★★★★</div>
+              <div class="exit-title">{t('Enjoying Q Spot?')}</div>
+              <div class="meta" style="text-align:center;line-height:1.5">{t('A quick rating on Play Store helps us a lot. It takes only a few seconds.')}</div>
+              <button class="btn" style="margin-top:6px" onClick={async () => { await rateNow(); reallyExit(); }}>{t('Rate now')}</button>
+              <button class="btn text" onClick={() => { rateLater(); reallyExit(); }}>{t('Later, just exit')}</button>
+            </div>
+          )}
+        </div>
+      )}
       {toast && <div class="toast" role="status">{toast}</div>}
     </div>
   );

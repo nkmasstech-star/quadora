@@ -36,10 +36,7 @@ export const IconCalendar = () => (
 );
 
 export const Logo = ({ size = 40 }) => (
-  <svg role="img" aria-label="Q Spot 4D logo" width={size} height={size} viewBox="14 14 80 80">
-    <circle cx="45" cy="45" r="22" fill="none" stroke="#E8B94A" stroke-width="6" />
-    <path d="M70 54 L74 66 L86 70 L74 74 L70 86 L66 74 L54 70 L66 66 Z" fill="#E8B94A" style="stroke:var(--bg)" stroke-width="3" />
-  </svg>
+  <img class="logo-img" src="img/logo.png" alt="Nehroopa logo" width={size} height={size} draggable={false} />
 );
 
 export const IconMenu = () => (

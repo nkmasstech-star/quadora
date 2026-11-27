@@ -7,7 +7,7 @@ import { Locked } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { FORMATS, addLucky } from '../data/community.js';
 import { targetDraw } from '../data/rules.js';
-import { requestRewarded } from '../ads.jsx';
+import { requestInterstitial } from '../ads.jsx';
 
 const MAXSETS = 4;
 const KEY = 'qd_lucky';
@@ -84,16 +84,16 @@ function FormatPick({ value, onChange }) {
 }
 
 function ScratchCard({ user, toast, game }) {
-  const more = () => requestRewarded(() => { setSaved(false); make(); });
+  const more = () => { setSaved(false); make(true); }; // one extra card a day, free (no ad)
   const [card, setCard] = useState(() => loadScratch(user.uid));
   const [open, setOpen] = useState(false);
   const [fmt, setFmt] = useState('Straight');
   const [saved, setSaved] = useState(false);
   const cv = useRef(null);
   const g = (card && card.game) || game;
-  const make = () => {
+  const make = (extra) => {
     const n = randomDigits(4).join('');
-    const c = { day: dayKey(), n, game, revealed: false };
+    const c = { day: dayKey(), n, game, revealed: false, extra: extra === true || !!(card && card.extra) };
     try { localStorage.setItem(`${SKEY}_${user.uid}`, JSON.stringify(c)); } catch (e) { /* ignore */ }
     setCard(c); setOpen(true);
   };
@@ -137,7 +137,7 @@ function ScratchCard({ user, toast, game }) {
     <div>
       <div class="section-title"><h2>{t('Scratch card')}</h2><span>{used ? t('Used today') : t('1 free per day')}</span></div>
       <Panel>
-        {!used && <button class="btn" onClick={make}>{t('Get my scratch card')}</button>}
+        {!used && <button class="btn" onClick={() => make()}>{t('Get my scratch card')}</button>}
         {!used && <div class="meta" style="margin-top:8px;text-align:center">{t('Uses the game selected above. No ad needed.')}</div>}
         {used && (
           <div data-game={card.game}>
@@ -150,7 +150,7 @@ function ScratchCard({ user, toast, game }) {
               <div>
                 <FormatPick value={fmt} onChange={setFmt} />
                 <button class="btn" style="margin-top:12px" disabled={saved} onClick={save}>{saved ? t('Saved') : t('Save to profile')}</button>
-                <button class="btn ghost" style="margin-top:10px" onClick={more}>{t('Watch an ad for one more card')}</button>
+                {!card.extra && <button class="btn ghost" style="margin-top:10px" onClick={more}>{t('Get one more card (free)')}</button>}
               </div>
             )}
             {!card.revealed && <div class="meta" style="text-align:center;margin-top:8px">{t('Scratch with your finger to reveal')}</div>}
@@ -186,7 +186,7 @@ export function Lucky({ user, toast }) {
   const openGame = () => {
     if (spinning) return;
     if (full) { toast(t('You have used all 4 sets today. Come back tomorrow.')); return; }
-    if (needAd) { requestRewarded(claim); return; }
+    if (needAd) { requestInterstitial(claim); return; }
     setPlaying(true);
   };
   const finishGame = (score) => {
@@ -228,9 +228,9 @@ export function Lucky({ user, toast }) {
       </div>
 
       <button class="btn lucky-btn" onClick={openGame} disabled={spinning || full}>
-        {full ? t('Come back tomorrow') : needAd ? t('Watch ad to play more') : (digits ? t('Play again') : t('Play to get my number'))}
+        {full ? t('Come back tomorrow') : needAd ? t('Play more sets') : (digits ? t('Play again') : t('Play to get my number'))}
       </button>
-      <div class="meta" style="text-align:center;margin-top:8px;line-height:1.5">{t('1 free set. Watch one ad to unlock up to 3 more. Max 4 sets a day.')}</div>
+      <div class="meta" style="text-align:center;margin-top:8px;line-height:1.5">{t('1 free set. A short ad unlocks up to 3 more. Max 4 sets a day.')}</div>
 
       <ScratchCard user={user} toast={toast} game={game} />
 

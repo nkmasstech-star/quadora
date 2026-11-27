@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { gameById, fmtShort, todayISO, nextDrawLabel } from '../data/games.js';
-import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel, Sheet } from '../ui.jsx';
+import { NumberGrid, Loading, AppBar, BackBar, Hero, Panel, Sheet, NehroopaCard } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { t } from '../i18n.js';
 import { IconClock } from '../icons.jsx';
@@ -17,7 +17,6 @@ const CARDS = [
   { id: 'straight', label: 'Straight', region: 'all', letter: '#' },
 ];
 const REGION_NAME = { my: 'Malaysia', sg: 'Singapore', kh: 'Cambodia', all: 'Chart' };
-const FILTERS = [['all', 'All'], ['my', 'Malaysia'], ['sg', 'Singapore'], ['kh', 'Cambodia']];
 
 function GameCard({ c, ready }) {
   const special = c.id === 'straight';
@@ -43,7 +42,7 @@ function Digits({ digits }) {
 }
 
 export function Predictions({ data, toast }) {
-  const [filter, setFilter] = useState('all');
+  const filter = 'all';
   if (data.status === 'loading' && !data.predictions) return <Loading />;
   const games = (data.predictions && data.predictions.games) || {};
   const ready = Object.keys(games).length;
@@ -51,7 +50,7 @@ export function Predictions({ data, toast }) {
 
   return (
     <div>
-      <AppBar title="Q Spot 4D" tagline={t('4D Analysis · Predictions · Results')} go={go} />
+      <AppBar title={<span class="hl">Q Spot</span>} tagline="Nehroopa 4D Predictions" sub={t('Analysis · Results · Predictions')} go={go} />
 
       <div class="hero">
         <div class="hero-text">
@@ -61,10 +60,9 @@ export function Predictions({ data, toast }) {
         <span class="hero-pill">{ready ? t('{n} ready', { n: ready }) : t('Updates daily')}</span>
       </div>
 
-      <div class="tabs" role="tablist">
-        {FILTERS.map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={filter === k} class={filter === k ? 'tab on' : 'tab'} onClick={() => setFilter(k)}>{t(l)}</button>
-        ))}
+      <div class="tabs brandrow" role="tablist">
+        <button role="tab" aria-selected="true" class="tab on">{t('All')}</button>
+        <NehroopaCard small />
       </div>
 
       <div class="gcards">
@@ -214,6 +212,7 @@ export function PredictionDetail({ data, gameId, toast }) {
   return (
     <div data-game={g.id} class="pd">
       <BackBar title={t('Prediction')} />
+      <NehroopaCard />
       {!p && <Panel><div class="empty">{t('Prediction for this game will appear after the daily update.')}</div></Panel>}
       {p && <PredBody p={p} copy={copy} g={g} label={p.forDate ? fmtShort(p.forDate) : t('Next draw')} />}
       {p && <div class="meta" style="text-align:center;font-size:12px;line-height:1.5;margin:8px 8px 0">{t('Tap a number to copy it. Predictions are guesses, not guaranteed. For fun only. 18+')}</div>}

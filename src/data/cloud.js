@@ -23,7 +23,7 @@ export async function fetchUsers(ids) {
 // public feed: readable without sign-in
 export function startPosts() {
   if (postsUnsub) return;
-  postsUnsub = onSnapshot(query(collection(db, 'posts'), orderBy('at', 'desc'), limit(150)), (snap) => {
+  postsUnsub = onSnapshot(query(collection(db, 'posts'), orderBy('at', 'desc'), limit(300)), (snap) => {
     C.posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     C.ready = true; fire();
     fetchUsers(C.posts.map((p) => p.uid));

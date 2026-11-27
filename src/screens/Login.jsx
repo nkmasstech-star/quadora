@@ -44,8 +44,9 @@ export function Login({ onGuest, onAuth, toast }) {
       <div class="brand" style="gap:14px">
         <Logo size={52} />
         <div>
-          <div class="display" style="font-weight:700;font-size:32px;line-height:1;letter-spacing:-0.5px">Q Spot <span style="color:var(--gold-text)">4D</span></div>
-          <div class="sub" style="margin-top:2px">{t('4D Analysis · Predictions · Results')}</div>
+          <div class="display" style="font-weight:800;font-size:32px;line-height:1;letter-spacing:-0.5px;color:var(--gold-text)">Q Spot</div>
+          <div style="margin-top:4px;font-weight:700;font-size:15px">Nehroopa 4D Predictions</div>
+          <div class="sub" style="margin-top:1px;font-size:12px">{t('Analysis · Results · Predictions')}</div>
         </div>
       </div>
 

@@ -129,3 +129,24 @@ export const visiblePosts = (list, me) => list.filter((p) => !me || (p.uid === m
 export const clearMyPosts = (uid) => cloudDeleteMine(uid);
 export const clearMyPicks = (uid) => write(`qd_picks_${uid}`, []);
 export const clearMyLucky = (uid) => write(`qd_luckyn_${uid}`, []);
+
+// ---------- leaderboard: top players by winning ratio for posts made in the period ----------
+export const BOARD_PERIODS = { week: { days: 7, min: 2 }, month: { days: 30, min: 3 }, all: { days: 0, min: 4 } };
+export function leaderboard(period, results, me) {
+  const cfg = BOARD_PERIODS[period] || BOARD_PERIODS.week;
+  const from = cfg.days ? Date.now() - cfg.days * 864e5 : 0;
+  const by = {};
+  allPosts().forEach((p) => {
+    if (p.at < from) return;
+    if (me && blockedOf(me.uid).includes(p.uid)) return;
+    const e = evalPost(p, results);
+    if (!e.resolved) return;
+    const s = by[p.uid] || (by[p.uid] = { uid: p.uid, resolved: 0, won: 0 });
+    s.resolved += 1; if (e.won) s.won += 1;
+  });
+  return Object.values(by)
+    .filter((s) => s.resolved >= cfg.min && s.won > 0)
+    .map((s) => ({ ...s, pct: Math.round((s.won / s.resolved) * 100) }))
+    .sort((a, b) => b.won / b.resolved - a.won / a.resolved || b.won - a.won || b.resolved - a.resolved)
+    .slice(0, 10);
+}
