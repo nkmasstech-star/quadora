@@ -27,10 +27,10 @@ export function Login({ onGuest, onAuth, toast }) {
         onAuth(await syncCloudProfile(r.user));
       } catch (e) {
         const m = String((e && e.message) || e || '');
-        if (/cancel/i.test(m)) return; // user closed the Google sheet
-        // show the real reason in small text so a Play-build problem (key / SHA / network) can be told apart
+        // show the real reason in small text so a Play-build problem (key / SHA / network) can be told apart.
+        // "cancel" is shown too: a wrong SHA / OAuth setup often comes back as a cancel with no account sheet.
         const code = (e && (e.code || (e.data && e.data.code))) || '';
-        setErr('Google sign-in failed. Check your internet and try again.');
+        setErr(/cancel/i.test(m) ? 'Sign-in was cancelled or no Google account was offered. Please try again.' : 'Google sign-in failed. Check your internet and try again.');
         setDetail(`${code ? code + ': ' : ''}${m}`.slice(0, 180));
       }
       return;
