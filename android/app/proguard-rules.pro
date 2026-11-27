@@ -33,3 +33,8 @@
 -keep class com.google.android.gms.ads.** { *; }
 -dontwarn com.google.android.gms.**
 -dontwarn com.google.firebase.**
+# Firebase Authentication plugin has optional Facebook/Twitter/etc. sign-in handlers we don't include
+-dontwarn com.facebook.**
+-dontwarn com.twitter.**
+-dontwarn com.google.android.gms.games.**
+-dontwarn io.capawesome.capacitorjs.plugins.firebase.authentication.handlers.**
