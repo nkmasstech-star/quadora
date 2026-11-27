@@ -38,3 +38,7 @@
 -dontwarn com.twitter.**
 -dontwarn com.google.android.gms.games.**
 -dontwarn io.capawesome.capacitorjs.plugins.firebase.authentication.handlers.**
+# keep the Capacitor community / Firebase plugin code intact (sign-in, push, ads) to be safe
+-keep class io.capawesome.** { *; }
+-keep class com.getcapacitor.community.** { *; }
+-keep class ee.forgr.** { *; }
