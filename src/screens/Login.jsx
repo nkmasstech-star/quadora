@@ -8,8 +8,10 @@ import { Capacitor } from '@capacitor/core';
 
 export function Login({ onGuest, onAuth, toast }) {
   const [err, setErr] = useState('');
+  const [detail, setDetail] = useState('');
   // The phone opens the real Google sign-in; the same Google token signs in Firestore so posts and votes belong to the player.
   const google = async () => {
+    setErr(''); setDetail('');
     if (Capacitor.isNativePlatform()) {
       try {
         const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
@@ -26,7 +28,10 @@ export function Login({ onGuest, onAuth, toast }) {
       } catch (e) {
         const m = String((e && e.message) || e || '');
         if (/cancel/i.test(m)) return; // user closed the Google sheet
+        // show the real reason in small text so a Play-build problem (key / SHA / network) can be told apart
+        const code = (e && (e.code || (e.data && e.data.code))) || '';
         setErr('Google sign-in failed. Check your internet and try again.');
+        setDetail(`${code ? code + ': ' : ''}${m}`.slice(0, 180));
       }
       return;
     }
@@ -58,7 +63,7 @@ export function Login({ onGuest, onAuth, toast }) {
       </div>
 
       <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px">
-        {err && <div class="form-err" role="alert">{t(err)}</div>}
+        {err && <div class="form-err" role="alert">{t(err)}{detail && <div style="font-size:11px;opacity:.75;margin-top:4px;word-break:break-word">{detail}</div>}</div>}
         <button type="button" class="btn" onClick={google}>{t('Continue with Google')}</button>
         <button type="button" class="btn ghost" onClick={onGuest}>{t('Continue as guest')}</button>
         <div class="meta" style="text-align:center;font-size:12px;line-height:1.5">{t('Guests can view predictions and today\'s results only.')}</div>
