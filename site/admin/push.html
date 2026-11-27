@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Q Spot 4D · Send notification</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;font:15px/1.45 system-ui,sans-serif;background:#0d0f14;color:#e8e6df;padding:16px;max-width:560px;margin:auto}
+  h1{font-size:20px;margin:6px 0 2px;color:#E8B94A} .sub{color:#9a978c;font-size:13px;margin-bottom:14px}
+  label{display:block;margin:12px 0 4px;font-size:13px;color:#b9b6aa}
+  input,select,textarea{width:100%;box-sizing:border-box;background:#171a21;color:#fff;border:1px solid #2a2f3a;border-radius:10px;padding:11px;font:inherit}
+  textarea{min-height:70px;font-family:ui-monospace,monospace}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  button{background:#E8B94A;color:#1a1405;border:0;border-radius:12px;padding:13px 16px;font:600 15px system-ui;width:100%;margin-top:14px}
+  button.g{background:#232834;color:#e8e6df}
+  .box{background:#171a21;border:1px solid #2a2f3a;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;word-break:break-word}
+  .err{color:#ff8a80}.ok{color:#8be28b}
+  code{font-family:ui-monospace,monospace}
+  .post{background:#171a21;border:1px solid #2a2f3a;border-radius:12px;padding:12px;margin-top:12px}
+  .post.hot{border-color:#ff8a80}
+  .meta{color:#9a978c;font-size:12px}
+  .btns{display:flex;gap:8px}.btns button{margin-top:10px;padding:10px}
+  button.r{background:#5a1f1f;color:#ffd6d2}
+  .tabs{display:flex;gap:8px;margin-top:8px}.tabs button{margin-top:0;padding:9px}
+</style>
+</head>
+<body>
+<h1>Q Spot 4D · Send notification</h1>
+<div class="sub">Send a push notification to every Q Spot user. It goes out within about 5 minutes (3 minutes during draw time). <a href="./" style="color:#E8B94A">Result entry</a> · <a href="moderation.html" style="color:#E8B94A">Moderation</a></div>
+<div id="app"></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const ADMIN = 'nkmasstech@gmail.com';
+const app = initializeApp({
+  apiKey: 'AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g', authDomain: 'qspot4d.firebaseapp.com', projectId: 'qspot4d',
+  storageBucket: 'qspot4d.firebasestorage.app', messagingSenderId: '1012098386722', appId: '1:1012098386722:web:a7bbf88c78f2611e84f37b'
+});
+const auth = getAuth(app), db = getFirestore(app);
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const root = $('#app');
+const REF = doc(db, 'pub', 'push');
+const OPEN = [['/predictions', 'Predictions'], ['/home', 'Results'], ['/straight', 'Straight charts'], ['/community', 'Community'], ['/lucky', 'Lucky game'], ['/poll', 'Voting poll']];
+
+function login() {
+  root.innerHTML = '<button id="in">Sign in with Google (nkmasstech@gmail.com)</button><div id="m" class="box err" style="display:none"></div>';
+  $('#in').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { const m = $('#m'); m.style.display = 'block'; m.textContent = e.message; } };
+}
+
+async function history() {
+  const box = $('#hist');
+  try {
+    const s = await getDoc(REF);
+    const q = (s.exists() && s.data().queue) || [];
+    box.innerHTML = q.length ? q.slice().reverse().slice(0, 15).map((x) => `<div class="post"><b>${esc(x.title)}</b><div>${esc(x.body)}</div><div class="meta">${new Date(x.at).toLocaleString()} · opens ${esc(x.route)}</div></div>`).join('') : '<div class="box">Nothing sent yet.</div>';
+  } catch (e) { box.innerHTML = '<div class="box err">' + esc(e.message) + '</div>'; }
+}
+
+function main(u) {
+  root.innerHTML = `<div class="sub">Signed in: ${esc(u.email)} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
+    <label>Title (max 65)</label><input id="t" maxlength="65" placeholder="Special draw today!">
+    <label>Message (max 240)</label><textarea id="b" maxlength="240" placeholder="Magnum, Toto and Da Ma Cai special draw tonight. Predictions are ready. For entertainment only."></textarea>
+    <label>When tapped, open</label><select id="r">${OPEN.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
+    <div class="box" id="pv"></div>
+    <button id="send">Send to all users</button><div id="msg"></div>
+    <h1 style="font-size:16px;margin-top:22px">Sent</h1><div id="hist"></div>`;
+  $('#out').onclick = (e) => { e.preventDefault(); signOut(auth); };
+  const pv = () => { $('#pv').innerHTML = `<div class="meta">Preview</div><b>${esc($('#t').value || 'Title')}</b><div>${esc($('#b').value || 'Message')}</div>`; };
+  $('#t').oninput = pv; $('#b').oninput = pv; pv();
+  $('#send').onclick = async () => {
+    const title = $('#t').value.trim(); const body = $('#b').value.trim(); const route = $('#r').value;
+    const msg = $('#msg');
+    if (!title) { msg.innerHTML = '<div class="box err">Please type a title.</div>'; return; }
+    if (!confirm('Send this notification to ALL Q Spot users?\n\n' + title + '\n' + body)) return;
+    $('#send').disabled = true;
+    try {
+      const s = await getDoc(REF);
+      const q = ((s.exists() && s.data().queue) || []).filter((x) => Date.now() - x.at < 7 * 864e5).slice(-30);
+      q.push({ id: 'm' + Date.now().toString(36), title, body, route, at: Date.now() });
+      await setDoc(REF, { queue: q });
+      msg.innerHTML = '<div class="box ok">Queued ✓ It will reach phones within about 5 minutes.</div>';
+      $('#t').value = ''; $('#b').value = ''; pv(); history();
+    } catch (e) { msg.innerHTML = '<div class="box err">' + esc(e.message) + '</div>'; }
+    $('#send').disabled = false;
+  };
+  history();
+}
+
+onAuthStateChanged(auth, (u) => {
+  if (!u) return login();
+  if (u.email !== ADMIN || !u.emailVerified) { root.innerHTML = '<div class="box err">This account is not allowed.</div><button id="o" class="g">Sign out</button>'; $('#o').onclick = () => signOut(auth); return; }
+  main(u);
+});
+</script>
+</body>
+</html>

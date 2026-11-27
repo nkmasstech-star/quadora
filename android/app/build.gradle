@@ -7,8 +7,8 @@ android {
         applicationId "com.quadora.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.1"
+        versionCode 4
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -39,8 +39,18 @@ android {
     buildTypes {
         release {
             if (System.getenv("KEYSTORE_PATH")) { signingConfig signingConfigs.release }
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // R8: shrinks + obfuscates code (Play "DEX code optimization"); the mapping file goes inside the AAB automatically
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // native debug symbols for the .so files inside the libraries (Play crash reports)
+            ndk { debugSymbolLevel 'SYMBOL_TABLE' }
+        }
+        // same as release (R8 on) but signed with the fixed debug key, so it can be installed and tested before a real release
+        staging {
+            initWith release
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
         }
     }
 }

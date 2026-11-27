@@ -1,7 +1,7 @@
 name: Results watch (always on)
 # GitHub's cron schedules for this repo run hours late or not at all, so this job keeps itself running:
 # it loops for ~5h40m, then starts its next run itself. Draw window 09:45-13:45 UTC: check every 3 min.
-# Rest of the day: every 20 min (publishes predictions after their delay). The cron lines below only
+# Rest of the day: every 20 min (publishes predictions after their delay); manual admin pushes every 5 min. The cron lines below only
 # restart the chain if it ever stops.
 on:
   workflow_dispatch:
@@ -35,6 +35,7 @@ jobs:
             node tools/notify.mjs || true
             node tools/gen_predictions.mjs || true
             node tools/notify.mjs --pred || true
+            node tools/push_queue.mjs || true
             if [ -n "$(git status --porcelain public/data tools/notified.json)" ]; then
               git add public/data tools/notified.json
               git commit -q -m "Auto: results/predictions (watch)"
@@ -42,7 +43,18 @@ jobs:
               echo "pushed at $(date -u +%H:%M)"
             fi
             hm=$((10#$(date -u +%H%M)))
-            if [ $hm -ge 945 ] && [ $hm -le 1345 ]; then sleep 180; else sleep 1200; fi
+            if [ $hm -ge 945 ] && [ $hm -le 1345 ]; then sleep 180; else
+              # quiet hours: still send manual notifications from the admin page every 5 min
+              for k in 1 2 3; do
+                sleep 300
+                node tools/push_queue.mjs || true
+                if [ -n "$(git status --porcelain tools/notified.json)" ]; then
+                  git add tools/notified.json; git commit -q -m "Auto: manual push sent"
+                  for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+                fi
+              done
+              sleep 300
+            fi
           done
       - name: Start next run
         if: always()

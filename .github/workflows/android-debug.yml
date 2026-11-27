@@ -21,7 +21,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx cap sync android
-      - run: ./gradlew assembleDebug
+      - run: ./gradlew assembleDebug assembleStaging
         working-directory: android
       - uses: actions/upload-artifact@v4
         with:
@@ -32,5 +32,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk QSpot4D-test.apk
+          cp android/app/build/outputs/apk/staging/app-staging.apk QSpot4D-test-R8.apk
           gh release delete test-apk -y --cleanup-tag || true
-          gh release create test-apk QSpot4D-test.apk --title "Test APK" --notes "Latest debug build" --prerelease
+          gh release create test-apk QSpot4D-test.apk QSpot4D-test-R8.apk --title "Test APK" --notes "Debug build + R8 (release-like) build" --prerelease
