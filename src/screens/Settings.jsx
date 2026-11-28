@@ -7,6 +7,10 @@ import { go } from '../App.jsx';
 import { t, LANGS, getLang } from '../i18n.js';
 import { APP_NAME } from '../config.js';
 import { notifOn, setNotif } from '../data/alerts.js';
+import { Avatar } from '../avatars.jsx';
+import { AvatarPicker, NameSheet } from './Profile.jsx';
+import { setAvatar } from '../data/account.js';
+import { AVATAR_EDITS } from '../config.js';
 
 const THEMES = [
   { id: 'light', name: 'Light', bg: '#F3F5FA', line: '#D9DFEC', gold: '#E3A82A' },
@@ -15,7 +19,8 @@ const THEMES = [
   { id: 'teal', name: 'Teal', bg: '#0B1519', line: '#22404B', gold: '#E8B94A' },
 ];
 
-export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDelete, onRefresh, toast }) {
+export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDelete, onRefresh, toast, onUser }) {
+  const [edit, setEdit] = useState(null); // avatar | name
   const [confirmDel, setConfirmDel] = useState(false);
   const [notif, setN] = useState(notifOn());
   const [blkOpen, setBlkOpen] = useState(false);
@@ -24,6 +29,14 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
   return (
     <div>
       <BackBar title={t('Settings')} />
+
+      {user && <div class="rows" style="margin-top:14px">
+        <div class="row" style="gap:12px"><Avatar id={user.avatar} size={44} ring /><span style="flex:1;font-weight:700">{user.name}</span></div>
+        <button class="row" onClick={() => setEdit('avatar')}><span style="flex:1;text-align:left">{t('Change profile picture')}</span><IconChevron /></button>
+        <button class="row" onClick={() => setEdit('name')}><span style="flex:1;text-align:left">{t('Edit name')}</span><IconChevron /></button>
+      </div>}
+      {edit === 'avatar' && <AvatarPicker current={user.avatar} left={AVATAR_EDITS - (user.avatarEdits || 0)} onClose={() => setEdit(null)} onPick={(a) => { const r = setAvatar(a); if (r.error) { toast(t(r.error)); return; } onUser(r.user); setEdit(null); toast(t('Saved')); }} />}
+      {edit === 'name' && <NameSheet user={user} toast={toast} onClose={() => setEdit(null)} onDone={(nu) => { onUser(nu); setEdit(null); }} />}
 
       <div class="rows" style="margin-top:14px">
         <div class="row" role="radiogroup" aria-label={t('Theme')}>

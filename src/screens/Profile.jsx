@@ -9,11 +9,11 @@ import { NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
 import { gameById, fmtShort } from '../data/games.js';
 import { addInbox } from '../data/inbox.js';
 import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, evalEntry, visiblePosts } from '../data/community.js';
-import { PostCard, WinBadge, Composer, ShareBadge } from './Community.jsx';
+import { PostCard, Composer, Fab } from './Community.jsx';
 import { shareText } from '../data/share.js';
 import { Tick } from '../Tick.jsx';
 
-function AvatarPicker({ current, onPick, onClose, left }) {
+export function AvatarPicker({ current, onPick, onClose, left }) {
   const [th, setTh] = useState(Math.floor(current / 100) % 10);
   return (
     <Sheet title={t('Choose your sticker')} onClose={onClose}>
@@ -30,7 +30,7 @@ function AvatarPicker({ current, onPick, onClose, left }) {
   );
 }
 
-function NameSheet({ user, onClose, onDone, toast }) {
+export function NameSheet({ user, onClose, onDone, toast }) {
   const [v, setV] = useState(user.name);
   const [err, setErr] = useState('');
   const left = NAME_EDITS - (user.nameEdits || 0);
@@ -112,26 +112,23 @@ export function Profile({ user, uid, data, toast, onUser }) {
 
       <div class="pf-wrap pf-compact">
         <div class="pfc-top">
-          <button class="plain-btn pf-av" disabled={!own} onClick={() => own && setPicker(true)} aria-label={t('Change avatar')}><Avatar id={u.avatar} size={58} ring /></button>
+          <Avatar id={u.avatar} size={64} ring />
           <div class="pfc-info">
-            <div class="pf-name">{u.name}<Tick uid={id} size={18} own={own} me={user} toast={toast} tap /></div>
+            <div class="pfc-name"><span>{u.name}</span><Tick uid={id} size={18} own={own} me={user} toast={toast} tap /></div>
             <div class="pfc-stats">
-              <span><b>{st.posts}</b> {t('Posts')}</span>
-              <span><b>{followersOf(id, user.uid)}</b> {t('Followers')}</span>
-              {id === user.uid && <span><b>{followingCount(id)}</b> {t('Following')}</span>}
-              <span title={st.pct == null ? t('Winning % shows after 4 checked posts. Checked: {n}', { n: st.resolved }) : ''}><b>{st.pct == null ? '—' : `${st.pct}%`}</b> {t('Winning')}</span>
+              <div><span>{t('Posts')}</span><b>{st.posts}</b></div>
+              <div><span>{t('Followers')}</span><b>{followersOf(id, user.uid)}</b></div>
+              {id === user.uid && <div><span>{t('Following')}</span><b>{followingCount(id)}</b></div>}
             </div>
           </div>
         </div>
-        {own
-          ? <div class="pf-btns"><button class="btn ghost" onClick={() => setNameOpen(true)}>{t('Edit profile')}</button><button class="btn" onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))}>{t('Place your prediction')}</button></div>
-          : <button class={following ? 'btn ghost pfc-follow' : 'btn pfc-follow'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
+        {!own && <button class={following ? 'btn ghost pfc-follow' : 'btn pfc-follow'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
+      {own && <Fab label={t('Place your prediction')} onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))} />}
 
       <div class="tabs" role="tablist" style="margin-top:14px">
         {tabs.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} class={tab === k ? 'tab on' : 'tab'} onClick={() => setTab(k)}>{t(l)}</button>)}
       </div>
-      {tab === 'posts' && <div class="section-title"><h2>{t('Posts')}</h2><WinBadge stats={st} /></div>}
       <div style="margin-top:8px">{body}</div>
 
       {picker && <AvatarPicker current={u.avatar} left={AVATAR_EDITS - (user.avatarEdits || 0)} onClose={() => setPicker(false)} onPick={(a) => { const r = setAvatar(a); if (r.error) { toast(t(r.error)); return; } onUser(r.user); setPicker(false); }} />}

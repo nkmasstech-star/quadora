@@ -919,3 +919,10 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .bi-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--border); text-align: center; }
 .bi-cell.on { border: 2px solid var(--gold); background: var(--surface-2); }
 .bi-cell b { font-size: 13px; } .bi-cell small { font-size: 11px; opacity: .7; }
+.pfc-name { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 5px 12px; border-radius: 12px; border: 1px solid var(--gold); background: var(--surface-2); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; }
+.pfc-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pfc-info .pfc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pfc-info .pfc-stats div { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1px; }
+.pfc-info .pfc-stats span { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.pfc-info .pfc-stats b { font-family: 'Space Grotesk', sans-serif; font-size: 17px; color: var(--text); }
+.pfc-info { gap: 8px; }

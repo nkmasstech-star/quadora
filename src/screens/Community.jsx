@@ -79,7 +79,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
         <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)} aria-label={u.name}><Avatar id={u.avatar} size={44} /></button>
         <span style="flex:1;min-width:0">
           <button class="plain-btn name-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)}>{u.name}</button><ShareBadge uid={p.uid} />
-          <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}<WinBadge stats={stats} /></span>
+          <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}</span>
         </span>
         {!mine && me && <button class="plain-btn more-btn" aria-label={t('More options')} aria-haspopup="menu" onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}>⋯</button>}
         {menu && <PostMenu p={p} me={me} name={u.name} anchor={menu} onClose={() => setMenu(null)} onReport={() => setRep(true)} onChange={onChange} toast={toast} />}

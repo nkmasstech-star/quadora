@@ -213,7 +213,7 @@ export function App() {
   else if (seg[0] === 'lucky') { screen = <Lucky user={user} toast={showToast} />; nav = false; }
   else if (seg[0] === 'notifications') { screen = <Notifications user={user} data={data} />; nav = false; }
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} toast={showToast} />; nav = false; }
-  else if (seg[0] === 'settings') { screen = <Settings user={user} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onLogOut={onLogOut} onDelete={onDelete} onRefresh={refresh} toast={showToast} />; nav = false; }
+  else if (seg[0] === 'settings') { screen = <Settings user={user} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onLogOut={onLogOut} onDelete={onDelete} onRefresh={refresh} toast={showToast} onUser={setUser} />; nav = false; }
   else if (seg[0] === 'user') { screen = user ? <Profile user={user} uid={seg[1]} data={data} toast={showToast} onUser={setUser} /> : <Locked onLogin={() => go('/login')} />; nav = false; }
   else if (seg[0] === 'group') { screen = user ? <GroupPage me={user} gid={seg[1]} data={data} toast={showToast} /> : <Locked onLogin={() => go('/login')} />; nav = false; }
   else if (seg[0] === 'community') screen = <Community user={user} data={data} toast={showToast} />;

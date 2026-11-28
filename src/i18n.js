@@ -777,6 +777,7 @@ const MONTHS = [
   ["Share your invite link. When friends install Q Spot from it and log in, you get a tick next to your name.", "Kongsi pautan jemputan anda. Apabila rakan memasang Q Spot daripadanya dan log masuk, anda dapat tanda di sebelah nama.", "分享你的邀请链接。好友通过它安装 Q Spot 并登录后，你的名字旁会出现勾。", "உங்கள் இன்வைட் லிங்கை ஷேர் பண்ணுங்க. அதுல இருந்து நண்பர்கள் Q Spot இன்ஸ்டால் பண்ணி லாக்இன் பண்ணா உங்கள் பெயர் பக்கத்தில் டிக் வரும்.", "ចែករំលែកតំណអញ្ជើញ។ ពេលមិត្តដំឡើង Q Spot ពីវា ហើយចូលគណនី អ្នកទទួលធីកនៅក្បែរឈ្មោះ។"],
   ["Blue-grey tick", "Tanda biru kelabu", "蓝灰勾", "ப்ளூ-கிரே டிக்", "ធីកខៀវប្រផេះ"],
   ["New badges: Leaders medals and invite ticks", "Lencana baharu: pingat pendahulu dan tanda jemputan", "新徽章：领先者奖牌和邀请勾", "புதிய பேட்ஜ்கள்: லீடர்ஸ் மெடல், இன்வைட் டிக்", "ផ្លាកថ្មី៖ មេដាយអ្នកនាំមុខ និងធីកអញ្ជើញ"],
+  ["Change profile picture", "Tukar gambar profil", "更换头像", "ப்ரொஃபைல் படத்தை மாற்று", "ប្ដូររូបប្រវត្តិរូប"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };
