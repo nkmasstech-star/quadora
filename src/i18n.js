@@ -828,6 +828,9 @@ const MONTHS = [
   ["Report this comment to the admin?", "Laporkan komen ini kepada admin?", "向管理员举报这条评论？", "இந்த கமெண்ட்டை அட்மினுக்கு ரிப்போர்ட் பண்ணவா?", "រាយការណ៍មតិនេះទៅអ្នកគ្រប់គ្រង?"],
   ["Report to admin", "Laporkan kepada admin", "举报给管理员", "அட்மினுக்கு ரிப்போர்ட்", "រាយការណ៍ទៅអ្នកគ្រប់គ្រង"],
   ["More", "Lagi", "更多", "மேலும்", "ច្រើនទៀត"],
+  ["Say something (optional)", "Tulis sesuatu (pilihan)", "说点什么（可选）", "ஏதாவது சொல்லுங்க (விருப்பம்)", "និយាយអ្វីមួយ (ស្រេចចិត្ត)"],
+  ["Why these numbers? A dream, a date, a pattern…", "Kenapa nombor ini? Mimpi, tarikh, corak…", "为什么选这些号码？梦、日期、规律…", "ஏன் இந்த நம்பர்கள்? கனவு, தேதி, pattern…", "ហេតុអ្វីលេខទាំងនេះ? សុបិន កាលបរិច្ឆេទ លំនាំ…"],
+  ["New accounts can add text 24 hours after joining.", "Akaun baharu boleh tambah teks 24 jam selepas mendaftar.", "新账号注册24小时后才能添加文字。", "புது account சேர்ந்து 24 மணி நேரத்துக்கு அப்புறம் தான் text போடலாம்.", "គណនីថ្មីអាចបន្ថែមអត្ថបទបាន 24 ម៉ោងក្រោយចុះឈ្មោះ។"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };

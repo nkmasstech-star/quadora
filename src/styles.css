@@ -950,10 +950,21 @@ label.gtype { cursor: pointer; }
 /* post actions: like · comments · share · save always on one line */
 .post-foot:not(.own) { flex-wrap: nowrap; justify-content: space-between; gap: 2px; }
 .post-foot:not(.own) .act { flex: 1 1 0; min-width: 0; justify-content: center; padding: 8px 4px; gap: 4px; font-size: 12.5px; white-space: nowrap; }
-.post-foot:not(.own) .act span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.post-foot:not(.own) .act > span:last-child { overflow: hidden; text-overflow: ellipsis; }
 /* comment 3-dot menu */
 .cm-item { position: relative; }
 .cm-more { flex: none; align-self: flex-start; background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; padding: 6px 6px; border-radius: 10px; cursor: pointer; }
 .cm-menu { position: absolute; right: 4px; top: 30px; z-index: 5; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 4px; }
 .cm-menu button { display: block; width: 100%; text-align: left; background: none; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
 .cm-menu button.danger { color: #E5484D; }
+/* post caption */
+.post-text { margin: 2px 0 10px; font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* liked / saved = red, like burst */
+.post-foot .act.on { color: #E5484D; }
+.post-foot .act .heart { position: relative; display: inline-flex; }
+.post-foot .act .heart.pop svg { animation: heartpop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes heartpop { 0% { transform: scale(.6); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.sparks { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.sparks i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: #E5484D; opacity: 0; transform: rotate(var(--a)) translateY(0); animation: spark .6s ease-out forwards; }
+.sparks i:nth-child(even) { background: #F5B400; width: 4px; height: 4px; }
+@keyframes spark { 0% { opacity: 1; transform: rotate(var(--a)) translateY(-4px) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-26px) scale(.5); } }

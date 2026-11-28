@@ -30,7 +30,7 @@ export function startGroups(uid) {
     C.users[uid] = { ...(C.users[uid] || {}), refs: 6 };
     C.gchal.ABC123 = [{ id: 'magnum_2026-12-02', by: 'u2', byName: 'Kumar', game: 'magnum', forDate: '2026-12-02', at: 2 }, { id: 'magnum_2026-11-25', by: uid, byName: 'Nehru', game: 'magnum', forDate: '2026-11-25', at: 1 }];
     const mk = (u, sets, f, d) => ({ id: `d${u}${d}`, uid: u, day: d, at: Date.parse(d) - 5e6, edited: false, up: 2, reports: 0, picks: [{ game: 'magnum', format: f, sets, forDate: d }] });
-    C.gposts.ABC123 = [mk('u2', ['2681', '1111'], 'iBox', '2026-11-25'), mk(uid, ['5200', '7777'], 'Straight', '2026-11-25'), mk('u3', ['0243'], 'Straight', '2026-11-25'), mk('u4', ['1234'], 'Straight', '2026-11-25'), mk('u3', ['4444'], 'Straight', '2026-12-02')];
+    C.gposts.ABC123 = [{ ...mk('u2', ['2681', '1111'], 'iBox', '2026-11-25'), text: 'Dreamt of my grandfather last night, his old car plate. Going iBox this time! 🍀' }, mk(uid, ['5200', '7777'], 'Straight', '2026-11-25'), mk('u3', ['0243'], 'Straight', '2026-11-25'), mk('u4', ['1234'], 'Straight', '2026-11-25'), mk('u3', ['4444'], 'Straight', '2026-12-02')];
     return;
   }
   // public groups (discover list) and the public groups I follow

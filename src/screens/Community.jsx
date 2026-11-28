@@ -8,6 +8,8 @@ import { shareText } from '../data/share.js';
 import { C, loadMorePosts, loadUserPosts } from '../data/cloud.js';
 import { Tick } from '../Tick.jsx';
 import { CommentsSheet } from '../Comments.jsx';
+import { checkComment, COMMENT_MAX } from '../data/textguard.js';
+import { commentBlock } from '../data/comments.js';
 import { GroupsTab } from './Groups.jsx';
 import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
@@ -71,6 +73,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
   };
   const [rep, setRep] = useState(false);
   const [cmt, setCmt] = useState(false);
+  const [pop, setPop] = useState(0);
   const [menu, setMenu] = useState(null);
   const editable = mine && canEdit(p, me.uid);
   const deletable = mine && canDelete(p, me.uid);
@@ -88,6 +91,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
         {!mine && !hideFollow && me && <button class={following ? 'chip-btn on small' : 'chip-btn small'} onClick={() => { const was = following; toggleFollow(me.uid, p.uid); if (!was) addInbox(p.uid, { type: 'follow', from: me.name, fromUid: me.uid }); onChange(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 
+      {p.text && <div class="post-text">{p.text}</div>}
       {p.picks.map((k, i) => {
         const g = gameById(k.game);
         return (
@@ -100,7 +104,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
       {ev.resolved && <div class={ev.won ? 'res-line won' : 'res-line'}>{ev.won ? t('Matched the result') : t('Did not match the result')}</div>}
 
       <div class="post-foot">
-        <button class={liked ? 'act on' : 'act'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => { const was = !!myLikes()[p.id]; toggleLike(p.id, me.uid); if (!was && !mine) addInbox(p.uid, { type: 'like', from: me.name, fromUid: me.uid, postId: p.id }); })}><IconHeart on={liked} /><span>{likeCount(p)}</span></button>
+        <button class={liked ? 'act on like' : 'act like'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => { const was = !!myLikes()[p.id]; toggleLike(p.id, me.uid); if (!was) { setPop(Date.now()); if (!mine) addInbox(p.uid, { type: 'like', from: me.name, fromUid: me.uid, postId: p.id }); } })}><span class={pop && Date.now() - pop < 800 ? 'heart pop' : 'heart'} key={pop}><IconHeart on={liked} />{pop > 0 && Date.now() - pop < 800 && <span class="sparks" aria-hidden="true">{[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <i key={i} style={`--a:${i * 45}deg`} />)}</span>}</span><span>{likeCount(p)}</span></button>
         <button class="act" aria-label={t('Comments')} onClick={guard(() => setCmt(true))}><span aria-hidden="true" class="cm-ic">💬</span><span>{p.comments || 0}</span></button>
         <button class="act" aria-label={t('Share')} onClick={share}><IconShare /><span>{t('Share')}</span></button>
         <button class={saved ? 'act on' : 'act'} aria-pressed={saved} aria-label={t('Save')} onClick={guard(() => toggleSave(me.uid, p.id))}><IconBookmark on={saved} /><span>{saved ? t('Saved') : t('Save')}</span></button>
@@ -121,7 +125,10 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
 export function Composer({ me, edit, onClose, onDone, toast, group }) {
   const init = edit ? edit.picks.map((k) => ({ game: k.game, format: k.format, sets: [...k.sets] })) : [];
   const [picks, setPicks] = useState(init);
+  const [text, setText] = useState(edit ? edit.text || '' : '');
   const [err, setErr] = useState('');
+  // optional caption: same safety rules as comments
+  const textErr = () => { const v = text.trim(); if (!v) return ''; const b = commentBlock(me.uid); if (b) return 'New accounts can add text 24 hours after joining.'; return checkComment(v); };
   const has = (id) => picks.some((k) => k.game === id);
   const toggleGame = (id) => {
     if (has(id)) setPicks(picks.filter((k) => k.game !== id));
@@ -132,9 +139,10 @@ export function Composer({ me, edit, onClose, onDone, toast, group }) {
   const setNum = (id, i, val) => { const k = picks.find((x) => x.game === id); const sets = [...k.sets]; sets[i] = val.replace(/\D/g, '').slice(0, 4); upd(id, { sets }); };
   const clean = () => picks.map((k) => ({ ...k, sets: k.sets.filter((s) => s !== '') }));
   const submit = () => {
-    const c = clean(); const e = validPicks(c);
+    const c = clean(); const e = validPicks(c) || textErr();
     if (e) { setErr(e); return; }
-    if (edit) { editPost(edit.id, c); toast(t('Post updated')); } else { createPost(me.uid, c, group); toast(t('Prediction posted')); }
+    const tx = text.trim().replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n');
+    if (edit) { editPost(edit.id, c, tx); toast(t('Post updated')); } else { createPost(me.uid, c, group, tx); toast(t('Prediction posted')); }
     onDone();
   };
   const saveOnly = () => {
@@ -170,6 +178,13 @@ export function Composer({ me, edit, onClose, onDone, toast, group }) {
           </div>
         );
       })}
+      {picks.length > 0 && (
+        <div style="margin:4px 0 12px">
+          <div class="meta" style="margin-bottom:6px">{t('Say something (optional)')}</div>
+          <textarea class="input cm-input" rows={3} style="min-height:76px" maxLength={COMMENT_MAX} placeholder={t('Why these numbers? A dream, a date, a pattern…')} value={text} onInput={(e) => { setText(e.currentTarget.value.slice(0, COMMENT_MAX)); setErr(''); }} />
+          <div class="meta cm-rule">{text.length}/{COMMENT_MAX} · {t('No phone numbers, links or payment requests.')}</div>
+        </div>
+      )}
       <div class="meta" style="font-size:12px;line-height:1.5;margin-bottom:10px">{t('One post per day. You can edit once, and edit or delete until 2 hours before the draw starts.')}</div>
       {err && <div class="form-err" role="alert">{t(err)}</div>}
       <button class="btn" onClick={submit} disabled={!picks.length}>{edit ? t('Save changes') : t('Post prediction')}</button>

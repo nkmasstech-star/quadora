@@ -97,9 +97,14 @@ service cloud.firestore {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid
         && request.resource.data.picks.size() <= 2 && request.resource.data.up == 0 && request.resource.data.reports == 0
+        // optional caption: comment rules (200 chars, text filter, not in the first 24 h of a new account)
+        && (!('text' in request.resource.data) || request.resource.data.text == ''
+            || (request.resource.data.text is string && request.resource.data.text.size() <= 200 && okText(request.resource.data.text) && canComment(request.auth.uid)))
         // a post in a public group: only by a member of that group
         && (!('gid' in request.resource.data) || request.auth.uid in get(/databases/$(database)/documents/groups/$(request.resource.data.gid)).data.members);
-      allow update: if signedIn() && ((resource.data.uid == request.auth.uid && onlyChanges(['picks', 'edited']))
+      allow update: if signedIn() && ((resource.data.uid == request.auth.uid && onlyChanges(['picks', 'edited', 'text'])
+          && (!('text' in request.resource.data) || request.resource.data.text == ''
+            || (request.resource.data.text is string && request.resource.data.text.size() <= 200 && okText(request.resource.data.text) && canComment(request.auth.uid))))
         || (onlyChanges(['up']) && stepsBy1('up'))
         || (onlyChanges(['comments']) && request.resource.data.comments >= 0 && request.resource.data.comments - resource.data.get('comments', 0) >= -50 && request.resource.data.comments - resource.data.get('comments', 0) <= 1)
         || (onlyChanges(['reports']) && request.resource.data.reports == resource.data.reports + 1)

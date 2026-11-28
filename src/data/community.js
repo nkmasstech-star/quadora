@@ -40,13 +40,14 @@ export function validPicks(picks) {
   return '';
 }
 
-export function createPost(uid, picks, group = null) {
+export function createPost(uid, picks, group = null, text = '') {
   const p = { id: `p${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`, uid, day: today(), at: Date.now(), edited: false, picks: picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) })), up: 0, reports: 0 };
   if (group) { p.gid = group.id; p.gname = group.name; }
+  if (text) p.text = text;
   cloudCreate(p);
   return p;
 }
-export function editPost(id, picks) { cloudEdit(id, picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) }))); }
+export function editPost(id, picks, text = '') { cloudEdit(id, picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) })), text); }
 export function deletePost(id) { cloudDelete(id); }
 
 // ---------- likes, saves & follows ----------

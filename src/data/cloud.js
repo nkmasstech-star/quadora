@@ -108,9 +108,9 @@ export function cloudCreate(post) {
   const { id, ...rest } = post;
   setDoc(doc(db, 'posts', id), rest).catch(fail);
 }
-export function cloudEdit(id, picks) {
-  const p = C.posts.find((x) => x.id === id); if (p) { p.picks = picks; p.edited = true; fire(); }
-  updateDoc(doc(db, 'posts', id), { picks, edited: true }).catch(fail);
+export function cloudEdit(id, picks, text = '') {
+  const p = C.posts.find((x) => x.id === id); if (p) { p.picks = picks; p.edited = true; p.text = text; fire(); }
+  updateDoc(doc(db, 'posts', id), { picks, edited: true, text }).catch(fail);
 }
 export function cloudDelete(id) { extra.delete(id); feedLive = feedLive.filter((p) => p.id !== id); feedMore = feedMore.filter((p) => p.id !== id); rebuild(); deleteDoc(doc(db, 'posts', id)).catch(fail); }
 
