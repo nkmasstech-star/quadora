@@ -39,7 +39,7 @@ const queue = (plain(fields.queue) || []).filter((x) => x && x.id && x.title);
 const st = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : {};
 const done = new Set(st._push || []);
 const now = Date.now();
-const todo = queue.filter((x) => !done.has(x.id) && now - Number(x.at || 0) < 24 * 3600e3);
+const todo = queue.filter((x) => !x.sent && !done.has(x.id) && now - Number(x.at || 0) < 24 * 3600e3);
 console.log('push queue:', queue.length, 'items,', todo.length, 'to send');
 if (!todo.length) process.exit(0);
 if (!process.env.FCM_SA) { console.log('FCM_SA not set: would send', todo.map((x) => x.title).join(' | ')); process.exit(0); }
@@ -56,4 +56,13 @@ for (const x of todo) {
   if (res.ok) done.add(x.id); else console.log(await res.text());
 }
 st._push = [...done].slice(-100);
+// also mark sent items in the Firestore doc itself, so an item can never go out twice even if the repo state is lost
+try {
+  const all = queue.map((x) => (done.has(x.id) ? { ...x, sent: true } : x));
+  const fv = (v) => (typeof v === 'boolean' ? { booleanValue: v } : typeof v === 'number' ? { integerValue: String(Math.round(v)) } : { stringValue: String(v ?? '') });
+  const arr = { arrayValue: { values: all.map((x) => ({ mapValue: { fields: Object.fromEntries(Object.entries(x).map(([k, v]) => [k, fv(v)])) } })) } };
+  const tok2 = await (async () => { const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url'); const n = Math.floor(Date.now() / 1000); const h = b64({ alg: 'RS256', typ: 'JWT' }); const bd = b64({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/datastore', aud: 'https://oauth2.googleapis.com/token', iat: n, exp: n + 3000 }); const sg = crypto.createSign('RSA-SHA256').update(`${h}.${bd}`).sign(sa.private_key, 'base64url'); const r2 = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${h}.${bd}.${sg}` }); return (await r2.json()).access_token; })();
+  const w = await fetch(`https://firestore.googleapis.com/v1/projects/qspot4d/databases/(default)/documents/pub/push?updateMask.fieldPaths=queue`, { method: 'PATCH', headers: { authorization: `Bearer ${tok2}`, 'content-type': 'application/json' }, body: JSON.stringify({ fields: { queue: arr } }) });
+  console.log('marked sent in Firestore:', w.status);
+} catch (e) { console.log('mark sent failed', String(e)); }
 fs.writeFileSync(STATE, JSON.stringify(st, null, 1));

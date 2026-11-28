@@ -62,7 +62,7 @@ export function SharePrompt({ user, data, toast }) {
       <div class="exit-box">
         <div style="font-size:46px;line-height:1">{p.kind === 'win' ? '🎉' : '🤝'}</div>
         <div class="exit-title" style="text-align:center">{p.kind === 'win' ? t('Congratulations, you matched!') : t('Enjoying Q Spot?')}</div>
-        <div class="meta" style="text-align:center;line-height:1.5">{p.kind === 'win' ? t('Share your win with friends and family on WhatsApp or Telegram.') : t('Share Q Spot with your friends. Each share brings you closer to the Promoter and Ambassador badges.')}</div>
+        <div class="meta" style="text-align:center;line-height:1.5">{p.kind === 'win' ? t('Share your win with friends and family on WhatsApp or Telegram.') : t('Share Q Spot with your friends. When 3 friends install it from your link, you get a blue tick.')}</div>
         <button class="btn" style="margin-top:6px" onClick={share}>{p.kind === 'win' ? t('Share my win') : t('Share with friends')}</button>
         <button class="btn text" onClick={close}>{t('Not now')}</button>
       </div>

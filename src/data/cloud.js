@@ -3,7 +3,7 @@
 import { collection, doc, setDoc, getDoc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, limit, where, increment, writeBatch, documentId } from 'firebase/firestore';
 import { db, auth } from '../firebase.js';
 
-export const C = { posts: [], users: {}, likes: {}, following: {}, polls: {}, inbox: [], inboxUid: null, live: null, ready: false };
+export const C = { posts: [], users: {}, likes: {}, following: {}, polls: {}, inbox: [], inboxUid: null, live: null, groups: [], gposts: {}, gchal: {}, ready: false };
 const fire = () => window.dispatchEvent(new Event('qd-data'));
 let unsubs = []; let uidNow = null; let postsUnsub = null;
 const asked = new Set();

@@ -13,9 +13,9 @@ import { PLAY_URL } from './config.js';
 const WHATS_NEW = [
   'Live results: watch the numbers come in during the draw',
   'Likes, follows and shares now reach the player instantly',
-  'Challenge friends with your post and share your leaderboard rank',
-  'Invite friends to the Voting Poll',
-  'New Sharer, Promoter and Ambassador badges',
+  'Groups: play with friends, call challenges and see who wins',
+  'Swipe between Feeds, Groups, Following and Leaderboard',
+  'Invite friends and get a blue, gold or crown tick',
 ];
 
 const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };

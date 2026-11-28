@@ -36,6 +36,9 @@ import { countOpen, shouldAskRating, rateLater, rateNow } from './data/rate.js';
 import { Logo } from './icons.jsx';
 import { UpdateHost } from './UpdateHost.jsx';
 import { SharePrompt } from './SharePrompt.jsx';
+import { GroupPage, GroupInvite } from './screens/Groups.jsx';
+import { startGroups, stopGroups } from './data/groups.js';
+import { readReferrer, applyReferral, pendingRef, clearPendingGroup } from './data/referral.js';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -143,9 +146,14 @@ export function App() {
     window.addEventListener('qd-data', bump); window.addEventListener('qd-cloud-error', err);
     return () => { window.removeEventListener('qd-data', bump); window.removeEventListener('qd-cloud-error', err); };
   }, []);
+  const [invite, setInvite] = useState(null); // group code from an invite link
+  useEffect(() => { readReferrer(); }, []);
   useEffect(() => {
-    if (!user) { stopUser(); return; }
+    if (!user) { stopUser(); stopGroups(); return; }
     startUser(user.uid);
+    startGroups(user.uid);
+    // invite link: credit the inviter once, and offer the group they shared
+    readReferrer().then(() => setTimeout(() => { applyReferral(user); const p = pendingRef(); if (p && p.g) setInvite(p.g); }, 3000));
     // the phone remembers the player; if the server sign-in was lost, ask to log in again so posting keeps working
     auth.authStateReady().then(() => {
       if (!auth.currentUser && !import.meta.env.DEV) { logOut(); setUserState(null); store.del('qd_guest'); setGuest(false); go('/login'); showToast(t('Please log in again.')); }
@@ -155,7 +163,7 @@ export function App() {
   useEffect(() => {
     let handle;
     CapApp.addListener('backButton', () => {
-      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/faq' || location.hash.startsWith('#/straight') || location.hash.startsWith('#/straighthist') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
+      if (location.hash.startsWith('#/game/') || location.hash.startsWith('#/prediction/') || location.hash.startsWith('#/predhist/') || location.hash.startsWith('#/howto') || location.hash === '#/faq' || location.hash.startsWith('#/straight') || location.hash.startsWith('#/straighthist') || location.hash === '#/feedback' || location.hash.startsWith('#/analysis/') || location.hash === '#/lucky' || location.hash === '#/poll' || location.hash === '#/settings' || location.hash.startsWith('#/user/') || location.hash.startsWith('#/group/') || location.hash.startsWith('#/legal/') || location.hash === '#/locked' || location.hash === '#/winnings' || location.hash === '#/notifications' || location.hash.startsWith('#/search?')) history.back();
       else if (location.hash && location.hash !== '#/predictions' && location.hash !== '#/login') go('/predictions');
       else window.dispatchEvent(new Event('qd-exit'));
     }).then((h) => { handle = h; }).catch(() => {});
@@ -206,6 +214,7 @@ export function App() {
   else if (seg[0] === 'winnings') { screen = <Winnings data={data} toast={showToast} />; nav = false; }
   else if (seg[0] === 'settings') { screen = <Settings user={user} theme={theme} setTheme={setTheme} setLang={setLang} data={data} onLogOut={onLogOut} onDelete={onDelete} onRefresh={refresh} toast={showToast} />; nav = false; }
   else if (seg[0] === 'user') { screen = user ? <Profile user={user} uid={seg[1]} data={data} toast={showToast} onUser={setUser} /> : <Locked onLogin={() => go('/login')} />; nav = false; }
+  else if (seg[0] === 'group') { screen = user ? <GroupPage me={user} gid={seg[1]} data={data} toast={showToast} /> : <Locked onLogin={() => go('/login')} />; nav = false; }
   else if (seg[0] === 'community') screen = <Community user={user} data={data} toast={showToast} />;
   else if (seg[0] === 'search') screen = <Search data={data} initial={query.get('q') || ''} />;
   else if (seg[0] === 'profile') screen = <Profile user={user} data={data} toast={showToast} onUser={setUser} />;
@@ -233,7 +242,8 @@ export function App() {
       <InterstitialHost />
       <NotifBanner user={user} data={data} />
       <UpdateHost />
-      <SharePrompt user={user} data={data} toast={showToast} />
+      {!invite && <SharePrompt user={user} data={data} toast={showToast} />}
+      {invite && user && <GroupInvite me={user} code={invite} toast={showToast} onDone={() => { clearPendingGroup(); setInvite(null); }} />}
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {exitStep && (
         <div class="exit-wrap" role="dialog" aria-modal="true">

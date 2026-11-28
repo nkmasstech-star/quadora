@@ -4,7 +4,9 @@ import { AppBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { NativeAdCard } from '../ads.jsx';
 import { addInbox } from '../data/inbox.js';
-import { shareText, badgeOf, sharesOf } from '../data/share.js';
+import { shareText } from '../data/share.js';
+import { Tick } from '../Tick.jsx';
+import { GroupsTab } from './Groups.jsx';
 import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
@@ -15,12 +17,8 @@ import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, c
 const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto');
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 
-// Sharer / Promoter / Ambassador badge next to a player's name
-export function ShareBadge({ uid, big }) {
-  const b = badgeOf(sharesOf(uid));
-  if (!b) return null;
-  return <span class={big ? 'sbadge big' : 'sbadge'} title={t(b.name)}>{b.icon}{big ? ` ${t(b.name)}` : ''}</span>;
-}
+// verified-style tick next to a player's name (friends invited); kept under the old name for callers
+export function ShareBadge({ uid, big }) { return <Tick uid={uid} label={big} size={big ? 18 : 15} />; }
 
 export function WinBadge({ stats }) {
   if (stats.pct == null) return <span class="win new">{t('New')}</span>;
@@ -65,9 +63,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
   const guard = (fn) => () => { if (!me) { toast(t('Log in to do this')); return; } fn(); onChange(); };
   const pickText = p.picks.map((k) => `${(gameById(k.game) || {}).name} (${k.format}) ${k.sets.join(' ')} · ${t('Draw')} ${fmtShort(k.forDate)}`).join('\n');
   const share = async () => {
-    const text = mine
-      ? `⚔️ ${t('My 4D pick:')}\n${pickText}\n${t('Think you can pick better? Post your numbers on Q Spot 4D and beat me!')}`
-      : `${u.name}: ${pickText}\n${t('via Q Spot 4D')}`;
+    const text = `${mine ? t('My 4D pick:') : `${u.name}:`}\n${pickText}\n${t('via Q Spot 4D')}`;
     const ok = await shareText(text, { uid: me && me.uid, toast });
     if (ok && me && !mine) addInbox(p.uid, { type: 'share', from: me.name, fromUid: me.uid, postId: p.id });
   };
@@ -101,7 +97,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
 
       <div class="post-foot">
         <button class={liked ? 'act on' : 'act'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => { const was = !!myLikes()[p.id]; toggleLike(p.id, me.uid); if (!was && !mine) addInbox(p.uid, { type: 'like', from: me.name, fromUid: me.uid, postId: p.id }); })}><IconHeart on={liked} /><span>{likeCount(p)}</span></button>
-        <button class={mine ? 'act chal' : 'act'} aria-label={mine ? t('Challenge friends') : t('Share')} onClick={share}>{mine ? <span aria-hidden="true">⚔️</span> : <IconShare />}<span>{mine ? t('Challenge') : t('Share')}</span></button>
+        <button class="act" aria-label={t('Share')} onClick={share}><IconShare /><span>{t('Share')}</span></button>
         <button class={saved ? 'act on' : 'act'} aria-pressed={saved} aria-label={t('Save')} onClick={guard(() => toggleSave(me.uid, p.id))}><IconBookmark on={saved} /><span>{saved ? t('Saved') : t('Save')}</span></button>
       </div>
       {!hideActions && mine && (editable || deletable) && (
@@ -219,7 +215,7 @@ function Leaderboard({ results, me, toast }) {
 
 export function Community({ user, data, toast }) {
   const [, setTick] = useState(0);
-  const [tab, setTab] = useState('all');
+  const [tab, setTab] = useState('feeds');
   const [composer, setComposer] = useState(import.meta.env.DEV && location.search.includes('composer') ? {} : null); // null | {} new | {edit}
   const refresh = () => setTick((n) => n + 1);
   const results = data.results;
@@ -232,25 +228,39 @@ export function Community({ user, data, toast }) {
 
   const fresh = visiblePosts(allPosts(results), user);
   const following = followingOf(user.uid);
-  const shown = fresh.filter((p) => (tab === 'all' ? true : following.includes(p.uid)));
+  const shown = fresh.filter((p) => (tab === 'feeds' ? true : following.includes(p.uid)));
   const done = postedToday(user.uid);
+  // swipe left / right anywhere on the page to move between the tabs
+  const TABS = ['feeds', 'groups', 'following', 'board'];
+  const sw = {};
+  const onTS = (e) => { const p = e.touches[0]; sw.x = p.clientX; sw.y = p.clientY; sw.skip = !!e.target.closest('.seg, .chipwrap, input, .nums'); };
+  const onTE = (e) => {
+    if (sw.skip || sw.x == null) return;
+    const p = e.changedTouches[0]; const dx = p.clientX - sw.x; const dy = p.clientY - sw.y; sw.x = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    const i = TABS.indexOf(tab) + (dx < 0 ? 1 : -1);
+    if (i >= 0 && i < TABS.length) { setTab(TABS[i]); window.scrollTo({ top: 0 }); }
+  };
 
   return (
-    <div>
+    <div onTouchStart={onTS} onTouchEnd={onTE} style="min-height:70vh">
       <AppBar title={t('Community')} tagline={t('Share your predictions')} go={go} />
       <div class="tabs" role="tablist" style="margin-top:12px">
-        <button role="tab" aria-selected={tab === 'all'} class={tab === 'all' ? 'tab on' : 'tab'} onClick={() => setTab('all')}>{t('All')}</button>
-        <button role="tab" aria-selected={tab === 'following'} class={tab === 'following' ? 'tab on' : 'tab'} onClick={() => setTab('following')}>{t('Following')}</button>
-        <button role="tab" aria-selected={tab === 'board'} class={tab === 'board' ? 'tab on' : 'tab'} onClick={() => setTab('board')}>{t('Leaderboard')}</button>
+        {[['feeds', 'Feeds'], ['groups', 'Groups'], ['following', 'Following'], ['board', 'Leaderboard']].map(([k, l]) => (
+          <button key={k} role="tab" aria-selected={tab === k} class={tab === k ? 'tab on' : 'tab'} onClick={() => setTab(k)}>{t(l)}</button>
+        ))}
       </div>
 
+      <div key={tab} class="tabslide">
       {tab === 'board' && <Leaderboard results={results} me={user} toast={toast} />}
+      {tab === 'groups' && <GroupsTab me={user} toast={toast} />}
 
-      {tab !== 'board' && shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
-      {tab !== 'board' && shown.slice(0, 40).map((p, i) => [
+      {(tab === 'feeds' || tab === 'following') && shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
+      {(tab === 'feeds' || tab === 'following') && shown.slice(0, 40).map((p, i) => [
         <PostCard key={p.id} p={p} me={user} results={results} stats={stats(p.uid)} onChange={refresh} toast={toast} onEdit={(x) => setComposer({ edit: x })} />,
         (i + 1) % AD_FEED_EVERY === 0 ? <NativeAdCard key={`ad${tab}${i}`} /> : null,
       ])}
+      </div>
 
       <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />
       {composer && <Composer me={user} edit={composer.edit} toast={toast} onClose={() => setComposer(null)} onDone={() => { setComposer(null); refresh(); }} />}

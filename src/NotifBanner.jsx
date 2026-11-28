@@ -7,7 +7,7 @@ import { go } from './App.jsx';
 import { notifOnNow, seenOf } from './data/inbox.js';
 import { buildAlerts, alertTitle } from './data/alerts.js';
 
-const TXT = { like: ['❤️', '{n} liked your post'], share: ['↗️', '{n} shared your post'], follow: ['👤', '{n} started following you'], challenge: ['⚔️', '{n} accepted your challenge'] };
+const TXT = { like: ['❤️', '{n} liked your post'], share: ['↗️', '{n} shared your post'], follow: ['👤', '{n} started following you'], challenge: ['⚔️', '{n} called a group challenge'], group: ['👥', '{n} added you to a group'] };
 let shownFor = null; // session start summary is shown once per login
 
 export function NotifBanner({ user, data }) {

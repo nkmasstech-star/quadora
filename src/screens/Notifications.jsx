@@ -11,7 +11,7 @@ const SOCIAL = {
   like: ['❤️', '{n} liked your post'],
   share: ['↗️', '{n} shared your post'],
   follow: ['👤', '{n} started following you'],
-  challenge: ['⚔️', '{n} accepted your challenge'],
+  challenge: ['⚔️', '{n} called a group challenge'], group: ['👥', '{n} added you to a group'],
 };
 const ANN = { results: '🔔', predictions: '✨', update: '⬆️' };
 
@@ -30,7 +30,7 @@ export function Notifications({ user, data }) {
   }, [user && user.uid, alerts.length, anns.length, social.length]);
 
   const items = [
-    ...social.map((x) => ({ id: x.id, at: x.at, icon: (SOCIAL[x.type] || SOCIAL.like)[0], title: t((SOCIAL[x.type] || SOCIAL.like)[1], { n: x.from }), sub: ago(x.at), isNew: snap.social.includes(x.id), go: x.type === 'follow' ? `/user/${x.fromUid}` : '/community' })),
+    ...social.map((x) => ({ id: x.id, at: x.at, icon: (SOCIAL[x.type] || SOCIAL.like)[0], title: t((SOCIAL[x.type] || SOCIAL.like)[1], { n: x.from }), sub: ago(x.at), isNew: snap.social.includes(x.id), go: x.type === 'follow' ? `/user/${x.fromUid}` : (x.type === 'group' || x.type === 'challenge') && x.postId ? `/group/${String(x.postId).slice(0, 6)}` : '/community' })),
     ...alerts.map((a) => ({ id: a.id, at: Date.parse(a.date) || 0, icon: a.won ? '🎉' : '•', title: alertTitle(a), sub: `${a.sub} · ${fmtShort(a.date)}`, isNew: !snap.seen.has(a.id), game: a.game, go: '/winnings' })),
     ...anns.map((a) => ({ id: a.id, at: Date.parse(a.at) || 0, icon: ANN[a.type] || '🔔', title: t(a.title), sub: t(a.body), isNew: !snap.seen.has(a.id), go: a.type === 'results' ? '/home' : a.type === 'predictions' ? '/predictions' : null })),
   ].sort((a, b) => b.at - a.at);

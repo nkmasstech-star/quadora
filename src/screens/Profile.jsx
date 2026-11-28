@@ -10,7 +10,9 @@ import { gameById, fmtShort } from '../data/games.js';
 import { addInbox } from '../data/inbox.js';
 import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, evalEntry, visiblePosts } from '../data/community.js';
 import { PostCard, WinBadge, Composer, ShareBadge } from './Community.jsx';
-import { shareText, sharesOf, badgeOf, nextBadge } from '../data/share.js';
+import { shareText } from '../data/share.js';
+import { refsOf, nextTick, tickOf, TICKS } from '../data/referral.js';
+import { TickIcon } from '../Tick.jsx';
 
 function AvatarPicker({ current, onPick, onClose, left }) {
   const [th, setTh] = useState(Math.floor(current / 100) % 10);
@@ -115,12 +117,15 @@ export function Profile({ user, uid, data, toast, onUser }) {
           <button class="plain-btn pf-av" disabled={!own} onClick={() => own && setPicker(true)} aria-label={t('Change avatar')}><Avatar id={u.avatar} size={88} ring /></button>
           <div class="pf-name">{u.name}</div>
           <ShareBadge uid={id} big />
-          {own && (() => { const n = sharesOf(id); const nb = nextBadge(n); return (
-            <button class="pf-share" onClick={() => shareText(`${t('I use Q Spot 4D for 4D results, analysis and daily predictions. Try it free!')}`, { uid: user.uid, toast })}>
-              <span>{badgeOf(n) ? badgeOf(n).icon : '📣'}</span>
-              <span style="flex:1;text-align:left"><b>{t('Share Q Spot with friends')}</b><small>{nb ? t('{k} more shares to become {b} {i}', { k: nb.min - n, b: t(nb.name), i: nb.icon }) : t('You are a Q Spot Ambassador. Thank you!')}</small></span>
-              <span class="rs-btn">{t('Share')}</span>
-            </button>); })()}
+          {own && (() => { const n = refsOf(id); const nt = nextTick(n); return (
+            <div class="pf-invite">
+              <div class="pfi-top"><b>{t('Invite friends, get a verified tick')}</b><span class="pfi-n">{t('{n} joined', { n })}</span></div>
+              <div class="pfi-steps">
+                {[...TICKS].reverse().map((x) => <span key={x.kind} class={n >= x.min ? 'pfi-step on' : 'pfi-step'}><TickIcon kind={x.kind} size={22} /><small>{t('{n} friends', { n: x.min })}</small></span>)}
+              </div>
+              <div class="meta" style="font-size:12px;line-height:1.45">{nt ? t('Share your link. When {k} more friends install Q Spot from it and log in, you get the {b}.', { k: nt.min - n, b: t(nt.name) }) : t('You have the Crown tick. Thank you!')}</div>
+              <button class="btn" style="height:44px;margin-top:8px" onClick={() => shareText(t('I use Q Spot 4D for 4D results, analysis and daily predictions. Try it free!'), { uid: user.uid, toast })}>{t('Share my invite link')}</button>
+            </div>); })()}
           <div class="pf-stats">
             <div><b>{st.posts}</b><span>{t('Posts')}</span></div>
             <div><b>{followersOf(id, user.uid)}</b><span>{t('Followers')}</span></div>

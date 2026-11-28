@@ -85,4 +85,5 @@ if (fresh.length && !DRY) {
     }
   }
 }
-if (ok && !DRY) fs.writeFileSync(STATE, JSON.stringify({ ...latest, _pred: prev._pred || {} }, null, 1));
+// keep every other state key (_pred, _push = manual pushes already sent); dropping _push made old manual pushes go out again
+if (ok && !DRY) { const keep = Object.fromEntries(Object.entries(prev).filter(([k]) => k.startsWith('_'))); fs.writeFileSync(STATE, JSON.stringify({ ...latest, ...keep, _pred: prev._pred || {} }, null, 1)); }
