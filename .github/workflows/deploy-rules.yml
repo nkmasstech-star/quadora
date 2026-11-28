@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['firestore.rules', 'storage.rules', 'tools/deploy_rules.mjs']
+    paths: ['firestore.rules', 'storage.rules', 'tools/deploy_rules.mjs', 'tools/leaders.mjs']
 permissions:
   contents: read
 jobs:
@@ -18,6 +18,10 @@ jobs:
         env:
           FCM_SA: ${{ secrets.FCM_SA }}
         run: node tools/deploy_rules.mjs
+      - name: Leaders board (first run)
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+        run: node tools/leaders.mjs
       - name: Live writer check (20 s)
         env:
           FCM_SA: ${{ secrets.FCM_SA }}

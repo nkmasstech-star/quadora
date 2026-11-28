@@ -20,6 +20,8 @@ const targetDraw = (g) => targetDrawId(g.id);
 // ---------- posts ----------
 export const myPosts = (uid) => C.posts.filter((p) => p.uid === uid);
 export function allPosts() { return [...C.posts].sort((a, b) => b.at - a.at); }
+// the main feed: newest 30 + pages loaded with "Load more"
+export function feedPosts() { return [...(C.feed || C.posts)].sort((a, b) => b.at - a.at); }
 export function userPosts(uid) { return allPosts().filter((p) => p.uid === uid); }
 // one post a day on the main feed, and one a day in each public group
 export const postedToday = (uid, gid = null) => myPosts(uid).some((p) => p.day === today() && (p.gid || null) === (gid || null));
@@ -135,6 +137,7 @@ export const clearMyLucky = (uid) => write(`qd_luckyn_${uid}`, []);
 // ---------- leaderboard: top players by winning ratio for posts made in the period ----------
 export const BOARD_PERIODS = { week: { days: 7, min: 2 }, month: { days: 30, min: 3 }, all: { days: 0, min: 4 } };
 export function leaderboard(period, results, me) {
+  if (C.leaders && C.leaders[period]) return C.leaders[period].filter((r) => !me || !blockedOf(me.uid).includes(r.uid));
   const cfg = BOARD_PERIODS[period] || BOARD_PERIODS.week;
   const from = cfg.days ? Date.now() - cfg.days * 864e5 : 0;
   return rankRange(from, Infinity, cfg.min, results, me).slice(0, 10);
@@ -160,6 +163,7 @@ function rankRange(from, to, min, results, me) {
 const MYT = 8 * 3600e3;
 let medalCache = { key: '', map: {} };
 export function medalMap(results) {
+  if (C.leaders && C.leaders.medals) return C.leaders.medals;
   const now = Date.now(); const d = new Date(now + MYT);
   const dayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - MYT;
   const weekStart = dayStart - ((d.getUTCDay() + 6) % 7) * 864e5; // Monday

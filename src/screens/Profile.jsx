@@ -1,4 +1,5 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
+import { loadUserPosts } from '../data/cloud.js';
 import { AppBar, BackBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { IconGear } from '../icons.jsx';
 import { go } from '../App.jsx';
@@ -67,6 +68,7 @@ export function Profile({ user, uid, data, toast, onUser }) {
   const [picker, setPicker] = useState(!!(import.meta.env.DEV && location.search.includes('avatars')));
   const [nameOpen, setNameOpen] = useState(!!(import.meta.env.DEV && location.search.includes('rename')));
   const [composer, setComposer] = useState(false);
+  useEffect(() => { if (uid) loadUserPosts(uid); }, [uid]);
   const [tab, setTab] = useState(import.meta.env.DEV ? (new URLSearchParams(location.search).get('ptab') || 'posts') : 'posts');
   const refresh = () => setTick((n) => n + 1);
   const results = data.results;

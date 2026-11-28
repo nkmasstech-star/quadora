@@ -1,6 +1,6 @@
 // Live data (Firestore): posts, likes, follows, players and poll totals. Screens read this cache synchronously;
 // every change from the server fires "qd-data" so the screens redraw.
-import { collection, doc, setDoc, getDoc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, limit, where, increment, writeBatch, documentId } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, limit, where, increment, writeBatch, documentId, startAfter } from 'firebase/firestore';
 import { db, auth } from '../firebase.js';
 
 export const C = { posts: [], users: {}, likes: {}, following: {}, polls: {}, inbox: [], inboxUid: null, live: null, groups: [], gposts: {}, gchal: {}, ready: false };
@@ -20,20 +20,63 @@ export async function fetchUsers(ids) {
   fire();
 }
 
-// public feed: readable without sign-in
+// ---- posts. The feed listens to the newest 30 only (keeps reads low); "Load more" pages older ones.
+// Own posts and the posts of profiles you open are fetched on their own. C.posts = all of these together. ----
+export const FEED_PAGE = 30;
+let feedLive = []; let feedMore = []; let lastFeedDoc = null; let extra = new Map();
+C.feedEnd = false;
+function rebuild() {
+  const m = new Map();
+  [...extra.values(), ...feedMore, ...feedLive].forEach((p) => m.set(p.id, p));
+  C.posts = [...m.values()].sort((a, b) => b.at - a.at);
+  const feedIds = new Set([...feedLive, ...feedMore].map((p) => p.id));
+  C.feed = C.posts.filter((p) => feedIds.has(p.id));
+  fire();
+}
+const keep = (list) => list.forEach((p) => extra.set(p.id, p));
 export function startPosts() {
   if (postsUnsub) return;
-  postsUnsub = onSnapshot(query(collection(db, 'posts'), orderBy('at', 'desc'), limit(300)), (snap) => {
-    C.posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    C.ready = true; fire();
-    fetchUsers(C.posts.map((p) => p.uid));
+  postsUnsub = onSnapshot(query(collection(db, 'posts'), orderBy('at', 'desc'), limit(FEED_PAGE)), (snap) => {
+    feedLive = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (!lastFeedDoc && snap.docs.length) lastFeedDoc = snap.docs[snap.docs.length - 1];
+    if (snap.docs.length < FEED_PAGE) C.feedEnd = true;
+    C.ready = true; rebuild();
+    fetchUsers(feedLive.map((p) => p.uid));
   }, () => { C.ready = true; fire(); });
+  // Leaders board + medals, worked out on the server (tools/leaders.mjs)
+  onSnapshot(doc(db, 'pub', 'leaders'), (s) => {
+    try { C.leaders = s.exists() ? JSON.parse(s.data().json) : null; } catch (e) { C.leaders = null; }
+    if (C.leaders) fetchUsers([...['week', 'month', 'all'].flatMap((k) => (C.leaders[k] || []).map((r) => r.uid)), ...Object.keys(C.leaders.medals || {})]);
+    fire();
+  }, () => {});
+}
+export async function loadMorePosts() {
+  if (C.feedEnd || !lastFeedDoc) return;
+  try {
+    const s = await getDocs(query(collection(db, 'posts'), orderBy('at', 'desc'), startAfter(lastFeedDoc), limit(FEED_PAGE)));
+    feedMore = [...feedMore, ...s.docs.map((d) => ({ id: d.id, ...d.data() }))];
+    if (s.docs.length) lastFeedDoc = s.docs[s.docs.length - 1];
+    if (s.docs.length < FEED_PAGE) C.feedEnd = true;
+    fetchUsers(s.docs.map((d) => d.data().uid)); rebuild();
+  } catch (e) { /* offline */ }
+}
+// a profile's posts (newest 100)
+const userLoaded = new Set();
+export async function loadUserPosts(uid, n = 100) {
+  if (!uid || userLoaded.has(uid)) return;
+  userLoaded.add(uid);
+  try { const s = await getDocs(query(collection(db, 'posts'), where('uid', '==', uid), limit(n))); keep(s.docs.map((d) => ({ id: d.id, ...d.data() }))); rebuild(); } catch (e) { userLoaded.delete(uid); }
 }
 
 export function startUser(uid) {
   if (uidNow === uid) return;
   stopUser(); uidNow = uid;
   fetchUsers([uid]); // own badge (shares) and follower count
+  // own posts (profile, "posted today", win alerts) whatever their age
+  unsubs.push(onSnapshot(query(collection(db, 'posts'), where('uid', '==', uid), limit(100)), (s) => {
+    [...extra.values()].filter((p) => p.uid === uid).forEach((p) => extra.delete(p.id));
+    keep(s.docs.map((d) => ({ id: d.id, ...d.data() }))); rebuild();
+  }, () => {}));
   unsubs.push(onSnapshot(collection(db, 'users', uid, 'likes'), (s) => { C.likes = {}; s.forEach((d) => { C.likes[d.id] = 1; }); fire(); }, () => {}));
   // own inbox: likes / follows / shares other players sent; a new unread item after the first load pops the banner
   let first = true;
@@ -61,7 +104,7 @@ const ok = () => !!auth.currentUser;
 const fail = (e) => { window.dispatchEvent(new CustomEvent('qd-cloud-error', { detail: String((e && e.code) || e) })); };
 
 export function cloudCreate(post) {
-  C.posts = [post, ...C.posts]; fire();
+  extra.set(post.id, post); feedLive = [post, ...feedLive.filter((p) => p.id !== post.id)]; rebuild();
   const { id, ...rest } = post;
   setDoc(doc(db, 'posts', id), rest).catch(fail);
 }
@@ -69,7 +112,7 @@ export function cloudEdit(id, picks) {
   const p = C.posts.find((x) => x.id === id); if (p) { p.picks = picks; p.edited = true; fire(); }
   updateDoc(doc(db, 'posts', id), { picks, edited: true }).catch(fail);
 }
-export function cloudDelete(id) { C.posts = C.posts.filter((p) => p.id !== id); fire(); deleteDoc(doc(db, 'posts', id)).catch(fail); }
+export function cloudDelete(id) { extra.delete(id); feedLive = feedLive.filter((p) => p.id !== id); feedMore = feedMore.filter((p) => p.id !== id); rebuild(); deleteDoc(doc(db, 'posts', id)).catch(fail); }
 
 export function cloudLike(uid, postId) {
   if (!ok()) return;

@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useState, useMemo, useEffect } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { AppBar, Panel, Sheet, Locked, Loading } from '../ui.jsx';
 import { go } from '../App.jsx';
 import { NativeAdCard } from '../ads.jsx';
 import { addInbox } from '../data/inbox.js';
 import { shareText } from '../data/share.js';
-import { C } from '../data/cloud.js';
+import { C, loadMorePosts, loadUserPosts } from '../data/cloud.js';
 import { Tick } from '../Tick.jsx';
 import { GroupsTab } from './Groups.jsx';
 import { AD_FEED_EVERY } from '../config.js';
@@ -13,7 +13,7 @@ import { t } from '../i18n.js';
 import { GAMES, gameById, fmtShort } from '../data/games.js';
 import { Avatar } from '../avatars.jsx';
 import { IconHeart, IconBookmark, IconShare } from '../icons.jsx';
-import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts, hidePost, leaderboard, BOARD_PERIODS } from '../data/community.js';
+import { FORMATS, MAX_GAMES, MAX_SETS, allPosts, feedPosts, canEdit, canDelete, cutoffOf, createPost, editPost, deletePost, addPick, validPicks, postedToday, toggleLike, likeCount, myLikes, toggleSave, savedIds, toggleFollow, followingOf, winStats, userInfo, evalPost, REPORT_REASONS, reportPost, blockedOf, toggleBlock, visiblePosts, hidePost, leaderboard, BOARD_PERIODS } from '../data/community.js';
 
 const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports ', '').replace('Grand Dragon Lotto', 'GD Lotto');
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
@@ -224,11 +224,13 @@ export function Community({ user, data, toast }) {
   const statsCache = {};
   const stats = (uid) => { if (!statsCache[uid]) statsCache[uid] = winStats(uid, results); return statsCache[uid]; };
   useMemo(() => 0, [composer]);
+  const [moreBusy, setMoreBusy] = useState(false);
+  useEffect(() => { if (tab === 'following' && user) followingOf(user.uid).slice(0, 40).forEach((u) => loadUserPosts(u, 20)); }, [tab]);
 
   if (!user) return (<div><AppBar title={t('Community')} tagline={t('Share your predictions')} go={go} /><Locked onLogin={() => go('/login')} text={t('Log in to share predictions and follow other players. Guests can still view results and predictions.')} /></div>);
   if (data.status === 'loading' && !data.results) return <Loading />;
 
-  const fresh = visiblePosts(allPosts(results), user);
+  const fresh = visiblePosts(tab === 'feeds' ? feedPosts() : allPosts(results), user);
   const following = followingOf(user.uid);
   const shown = fresh.filter((p) => (tab === 'feeds' ? true : following.includes(p.uid) || (p.gid && C.gfollow && C.gfollow[p.gid])));
   const done = postedToday(user.uid);
@@ -258,10 +260,11 @@ export function Community({ user, data, toast }) {
       {tab === 'groups' && <GroupsTab me={user} toast={toast} />}
 
       {(tab === 'feeds' || tab === 'following') && shown.length === 0 && <Panel><div class="empty">{tab === 'following' ? t('Follow players to see their posts here.') : t('No posts yet.')}</div></Panel>}
-      {(tab === 'feeds' || tab === 'following') && shown.slice(0, 40).map((p, i) => [
+      {(tab === 'feeds' || tab === 'following') && shown.slice(0, tab === 'feeds' ? 1000 : 60).map((p, i) => [
         <PostCard key={p.id} p={p} me={user} results={results} stats={stats(p.uid)} onChange={refresh} toast={toast} onEdit={(x) => setComposer({ edit: x })} />,
         (i + 1) % AD_FEED_EVERY === 0 ? <NativeAdCard key={`ad${tab}${i}`} /> : null,
       ])}
+      {tab === 'feeds' && shown.length > 0 && !C.feedEnd && <button class="btn ghost" style="margin:6px 0 90px;height:46px" disabled={moreBusy} onClick={async () => { setMoreBusy(true); await loadMorePosts(); setMoreBusy(false); }}>{moreBusy ? t('Loading…') : t('Load more')}</button>}
       </div>
 
       {tab === 'feeds' && <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />}

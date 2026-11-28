@@ -796,6 +796,7 @@ const MONTHS = [
   ["Could not remove. Check your internet.", "Gagal membuang. Semak internet anda.", "无法移除，请检查网络。", "நீக்க முடியல. இன்டர்நெட்டை பாருங்க.", "មិនអាចដកបាន។ ពិនិត្យអ៊ីនធឺណិត។"],
   ["You already reported this photo.", "Anda sudah melaporkan foto ini.", "你已举报过这张照片。", "இந்த படத்தை ஏற்கனவே ரிப்போர்ட் பண்ணிட்டீங்க.", "អ្នកបានរាយការណ៍រូបនេះរួចហើយ។"],
   ["Please log in again.", "Sila log masuk semula.", "请重新登录。", "மறுபடி லாக்இன் பண்ணுங்க.", "សូមចូលគណនីម្ដងទៀត។"],
+  ["Load more", "Muat lagi", "加载更多", "மேலும் காட்டு", "ផ្ទុកបន្ថែម"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };

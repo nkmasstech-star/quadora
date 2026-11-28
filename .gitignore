@@ -12,3 +12,5 @@ android/capacitor-cordova-android-plugins/
 # Debug-only key (public, never used for release)
 !android/app/qspot-debug.keystore
 tools/live_last.json
+tools/leaders_all.json
+tools/leaders_last.json
