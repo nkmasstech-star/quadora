@@ -21,7 +21,8 @@ const targetDraw = (g) => targetDrawId(g.id);
 export const myPosts = (uid) => C.posts.filter((p) => p.uid === uid);
 export function allPosts() { return [...C.posts].sort((a, b) => b.at - a.at); }
 export function userPosts(uid) { return allPosts().filter((p) => p.uid === uid); }
-export const postedToday = (uid) => myPosts(uid).some((p) => p.day === today());
+// one post a day on the main feed, and one a day in each public group
+export const postedToday = (uid, gid = null) => myPosts(uid).some((p) => p.day === today() && (p.gid || null) === (gid || null));
 // Edit/delete is open until 2 hours before the earliest draw in the post starts.
 export const cutoffOf = (p) => Math.min(...p.picks.map((k) => cutoffMs(k.game, k.forDate)));
 export const canEdit = (p, uid) => p.uid === uid && !p.edited && Date.now() < cutoffOf(p);
@@ -37,8 +38,9 @@ export function validPicks(picks) {
   return '';
 }
 
-export function createPost(uid, picks) {
+export function createPost(uid, picks, group = null) {
   const p = { id: `p${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`, uid, day: today(), at: Date.now(), edited: false, picks: picks.map((k) => ({ ...k, forDate: targetDraw(GAMES.find((g) => g.id === k.game)) })), up: 0, reports: 0 };
+  if (group) { p.gid = group.id; p.gname = group.name; }
   cloudCreate(p);
   return p;
 }

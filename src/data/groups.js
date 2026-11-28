@@ -17,13 +17,15 @@ const fire = () => window.dispatchEvent(new Event('qd-data'));
 const err = (e) => window.dispatchEvent(new CustomEvent('qd-cloud-error', { detail: String((e && e.code) || e) }));
 
 if (!C.groups) { C.groups = []; C.gposts = {}; C.gchal = {}; }
+if (!C.pubGroups) { C.pubGroups = []; C.gfollow = {}; }
 
 // my groups (live), started after sign-in from cloud.js startUser
-let gUnsub = null;
+let gUnsub = null; let fUnsub = null;
 export function startGroups(uid) {
   stopGroups();
   if (import.meta.env.DEV && location.search.includes('gdemo')) {
-    C.groups = [{ id: 'ABC123', name: 'Lucky Friends', icon: 0, owner: uid, members: [uid, 'u2', 'u3', 'u4'], created: 1 }];
+    C.pubGroups = [{ id: 'PUB777', name: 'Magnum Masters', icon: 8, type: 'public', owner: 'u3', members: ['u3', 'u2', 'u4'], created: 3 }, { id: 'PUB888', name: 'Toto Kings', icon: 11, type: 'public', owner: 'u2', members: ['u2'], created: 2 }];
+    C.groups = [{ id: 'ABC123', name: 'Lucky Friends', icon: 0, type: 'private', owner: uid, members: [uid, 'u2', 'u3', 'u4'], created: 1 }];
     C.users.u2 = { name: 'Kumar', avatar: 105, refs: 4 }; C.users.u3 = { name: 'Mei Ling', avatar: 212, refs: 11 }; C.users.u4 = { name: 'Aisha', avatar: 330, refs: 1 };
     C.users[uid] = { ...(C.users[uid] || {}), refs: 6 };
     C.gchal.ABC123 = [{ id: 'magnum_2026-12-02', by: 'u2', byName: 'Kumar', game: 'magnum', forDate: '2026-12-02', at: 2 }, { id: 'magnum_2026-11-25', by: uid, byName: 'Nehru', game: 'magnum', forDate: '2026-11-25', at: 1 }];
@@ -31,19 +33,40 @@ export function startGroups(uid) {
     C.gposts.ABC123 = [mk('u2', ['2681', '1111'], 'iBox', '2026-11-25'), mk(uid, ['5200', '7777'], 'Straight', '2026-11-25'), mk('u3', ['0243'], 'Straight', '2026-11-25'), mk('u4', ['1234'], 'Straight', '2026-11-25'), mk('u3', ['4444'], 'Straight', '2026-12-02')];
     return;
   }
+  // public groups (discover list) and the public groups I follow
+  getDocs(query(collection(db, 'groups'), where('type', '==', 'public'), limit(100))).then((s) => {
+    C.pubGroups = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.members.length - a.members.length || b.created - a.created);
+    fire();
+  }).catch(() => {});
+  if (fUnsub) fUnsub();
+  fUnsub = onSnapshot(collection(db, 'users', uid, 'gfollow'), (s) => { C.gfollow = {}; s.forEach((d) => { C.gfollow[d.id] = true; }); fire(); }, () => {});
   gUnsub = onSnapshot(query(collection(db, 'groups'), where('members', 'array-contains', uid)), (s) => {
     C.groups = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.created - a.created);
     fetchUsers(C.groups.flatMap((g) => g.members));
     fire();
   }, () => {});
 }
-export function stopGroups() { if (gUnsub) gUnsub(); gUnsub = null; C.groups = []; }
-export const groupById = (id) => C.groups.find((g) => g.id === id) || null;
+export function stopGroups() { if (gUnsub) gUnsub(); if (fUnsub) fUnsub(); gUnsub = null; fUnsub = null; C.groups = []; C.gfollow = {}; }
+export const groupById = (id) => C.groups.find((g) => g.id === id) || C.pubGroups.find((g) => g.id === id) || null;
+export const isPublic = (g) => g && g.type === 'public';
+export const isMember = (g, uid) => !!g && g.members.includes(uid);
+export async function openGroup(id) {
+  if (groupById(id)) return groupById(id);
+  const g = await findGroup(id);
+  if (g && isPublic(g) && !C.pubGroups.some((x) => x.id === g.id)) { C.pubGroups.push(g); fire(); }
+  return g;
+}
+// follow a public group: its posts show in the Following tab
+export function toggleGroupFollow(uid, g) {
+  const ref = doc(db, 'users', uid, 'gfollow', g.id);
+  if (C.gfollow[g.id]) { delete C.gfollow[g.id]; deleteDoc(ref).catch(err); } else { C.gfollow[g.id] = true; setDoc(ref, { at: Date.now() }).catch(err); }
+  fire();
+}
 
 const CODE_CH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const newCode = () => Array.from({ length: 6 }, () => CODE_CH[Math.floor(Math.random() * CODE_CH.length)]).join('');
 
-export async function createGroup(me, name, icon) {
+export async function createGroup(me, name, icon, type = 'private') {
   if (C.groups.filter((g) => g.owner === me.uid).length >= GROUP_OWN_MAX) return { error: 'You can create up to 5 groups.' };
   for (let i = 0; i < 4; i += 1) {
     const code = newCode();
@@ -52,7 +75,9 @@ export async function createGroup(me, name, icon) {
       if ((await getDoc(ref)).exists()) continue;
     } catch (e) { /* a code nobody uses cannot be read yet: fine */ }
     try {
-      await setDoc(ref, { name: name.trim(), icon, owner: me.uid, members: [me.uid], code, created: Date.now() });
+      const g = { name: name.trim(), icon, type, owner: me.uid, members: [me.uid], code, created: Date.now() };
+      await setDoc(ref, g);
+      if (type === 'public') { C.pubGroups.unshift({ id: code, ...g }); fire(); }
       return { id: code };
     } catch (e) { err(e); return { error: 'Could not create the group. Check your internet.' }; }
   }
@@ -69,21 +94,29 @@ export async function joinGroup(me, code) {
   if (!g) return { error: 'No group found with this code.' };
   if (g.members.includes(me.uid)) return { id: g.id };
   if (g.members.length >= GROUP_MAX) return { error: 'This group is full (50 members).' };
-  try { await updateDoc(doc(db, 'groups', g.id), { members: arrayUnion(me.uid) }); return { id: g.id }; } catch (e) { err(e); return { error: 'Could not join. Check your internet.' }; }
+  try {
+    await updateDoc(doc(db, 'groups', g.id), { members: arrayUnion(me.uid) });
+    const pg = C.pubGroups.find((x) => x.id === g.id); if (pg && !pg.members.includes(me.uid)) pg.members = [...pg.members, me.uid];
+    return { id: g.id };
+  } catch (e) { err(e); return { error: 'Could not join. Check your internet.' }; }
 }
-export const leaveGroup = (me, g) => updateDoc(doc(db, 'groups', g.id), { members: arrayRemove(me.uid) }).catch(err);
+export function leaveGroup(me, g) {
+  const pg = C.pubGroups.find((x) => x.id === g.id); if (pg) pg.members = pg.members.filter((u) => u !== me.uid);
+  return updateDoc(doc(db, 'groups', g.id), { members: arrayRemove(me.uid) }).catch(err);
+}
 export const renameGroup = (g, name) => updateDoc(doc(db, 'groups', g.id), { name: name.trim() }).catch(err);
 export const setGroupIcon = (g, icon) => updateDoc(doc(db, 'groups', g.id), { icon }).catch(err);
 export function addMember(me, g, uid) {
   if (g.members.includes(uid) || g.members.length >= GROUP_MAX) return;
   updateDoc(doc(db, 'groups', g.id), { members: arrayUnion(uid) }).then(() => addInbox(uid, { type: 'group', from: me.name, fromUid: me.uid, postId: g.id })).catch(err);
 }
-export const removeMember = (g, uid) => updateDoc(doc(db, 'groups', g.id), { members: arrayRemove(uid) }).catch(err);
+export const removeMember = (g, uid) => (isPublic(g) ? Promise.resolve() : updateDoc(doc(db, 'groups', g.id), { members: arrayRemove(uid) }).catch(err));
 export async function deleteGroup(g) {
   try {
     const s = await getDocs(collection(db, 'groups', g.id, 'challenges'));
     await Promise.all(s.docs.map((d) => deleteDoc(d.ref)));
     await deleteDoc(doc(db, 'groups', g.id));
+    C.pubGroups = C.pubGroups.filter((x) => x.id !== g.id); fire();
   } catch (e) { err(e); }
 }
 
@@ -91,16 +124,26 @@ export async function deleteGroup(g) {
 export async function loadGroupPosts(g) {
   if (import.meta.env.DEV && location.search.includes('gdemo')) return;
   const out = [];
-  for (let k = 0; k < g.members.length; k += 30) {
-    try {
-      const s = await getDocs(query(collection(db, 'posts'), where('uid', 'in', g.members.slice(k, k + 30)), limit(300)));
-      s.forEach((d) => out.push({ id: d.id, ...d.data() }));
-    } catch (e) { /* offline */ }
+  if (isPublic(g)) {
+    try { const s = await getDocs(query(collection(db, 'posts'), where('gid', '==', g.id), limit(300))); s.forEach((d) => out.push({ id: d.id, ...d.data() })); } catch (e) { /* offline */ }
+  } else {
+    for (let k = 0; k < g.members.length; k += 30) {
+      try {
+        const s = await getDocs(query(collection(db, 'posts'), where('uid', 'in', g.members.slice(k, k + 30)), limit(300)));
+        s.forEach((d) => out.push({ id: d.id, ...d.data() }));
+      } catch (e) { /* offline */ }
+    }
   }
   C.gposts[g.id] = out.sort((a, b) => b.at - a.at);
   fire();
 }
-export const groupPosts = (g) => (C.gposts[g.id] || C.posts).filter((p) => g.members.includes(p.uid)).sort((a, b) => b.at - a.at);
+// public group: posts made in it; private group: the members' main-feed posts
+export const groupPosts = (g) => {
+  const src = C.gposts[g.id] || C.posts;
+  const seen = new Set();
+  const extra = C.posts.filter((p) => (isPublic(g) ? p.gid === g.id : !p.gid && g.members.includes(p.uid)));
+  return [...extra, ...src].filter((p) => { if (seen.has(p.id)) return false; seen.add(p.id); return isPublic(g) ? p.gid === g.id : !p.gid && g.members.includes(p.uid); }).sort((a, b) => b.at - a.at);
+};
 
 // ---- challenges: one per game per draw in a group ----
 const chUnsub = {};

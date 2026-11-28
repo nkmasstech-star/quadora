@@ -44,11 +44,11 @@ export async function applyReferral(me) {
   set('qd_ref_done', '1');
 }
 
-// blue ticks: friends who joined from the player's invite link
+// verified ticks: friends who joined from the player's invite link
 export const TICKS = [
-  { min: 10, kind: 'crown', name: 'Crown tick' },
-  { min: 5, kind: 'gold', name: 'Gold tick' },
-  { min: 3, kind: 'blue', name: 'Blue tick' },
+  { min: 10, kind: 'platinum', name: 'Platinum' },
+  { min: 5, kind: 'gold', name: 'Gold' },
+  { min: 3, kind: 'silver', name: 'Silver' },
 ];
 export const refsOf = (uid) => (C.users[uid] && C.users[uid].refs) || 0;
 export const tickOf = (n) => TICKS.find((x) => (n || 0) >= x.min) || null;

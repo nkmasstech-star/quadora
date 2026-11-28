@@ -892,3 +892,14 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .pfi-steps { display: flex; justify-content: space-around; margin: 10px 0 8px; }
 .pfi-step { display: flex; flex-direction: column; align-items: center; gap: 3px; opacity: .45; } .pfi-step.on { opacity: 1; }
 .pfi-step small { font-size: 11.5px; font-weight: 700; }
+.pf-name { display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
+.sec-h { font-size: 13px; font-weight: 800; letter-spacing: .02em; opacity: .8; margin: 14px 4px 8px; }
+.gtype { width: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px; margin-bottom: 10px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface-2); color: inherit; font: inherit; cursor: pointer; }
+.gtype b { display: block; font-size: 15px; } .gtype small { display: block; font-size: 12.5px; opacity: .75; margin-top: 3px; line-height: 1.45; }
+.gt-ic { font-size: 26px; line-height: 1; }
+.post-group { display: flex; align-items: center; gap: 6px; width: 100%; margin: -2px 0 8px; padding: 0 0 8px; border: 0; border-bottom: 1px dashed var(--border); background: none; color: inherit; font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+.post-group b { color: var(--gold-text); }
+.tk-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 8px; }
+.tk-row.on { border-color: var(--gold); background: var(--surface-2); }
+.tk-row b { display: block; font-size: 14.5px; } .tk-row small { display: block; font-size: 12px; opacity: .7; }
+.btn.ghost.on { border-color: var(--gold); color: var(--gold-text); }

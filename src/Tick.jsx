@@ -1,20 +1,54 @@
-// Verified-style tick shown next to a player's name for friends invited: blue (3), gold (5), crown (10).
+// Round verified tick next to a player's name, earned by inviting friends:
+// Silver (3 friends) yellow, Gold (5) blue, Platinum (10) dark blue with a glowing ring. White tick inside.
+// On your own profile a faint grey tick shows until you earn one; tapping it explains how.
+import { useState } from 'preact/hooks';
 import { t } from './i18n.js';
-import { refsOf, tickOf } from './data/referral.js';
+import { Sheet } from './ui.jsx';
+import { refsOf, tickOf, nextTick, TICKS } from './data/referral.js';
+import { shareText } from './data/share.js';
 
-const COL = { blue: ['#1D9BF0', '#1D9BF0'], gold: ['#F5C542', '#D99A0B'], crown: ['#1D9BF0', '#F5C542'] };
-export function TickIcon({ kind, size = 16 }) {
-  const [fill, ring] = COL[kind];
+const FILL = { none: '#9AA0A6', silver: '#F5B400', gold: '#1D9BF0', platinum: '#0A3A8C' };
+export function TickIcon({ kind = 'none', size = 16 }) {
+  const plat = kind === 'platinum';
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style="flex:none;vertical-align:-3px">
-      <path fill={fill} stroke={kind === 'blue' ? 'none' : ring} stroke-width={kind === 'blue' ? 0 : 1.6} d="M12 1.6l2.5 1.9 3.1-.2 1 3 2.6 1.8-.9 3 .9 3-2.6 1.8-1 3-3.1-.2L12 22.4l-2.5-1.9-3.1.2-1-3-2.6-1.8.9-3-.9-3 2.6-1.8 1-3 3.1.2z" />
-      <path fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M7.6 12.3l3 3 5.8-6" />
-      {kind === 'crown' && <path fill="#F5C542" stroke="#B57F00" stroke-width=".8" d="M7 1.2l2 1.6L12 0l3 2.8 2-1.6-.7 3.1H7.7z" transform="translate(0 -0.4)" />}
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={`flex:none;vertical-align:-3px;${kind === 'none' ? 'opacity:.38' : ''}`}>
+      {plat && <circle cx="12" cy="12" r="11.2" fill="none" stroke="#7DB8FF" stroke-width="1.6" />}
+      <circle cx="12" cy="12" r={plat ? 9 : 11} fill={FILL[kind]} />
+      <path fill="none" stroke="#fff" stroke-width={plat ? 2.2 : 2.5} stroke-linecap="round" stroke-linejoin="round" d={plat ? 'M8.3 12.2l2.6 2.6 4.9-5.1' : 'M7.4 12.3l3.1 3.1 6-6.3'} />
     </svg>
   );
 }
-export function Tick({ uid, size, label }) {
+
+// how ticks work (+ share button on your own profile)
+export function TickInfo({ uid, own, me, toast, onClose }) {
+  const n = refsOf(uid); const cur = tickOf(n); const nt = nextTick(n);
+  return (
+    <Sheet title={t('Verified tick')} onClose={onClose}>
+      <div class="meta" style="line-height:1.5;margin-bottom:12px">{t('Share your invite link. When friends install Q Spot from it and log in, you earn a tick next to your name.')}</div>
+      {[...TICKS].reverse().map((x) => (
+        <div key={x.kind} class={cur && cur.kind === x.kind ? 'tk-row on' : 'tk-row'}>
+          <TickIcon kind={x.kind} size={30} />
+          <span style="flex:1"><b>{t(x.name)}</b><small>{t('{n} friends join', { n: x.min })}</small></span>
+          {cur && cur.kind === x.kind && <span class="pill gold">{t('Yours')}</span>}
+        </div>
+      ))}
+      {own && <div class="meta" style="margin:12px 2px 0;font-size:12.5px">{nt ? t('{n} joined so far · {k} more for {b}', { n, k: nt.min - n, b: t(nt.name) }) : t('{n} joined so far. Top tick reached!', { n })}</div>}
+      {own && <button class="btn" style="margin-top:12px" onClick={() => shareText(t('I use Q Spot 4D for 4D results, analysis and daily predictions. Try it free!'), { uid: me.uid, toast })}>{t('Share my invite link')}</button>}
+    </Sheet>
+  );
+}
+
+// own: show the faint grey tick when none is earned yet, and open the explainer on tap
+export function Tick({ uid, size = 15, own, me, toast, tap }) {
+  const [open, setOpen] = useState(false);
   const k = tickOf(refsOf(uid));
-  if (!k) return null;
-  return <span class="vtick" title={t(k.name)}><TickIcon kind={k.kind} size={size} />{label && <b>{t(k.name)}</b>}</span>;
+  if (!k && !own) return null;
+  const icon = <TickIcon kind={k ? k.kind : 'none'} size={size} />;
+  if (!tap && !own) return <span class="vtick" title={t(k.name)}>{icon}</span>;
+  return (
+    <span class="vtick">
+      <button class="plain-btn" style="padding:2px;line-height:0" aria-label={t('Verified tick')} onClick={(e) => { e.stopPropagation(); setOpen(true); }}>{icon}</button>
+      {open && <TickInfo uid={uid} own={own} me={me} toast={toast} onClose={() => setOpen(false)} />}
+    </span>
+  );
 }

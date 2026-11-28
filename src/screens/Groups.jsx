@@ -8,8 +8,8 @@ import { Avatar } from '../avatars.jsx';
 import { C } from '../data/cloud.js';
 import { userInfo, followingOf, postedToday } from '../data/community.js';
 import { shareText } from '../data/share.js';
-import { GROUP_ICONS, GROUP_MAX, groupById, createGroup, joinGroup, findGroup, leaveGroup, renameGroup, setGroupIcon, addMember, removeMember, deleteGroup, loadGroupPosts, groupPosts, watchChallenges, callChallenge, deleteChallenge, rankDraw, playedDraws } from '../data/groups.js';
-import { PostCard, Composer } from './Community.jsx';
+import { GROUP_ICONS, GROUP_MAX, groupById, isPublic, isMember, openGroup, toggleGroupFollow, createGroup, joinGroup, findGroup, leaveGroup, renameGroup, setGroupIcon, addMember, removeMember, deleteGroup, loadGroupPosts, groupPosts, watchChallenges, callChallenge, deleteChallenge, rankDraw, playedDraws } from '../data/groups.js';
+import { PostCard, Composer, Fab } from './Community.jsx';
 import { Tick } from '../Tick.jsx';
 import { winStats } from '../data/community.js';
 
@@ -61,36 +61,54 @@ function JoinSheet({ me, onClose, toast, initial }) {
   );
 }
 
+function TypeSheet({ onPick, onClose }) {
+  return (
+    <Sheet title={t('Create group')} onClose={onClose}>
+      <button class="gtype" onClick={() => onPick('private')}>
+        <span class="gt-ic">🔒</span>
+        <span><b>{t('Private group')}</b><small>{t('Only people you invite with the code can join. You can add or remove members.')}</small></span>
+      </button>
+      <button class="gtype" onClick={() => onPick('public')}>
+        <span class="gt-ic">🌐</span>
+        <span><b>{t('Public group')}</b><small>{t('Anyone can find, join, follow and post. Posts also show in Feeds. Nobody can be removed.')}</small></span>
+      </button>
+    </Sheet>
+  );
+}
+
+function GroupRow({ g, me, toast }) {
+  const member = isMember(g, me.uid);
+  const join = async (e) => { e.stopPropagation(); const r = await joinGroup(me, g.id); if (r.error) toast(t(r.error)); else { toast(t('You joined the group')); go(`/group/${g.id}`); } };
+  return (
+    <div class="grp-card" role="button" tabIndex={0} onClick={() => go(`/group/${g.id}`)}>
+      <GroupIcon icon={g.icon} />
+      <span style="flex:1;min-width:0;text-align:left"><b>{g.name}</b><small>{isPublic(g) ? '🌐 ' + t('Public') : '🔒 ' + t('Private')} · {t('{n} members', { n: g.members.length })}{g.owner === me.uid ? ` · ${t('Admin')}` : ''}</small></span>
+      {member ? <span class="chev">›</span> : <button class="chip-btn small on" onClick={join}>{t('Join')}</button>}
+    </div>
+  );
+}
+
 export function GroupsTab({ me, toast }) {
-  const [create, setCreate] = useState(false);
+  const [step, setStep] = useState(null); // type | {type}
   const [join, setJoin] = useState(false);
   const [busy, setBusy] = useState(false);
-  const groups = C.groups || [];
+  const mine = C.groups || [];
+  const pub = (C.pubGroups || []).filter((g) => !isMember(g, me.uid));
   const doCreate = async (name, icon) => {
-    setBusy(true); const r = await createGroup(me, name, icon); setBusy(false);
+    setBusy(true); const r = await createGroup(me, name, icon, step.type); setBusy(false);
     if (r.error) { toast(t(r.error)); return; }
-    setCreate(false); toast(t('Group created. Share the code with your friends.')); go(`/group/${r.id}`);
+    setStep(null); toast(t('Group created. Share the code with your friends.')); go(`/group/${r.id}`);
   };
   return (
     <div>
-      <div class="pcard ghero">
-        <div style="font-size:30px">👥</div>
-        <b>{t('Play with your friends')}</b>
-        <small>{t('Make a group, invite friends with a code, call a challenge for any draw and see who wins.')}</small>
-        <div class="gbtns">
-          <button class="btn" onClick={() => setCreate(true)}>＋ {t('Create group')}</button>
-          <button class="btn ghost" onClick={() => setJoin(true)}>{t('Join with code')}</button>
-        </div>
-      </div>
-      {groups.length === 0 && <Panel><div class="empty">{t('You are not in any group yet.')}</div></Panel>}
-      {groups.map((g) => (
-        <button key={g.id} class="grp-card" onClick={() => go(`/group/${g.id}`)}>
-          <GroupIcon icon={g.icon} />
-          <span style="flex:1;min-width:0;text-align:left"><b>{g.name}</b><small>{t('{n} members', { n: g.members.length })}{g.owner === me.uid ? ` · ${t('Admin')}` : ''}</small></span>
-          <span class="chev">›</span>
-        </button>
-      ))}
-      {create && <NameIconSheet title={t('Create group')} busy={busy} onSave={doCreate} onClose={() => setCreate(false)} />}
+      {mine.length > 0 && <div class="sec-h">{t('My groups')}</div>}
+      {mine.map((g) => <GroupRow key={g.id} g={g} me={me} toast={toast} />)}
+      <div class="sec-h" style="display:flex;align-items:center">{t('Public groups')}<button class="link-btn" onClick={() => setJoin(true)}>🔑 {t('Join with code')}</button></div>
+      {pub.length === 0 && <Panel><div class="empty">{t('No public groups yet. Tap + to create one.')}</div></Panel>}
+      {pub.map((g) => <GroupRow key={g.id} g={g} me={me} toast={toast} />)}
+      <Fab label={t('Create group')} onClick={() => setStep('type')} />
+      {step === 'type' && <TypeSheet onClose={() => setStep(null)} onPick={(type) => setStep({ type })} />}
+      {step && step.type && <NameIconSheet title={step.type === 'public' ? t('Public group') : t('Private group')} busy={busy} onSave={doCreate} onClose={() => setStep(null)} />}
       {join && <JoinSheet me={me} toast={toast} onClose={() => setJoin(false)} />}
     </div>
   );
@@ -152,24 +170,32 @@ function MembersSheet({ me, g, onClose }) {
 }
 
 export function GroupPage({ me, gid, data, toast }) {
-  const [tab, setTab] = useState('challenges');
+  const [tab, setTab] = useState('posts');
+  const [miss, setMiss] = useState(false);
   const [sheet, setSheet] = useState(null); // edit | challenge | add | composer
   const [, tick] = useState(0);
   const g = groupById(gid);
+  useEffect(() => { if (!g) openGroup(gid).then((x) => { if (!x) setMiss(true); }); }, [gid]);
   useEffect(() => { if (g) loadGroupPosts(g); }, [gid, g && g.members.length]);
-  useEffect(() => watchChallenges(gid), [gid]);
-  if (!g) return (<div><BackBar title={t('Group')} />{C.groups ? <Panel><div class="empty">{t('This group was deleted or you are no longer a member.')}</div></Panel> : <Loading />}</div>);
+  const member = isMember(g, me.uid);
+  useEffect(() => (member ? watchChallenges(gid) : undefined), [gid, member]);
+  if (!g) return (<div><BackBar title={t('Group')} />{miss ? <Panel><div class="empty">{t('This group was deleted or you are no longer a member.')}</div></Panel> : <Loading />}</div>);
   const admin = g.owner === me.uid;
+  const pub = isPublic(g);
+  const following = !!C.gfollow[g.id];
+  const doJoin = async () => { const r = await joinGroup(me, g.id); if (r.error) toast(t(r.error)); else toast(t('You joined the group')); refreshNow(); };
+  const openPost = () => (postedToday(me.uid, pub ? g.id : null) ? toast(pub ? t('You have already posted in this group today.') : t('You have already posted today. See your post in Profile.')) : setSheet('composer'));
   const posts = groupPosts(g);
   const results = data.results;
   const chal = C.gchal[gid] || [];
   const refresh = () => tick((n) => n + 1);
+  function refreshNow() { tick((n) => n + 1); }
 
   let body = null;
   if (tab === 'challenges') {
     body = (
       <div>
-        <button class="btn" style="margin:4px 0 12px" onClick={() => setSheet('challenge')}>⚔️ {t('Call a challenge')}</button>
+        {member ? <button class="btn" style="margin:4px 0 12px" onClick={() => setSheet('challenge')}>⚔️ {t('Call a challenge')}</button> : <Panel><div class="empty">{t('Join the group to see and call challenges.')}</div></Panel>}
         {chal.length === 0 && <Panel><div class="empty">{t('No challenges yet. Call one for the next draw!')}</div></Panel>}
         {chal.map((c) => (
           <div key={c.id}>
@@ -181,7 +207,7 @@ export function GroupPage({ me, gid, data, toast }) {
     );
   } else if (tab === 'posts') {
     body = posts.length === 0 ? <Panel><div class="empty">{t('Posts by group members appear here.')}</div></Panel>
-      : posts.slice(0, 40).map((p) => <PostCard key={p.id} p={p} me={me} results={results} stats={winStats(p.uid, results)} onChange={refresh} toast={toast} hideActions />);
+      : posts.slice(0, 40).map((p) => <PostCard key={p.id} p={p} me={me} results={results} stats={winStats(p.uid, results)} onChange={refresh} toast={toast} hideGroup />);
   } else if (tab === 'ranking') {
     const draws = playedDraws(g, posts).filter((d) => rankDraw(g, posts, d.game, d.date, results).resolved).slice(0, 8);
     body = draws.length === 0 ? <Panel><div class="empty">{t('Rankings appear after the results of draws members posted for.')}</div></Panel>
@@ -190,17 +216,18 @@ export function GroupPage({ me, gid, data, toast }) {
     body = (
       <div>
         {admin && <button class="btn ghost" style="margin:4px 0 10px;height:46px" onClick={() => setSheet('add')}>＋ {t('Add members')}</button>}
+        {pub && <div class="meta" style="margin:0 4px 8px;font-size:12px">{t('Public group: anyone can join. Members cannot be removed.')}</div>}
         {g.members.map((uid) => { const u = userInfo(uid, me); return (
           <div key={uid} class="mrow">
             <button class="plain-btn" onClick={() => go(uid === me.uid ? '/profile' : `/user/${uid}`)}><Avatar id={u.avatar} size={38} /></button>
             <span style="flex:1;min-width:0"><b>{u.name}</b> <Tick uid={uid} size={13} />{uid === g.owner && <small class="pill gold" style="margin-left:6px">{t('Admin')}</small>}</span>
-            {admin && uid !== me.uid && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Remove {n} from the group? Their posts and ranks leave the group too.', { n: u.name }))) removeMember(g, uid); }}>{t('Remove')}</button>}
+            {admin && !pub && uid !== me.uid && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Remove {n} from the group? Their posts and ranks leave the group too.', { n: u.name }))) removeMember(g, uid); }}>{t('Remove')}</button>}
           </div>
         ); })}
         <div style="margin-top:16px">
           {admin
             ? <button class="btn text danger" onClick={() => { if (confirm(t('Delete this group for everyone?'))) { deleteGroup(g); go('/community'); toast(t('Group deleted')); } }}>{t('Delete group')}</button>
-            : <button class="btn text danger" onClick={() => { if (confirm(t('Leave this group?'))) { leaveGroup(me, g); go('/community'); } }}>{t('Leave group')}</button>}
+            : member && <button class="btn text danger" onClick={() => { if (confirm(t('Leave this group?'))) { leaveGroup(me, g); go('/community'); } }}>{t('Leave group')}</button>}
         </div>
       </div>
     );
@@ -212,20 +239,21 @@ export function GroupPage({ me, gid, data, toast }) {
       <div class="pcard ghead">
         <GroupIcon icon={g.icon} size={64} />
         <div class="ghead-name">{g.name}</div>
-        <div class="meta">{t('{n} members', { n: g.members.length })} · {t('Code')} <b style="letter-spacing:.15em">{g.id}</b></div>
+        <div class="meta">{pub ? '🌐 ' + t('Public') : '🔒 ' + t('Private')} · {t('{n} members', { n: g.members.length })}{member && <span> · {t('Code')} <b style="letter-spacing:.15em">{g.id}</b></span>}</div>
         <div class="gbtns">
-          <button class="btn" onClick={() => shareGroup(me, g, toast)}>{t('Invite friends')}</button>
-          <button class="btn ghost" onClick={() => (postedToday(me.uid) ? toast(t('You have already posted today. See your post in Profile.')) : setSheet('composer'))}>{t('Post numbers')}</button>
+          {member ? <button class="btn" onClick={() => shareGroup(me, g, toast)}>{t('Invite friends')}</button> : <button class="btn" onClick={doJoin}>{t('Join group')}</button>}
+          {pub && <button class={following ? 'btn ghost on' : 'btn ghost'} onClick={() => { toggleGroupFollow(me.uid, g); refreshNow(); }}>{following ? '✓ ' + t('Following') : t('Follow')}</button>}
         </div>
       </div>
       <div class="tabs" role="tablist" style="margin-top:12px">
-        {[['challenges', 'Challenges'], ['posts', 'Posts'], ['ranking', 'Ranking'], ['members', 'Members']].map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} class={tab === k ? 'tab on' : 'tab'} onClick={() => setTab(k)}>{t(l)}</button>)}
+        {[['posts', 'Posts'], ['challenges', 'Challenges'], ['ranking', 'Ranking'], ['members', 'Members']].map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} class={tab === k ? 'tab on' : 'tab'} onClick={() => setTab(k)}>{t(l)}</button>)}
       </div>
       <div style="margin-top:8px">{body}</div>
       {sheet === 'edit' && <NameIconSheet title={t('Edit group')} init={g} onClose={() => setSheet(null)} onSave={(n, i) => { if (n.trim() !== g.name) renameGroup(g, n); if (i !== g.icon) setGroupIcon(g, i); setSheet(null); toast(t('Saved')); }} />}
       {sheet === 'challenge' && <ChallengeSheet me={me} g={g} toast={toast} onClose={() => setSheet(null)} />}
       {sheet === 'add' && <MembersSheet me={me} g={g} onClose={() => setSheet(null)} />}
-      {sheet === 'composer' && <Composer me={me} toast={toast} onClose={() => setSheet(null)} onDone={() => { setSheet(null); loadGroupPosts(g); }} />}
+      {member && <Fab label={t('Post numbers')} onClick={openPost} />}
+      {sheet === 'composer' && <Composer me={me} group={pub ? g : null} toast={toast} onClose={() => setSheet(null)} onDone={() => { setSheet(null); loadGroupPosts(g); }} />}
     </div>
   );
 }

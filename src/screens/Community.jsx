@@ -5,6 +5,7 @@ import { go } from '../App.jsx';
 import { NativeAdCard } from '../ads.jsx';
 import { addInbox } from '../data/inbox.js';
 import { shareText } from '../data/share.js';
+import { C } from '../data/cloud.js';
 import { Tick } from '../Tick.jsx';
 import { GroupsTab } from './Groups.jsx';
 import { AD_FEED_EVERY } from '../config.js';
@@ -18,7 +19,7 @@ const SHORT = (n) => n.replace(' 4D', '').replace(' 1+3D', '').replace('Sports '
 const clock = (ms) => new Date(ms).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 
 // verified-style tick next to a player's name (friends invited); kept under the old name for callers
-export function ShareBadge({ uid, big }) { return <Tick uid={uid} label={big} size={big ? 18 : 15} />; }
+export function ShareBadge({ uid }) { return <Tick uid={uid} size={15} />; }
 
 export function WinBadge({ stats }) {
   if (stats.pct == null) return <span class="win new">{t('New')}</span>;
@@ -53,7 +54,7 @@ function PostMenu({ p, me, name, anchor, onClose, onReport, onChange, toast }) {
   );
 }
 
-export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideActions, hideFollow }) {
+export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideActions, hideFollow, hideGroup }) {
   const u = userInfo(p.uid, me);
   const mine = me && p.uid === me.uid;
   const liked = !!myLikes()[p.id];
@@ -73,6 +74,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
   const deletable = mine && canDelete(p, me.uid);
   return (
     <div class="post feed">
+      {p.gid && !hideGroup && <button class="post-group" onClick={() => go(`/group/${p.gid}`)}><span aria-hidden="true">👥</span><b>{p.gname || t('Group')}</b><span class="meta">· {t('Public group')}</span></button>}
       <div class="post-top">
         <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)} aria-label={u.name}><Avatar id={u.avatar} size={44} /></button>
         <span style="flex:1;min-width:0">
@@ -112,7 +114,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
   );
 }
 
-export function Composer({ me, edit, onClose, onDone, toast }) {
+export function Composer({ me, edit, onClose, onDone, toast, group }) {
   const init = edit ? edit.picks.map((k) => ({ game: k.game, format: k.format, sets: [...k.sets] })) : [];
   const [picks, setPicks] = useState(init);
   const [err, setErr] = useState('');
@@ -128,7 +130,7 @@ export function Composer({ me, edit, onClose, onDone, toast }) {
   const submit = () => {
     const c = clean(); const e = validPicks(c);
     if (e) { setErr(e); return; }
-    if (edit) { editPost(edit.id, c); toast(t('Post updated')); } else { createPost(me.uid, c); toast(t('Prediction posted')); }
+    if (edit) { editPost(edit.id, c); toast(t('Post updated')); } else { createPost(me.uid, c, group); toast(t('Prediction posted')); }
     onDone();
   };
   const saveOnly = () => {
@@ -137,7 +139,7 @@ export function Composer({ me, edit, onClose, onDone, toast }) {
     addPick(me.uid, c); toast(t('Saved to your profile')); onDone();
   };
   return (
-    <Sheet title={edit ? t('Edit your prediction') : t('Place your prediction')} onClose={onClose}>
+    <Sheet title={edit ? t('Edit your prediction') : group ? t('Post in {g}', { g: group.name }) : t('Place your prediction')} onClose={onClose}>
       <div class="meta" style="margin-bottom:8px">{t('Which game is this prediction for? (up to 2)')}</div>
       <div class="chipwrap" style="margin:0 0 12px">
         {GAMES.map((g) => <button key={g.id} class={has(g.id) ? 'chip-btn on' : 'chip-btn'} onClick={() => toggleGame(g.id)}>{SHORT(g.name)}</button>)}
@@ -228,7 +230,7 @@ export function Community({ user, data, toast }) {
 
   const fresh = visiblePosts(allPosts(results), user);
   const following = followingOf(user.uid);
-  const shown = fresh.filter((p) => (tab === 'feeds' ? true : following.includes(p.uid)));
+  const shown = fresh.filter((p) => (tab === 'feeds' ? true : following.includes(p.uid) || (p.gid && C.gfollow && C.gfollow[p.gid])));
   const done = postedToday(user.uid);
   // swipe left / right anywhere on the page to move between the tabs
   const TABS = ['feeds', 'groups', 'following', 'board'];
@@ -246,7 +248,7 @@ export function Community({ user, data, toast }) {
     <div onTouchStart={onTS} onTouchEnd={onTE} style="min-height:70vh">
       <AppBar title={t('Community')} tagline={t('Share your predictions')} go={go} />
       <div class="tabs" role="tablist" style="margin-top:12px">
-        {[['feeds', 'Feeds'], ['groups', 'Groups'], ['following', 'Following'], ['board', 'Leaderboard']].map(([k, l]) => (
+        {[['feeds', 'Feeds'], ['groups', 'Groups'], ['following', 'Following'], ['board', 'Leaders']].map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} class={tab === k ? 'tab on' : 'tab'} onClick={() => setTab(k)}>{t(l)}</button>
         ))}
       </div>
@@ -262,7 +264,7 @@ export function Community({ user, data, toast }) {
       ])}
       </div>
 
-      <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />
+      {tab === 'feeds' && <Fab label={t('Place your prediction')} onClick={() => (done ? toast(t('You have already posted today. See your post in Profile.')) : setComposer({}))} />}
       {composer && <Composer me={user} edit={composer.edit} toast={toast} onClose={() => setComposer(null)} onDone={() => { setComposer(null); refresh(); }} />}
     </div>
   );
