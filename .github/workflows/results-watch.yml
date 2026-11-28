@@ -43,7 +43,10 @@ jobs:
               echo "pushed at $(date -u +%H:%M)"
             fi
             hm=$((10#$(date -u +%H%M)))
-            if [ $hm -ge 945 ] && [ $hm -le 1345 ]; then sleep 180; else
+            if [ $hm -ge 1020 ] && [ $hm -le 1250 ]; then
+              # live results while the draws run (SG 10:30, MY 11:00, GD 12:15 UTC): numbers written to Firestore as they appear
+              node tools/live_results.mjs 175 || sleep 60
+            elif [ $hm -ge 945 ] && [ $hm -le 1345 ]; then sleep 180; else
               # quiet hours: still send manual notifications from the admin page every 5 min
               for k in 1 2 3; do
                 sleep 300

@@ -8,12 +8,6 @@ on:
       stop:
         description: 'stop time HH:MM UTC'
         default: '12:00'
-  schedule:
-    # one window 10:00-12:00 UTC daily: Singapore 18:30 SGT, Malaysia 19:00 MYT, GD Lotto ~11:30 UTC.
-    # 3 start times because GitHub sometimes delays or skips a schedule; a late duplicate just stops at 12:00.
-    - cron: '55 9 * * *'
-    - cron: '20 10 * * *'
-    - cron: '45 10 * * *'
 permissions:
   contents: write
 concurrency:

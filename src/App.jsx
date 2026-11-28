@@ -35,6 +35,7 @@ import { auth } from './firebase.js';
 import { countOpen, shouldAskRating, rateLater, rateNow } from './data/rate.js';
 import { Logo } from './icons.jsx';
 import { UpdateHost } from './UpdateHost.jsx';
+import { SharePrompt } from './SharePrompt.jsx';
 
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -232,6 +233,7 @@ export function App() {
       <InterstitialHost />
       <NotifBanner user={user} data={data} />
       <UpdateHost />
+      <SharePrompt user={user} data={data} toast={showToast} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} go={go} toast={showToast} />
       {exitStep && (
         <div class="exit-wrap" role="dialog" aria-modal="true">

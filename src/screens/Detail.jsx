@@ -1,3 +1,5 @@
+import { shareText } from '../data/share.js';
+import { auth } from '../firebase.js';
 import { useState } from 'preact/hooks';
 import { gameById, fmtDate, nextDrawLabel } from '../data/games.js';
 import { drawsOf } from '../data/store.js';
@@ -17,11 +19,8 @@ export function Detail({ data, gameId, toast }) {
 
   const share = async () => {
     if (!draw) return;
-    const text = `${game.name} · ${fmtDate(draw.date)}\n1st ${draw.first}  2nd ${draw.second}  3rd ${draw.third}\nvia Q Spot 4D`;
-    try {
-      if (navigator.share) await navigator.share({ text });
-      else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast(t('Result copied')); }
-    } catch (e) { /* cancelled */ }
+    const text = `${game.name} · ${fmtDate(draw.date)}\n1st ${draw.first}  2nd ${draw.second}  3rd ${draw.third}\n${t('Full results and analysis on Q Spot 4D')}`;
+    shareText(text, { uid: auth.currentUser && auth.currentUser.uid, toast });
   };
 
   return (

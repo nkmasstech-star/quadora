@@ -20,10 +20,24 @@ service cloud.firestore {
         && request.resource.data.name is string && request.resource.data.name.size() <= 25
         && request.resource.data.followers == 0;
       allow update: if signedIn() && ((request.auth.uid == uid && onlyChanges(['name', 'avatar']) && request.resource.data.name.size() <= 25)
+        || (request.auth.uid == uid && onlyChanges(['shares']) && request.resource.data.shares == resource.data.get('shares', 0) + 1)
         || (onlyChanges(['followers']) && stepsBy1('followers')));
       allow delete: if signedIn() && request.auth.uid == uid || isAdmin();
       match /likes/{pid} { allow read, write: if signedIn() && request.auth.uid == uid; }
       match /following/{tid} { allow read, write: if signedIn() && request.auth.uid == uid; }
+      // notifications: another signed-in player adds one item in their own name (id type_theirUid_post, never edited by them);
+      // only the owner reads them, marks them read or deletes them
+      match /inbox/{nid} {
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow update: if signedIn() && request.auth.uid == uid && onlyChanges(['read']);
+        allow create: if signedIn() && request.auth.uid != uid
+          && request.resource.data.keys().hasOnly(['type', 'from', 'fromUid', 'postId', 'at', 'read'])
+          && request.resource.data.type in ['like', 'share', 'follow', 'challenge']
+          && request.resource.data.fromUid == request.auth.uid
+          && nid.matches('^[a-z]+_' + request.auth.uid + '_[A-Za-z0-9]+$')
+          && request.resource.data.from is string && request.resource.data.from.size() <= 25
+          && request.resource.data.read == false;
+      }
     }
 
     // posts: anyone reads; the owner creates/edits/deletes; likes and reports move their counters by 1

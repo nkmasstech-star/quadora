@@ -1,0 +1,24 @@
+name: Deploy Firestore rules
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['firestore.rules', 'tools/live_results.mjs']
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Publish rules
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+        run: node tools/deploy_rules.mjs
+      - name: Live writer check (20 s)
+        env:
+          FCM_SA: ${{ secrets.FCM_SA }}
+        run: node tools/live_results.mjs 20

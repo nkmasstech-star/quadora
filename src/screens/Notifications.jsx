@@ -3,7 +3,7 @@ import { BackBar, Hero, Panel } from '../ui.jsx';
 import { t } from '../i18n.js';
 import { go } from '../App.jsx';
 import { buildAlerts, notifOn, alertTitle, ago } from '../data/alerts.js';
-import { inboxOf, markInboxRead, seenOf, markSeen, addInbox } from '../data/inbox.js';
+import { inboxOf, markInboxRead, seenOf, markSeen, addTestInbox } from '../data/inbox.js';
 import { TEST_MODE } from '../config.js';
 import { fmtShort } from '../data/games.js';
 
@@ -11,6 +11,7 @@ const SOCIAL = {
   like: ['❤️', '{n} liked your post'],
   share: ['↗️', '{n} shared your post'],
   follow: ['👤', '{n} started following you'],
+  challenge: ['⚔️', '{n} accepted your challenge'],
 };
 const ANN = { results: '🔔', predictions: '✨', update: '⬆️' };
 
@@ -29,16 +30,16 @@ export function Notifications({ user, data }) {
   }, [user && user.uid, alerts.length, anns.length, social.length]);
 
   const items = [
-    ...social.map((x) => ({ id: x.id, at: x.at, icon: SOCIAL[x.type][0], title: t(SOCIAL[x.type][1], { n: x.from }), sub: ago(x.at), isNew: snap.social.includes(x.id), go: x.type === 'follow' ? `/user/${x.fromUid}` : '/community' })),
+    ...social.map((x) => ({ id: x.id, at: x.at, icon: (SOCIAL[x.type] || SOCIAL.like)[0], title: t((SOCIAL[x.type] || SOCIAL.like)[1], { n: x.from }), sub: ago(x.at), isNew: snap.social.includes(x.id), go: x.type === 'follow' ? `/user/${x.fromUid}` : '/community' })),
     ...alerts.map((a) => ({ id: a.id, at: Date.parse(a.date) || 0, icon: a.won ? '🎉' : '•', title: alertTitle(a), sub: `${a.sub} · ${fmtShort(a.date)}`, isNew: !snap.seen.has(a.id), game: a.game, go: '/winnings' })),
     ...anns.map((a) => ({ id: a.id, at: Date.parse(a.at) || 0, icon: ANN[a.type] || '🔔', title: t(a.title), sub: t(a.body), isNew: !snap.seen.has(a.id), go: a.type === 'results' ? '/home' : a.type === 'predictions' ? '/predictions' : null })),
   ].sort((a, b) => b.at - a.at);
 
   const test = () => {
     const k = Date.now();
-    addInbox(user.uid, { type: 'follow', from: 'Aisha', fromUid: 'test-a', postId: `f${k}` });
-    addInbox(user.uid, { type: 'share', from: 'Kumar', fromUid: 'test-b', postId: `s${k}` });
-    addInbox(user.uid, { type: 'like', from: 'Mei Ling', fromUid: 'test-c', postId: `l${k}` });
+    addTestInbox(user.uid, { type: 'follow', from: 'Aisha', fromUid: 'test-a', postId: `f${k}` });
+    addTestInbox(user.uid, { type: 'share', from: 'Kumar', fromUid: 'test-b', postId: `s${k}` });
+    addTestInbox(user.uid, { type: 'like', from: 'Mei Ling', fromUid: 'test-c', postId: `l${k}` });
     again((n) => n + 1);
   };
 

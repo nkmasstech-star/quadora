@@ -5,6 +5,7 @@ import { t } from '../i18n.js';
 import { POLL_GAMES } from '../config.js';
 import { pollDraw, myVote, castVote, tally } from '../data/poll.js';
 import { requestRewarded } from '../ads.jsx';
+import { shareText } from '../data/share.js';
 
 const PG = GAMES.filter((g) => POLL_GAMES.includes(g.id));
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -67,6 +68,7 @@ export function Poll({ user, toast }) {
   };
   const reveal = () => requestRewarded(() => setShown(true));
   const g = GAMES.find((x) => x.id === game);
+  const sharePoll = () => shareText(`🗳️ ${t('I voted {n} for the {g} draw on {d}. What number do you think will come?', { n: mine, g: g.name, d: fmtShort(pollDraw(game)) })}\n${t('Vote free on Q Spot 4D and see what other players picked.')}`, { uid: user.uid, toast });
 
   return (
     <div data-game={game}>
@@ -105,6 +107,7 @@ export function Poll({ user, toast }) {
           <div class="pollmine">{mine.split('').map((d, i) => <span key={i}>{d}</span>)}</div>
           {!shown && <button class="btn" onClick={reveal}>{t('Watch an ad to see what others picked')}</button>}
           {!shown && <div class="meta" style="text-align:center;margin-top:8px">{t('Your choice: a short ad unlocks the results.')}</div>}
+          <button class="btn ghost" style="margin-top:10px;height:46px" onClick={sharePoll}>🗳️ {t('Invite friends to vote')}</button>
         </Panel>
       )}
 

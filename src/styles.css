@@ -838,3 +838,22 @@ html, body { overflow-x: hidden; max-width: 100%; }
 /* what's new list (update dialog) */
 .wn-list{margin:4px 0 0;padding:0 0 0 18px;font-size:13.5px;line-height:1.55;align-self:stretch;text-align:left}
 .wn-list li{margin:3px 0}
+
+/* v1.3 share badges, rank/profile share cards, challenge, live results */
+.sbadge { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; margin-left: 4px; vertical-align: middle; }
+.sbadge.big { margin: 4px auto 2px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--pill-border); color: var(--gold-text); font-weight: 700; font-size: 13px; background: var(--surface-2); }
+.rank-share, .pf-share { width: 100%; display: flex; align-items: center; gap: 10px; margin: 10px 0 6px; padding: 10px 12px; border-radius: 16px; border: 1px solid var(--gold); background: var(--surface-2); color: inherit; font: inherit; cursor: pointer; }
+.rank-share > span:first-child, .pf-share > span:first-child { font-size: 24px; }
+.rank-share b, .pf-share b { display: block; font-size: 14px; }
+.rank-share small, .pf-share small { display: block; font-size: 12px; opacity: .75; margin-top: 2px; }
+.pf-share { margin-top: 12px; }
+.rs-btn { flex: none; padding: 7px 14px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-weight: 800; font-size: 13px; }
+.act.chal { color: var(--gold-text); font-weight: 700; }
+.live-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.live-head b { color: #E5484D; letter-spacing: .06em; font-size: 14px; }
+.live-n { margin-left: auto; font-size: 12.5px; font-weight: 700; }
+.live-dot { width: 10px; height: 10px; border-radius: 50%; background: #E5484D; display: inline-block; box-shadow: 0 0 0 0 rgba(229,72,77,.6); animation: livepulse 1.4s infinite; }
+.live-dot.sm { width: 7px; height: 7px; margin-left: 5px; vertical-align: middle; }
+.live-bar { height: 5px; border-radius: 5px; background: var(--surface-2); overflow: hidden; margin-bottom: 12px; }
+.live-bar i { display: block; height: 100%; background: linear-gradient(90deg, #E5484D, var(--gold)); transition: width .6s ease; }
+@keyframes livepulse { 0% { box-shadow: 0 0 0 0 rgba(229,72,77,.6); } 70% { box-shadow: 0 0 0 8px rgba(229,72,77,0); } 100% { box-shadow: 0 0 0 0 rgba(229,72,77,0); } }

@@ -35,11 +35,7 @@ export async function rateNow() {
 }
 
 export async function shareApp(toast) {
-  const text = `${t('Q Spot – Nehroopa 4D Predictions. Results, analysis and daily predictions.')} ${PLAY_URL}`;
-  try {
-    if (Capacitor.isNativePlatform()) { const { Share } = await import('@capacitor/share'); await Share.share({ title: 'Q Spot 4D', text, dialogTitle: t('Share the app') }); return; }
-    if (navigator.share) { await navigator.share({ title: 'Q Spot 4D', text, url: PLAY_URL }); return; }
-    await navigator.clipboard.writeText(text);
-    if (toast) toast(t('Link copied'));
-  } catch (e) { /* closed */ }
+  const { shareText } = await import('./share.js');
+  const { auth } = await import('../firebase.js');
+  await shareText(t('Q Spot – Nehroopa 4D Predictions. Results, analysis and daily predictions.'), { uid: auth.currentUser && auth.currentUser.uid, toast });
 }

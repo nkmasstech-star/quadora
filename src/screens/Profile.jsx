@@ -9,7 +9,8 @@ import { NAME_EDITS, AVATAR_EDITS, NAME_MAX } from '../config.js';
 import { gameById, fmtShort } from '../data/games.js';
 import { addInbox } from '../data/inbox.js';
 import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFollow, userInfo, postedToday, savedPosts, myLucky, myPicks, evalEntry, visiblePosts } from '../data/community.js';
-import { PostCard, WinBadge, Composer } from './Community.jsx';
+import { PostCard, WinBadge, Composer, ShareBadge } from './Community.jsx';
+import { shareText, sharesOf, badgeOf, nextBadge } from '../data/share.js';
 
 function AvatarPicker({ current, onPick, onClose, left }) {
   const [th, setTh] = useState(Math.floor(current / 100) % 10);
@@ -113,6 +114,13 @@ export function Profile({ user, uid, data, toast, onUser }) {
         <div class="pf-main">
           <button class="plain-btn pf-av" disabled={!own} onClick={() => own && setPicker(true)} aria-label={t('Change avatar')}><Avatar id={u.avatar} size={88} ring /></button>
           <div class="pf-name">{u.name}</div>
+          <ShareBadge uid={id} big />
+          {own && (() => { const n = sharesOf(id); const nb = nextBadge(n); return (
+            <button class="pf-share" onClick={() => shareText(`${t('I use Q Spot 4D for 4D results, analysis and daily predictions. Try it free!')}`, { uid: user.uid, toast })}>
+              <span>{badgeOf(n) ? badgeOf(n).icon : '📣'}</span>
+              <span style="flex:1;text-align:left"><b>{t('Share Q Spot with friends')}</b><small>{nb ? t('{k} more shares to become {b} {i}', { k: nb.min - n, b: t(nb.name), i: nb.icon }) : t('You are a Q Spot Ambassador. Thank you!')}</small></span>
+              <span class="rs-btn">{t('Share')}</span>
+            </button>); })()}
           <div class="pf-stats">
             <div><b>{st.posts}</b><span>{t('Posts')}</span></div>
             <div><b>{followersOf(id, user.uid)}</b><span>{t('Followers')}</span></div>

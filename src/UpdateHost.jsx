@@ -11,11 +11,11 @@ import { PLAY_URL } from './config.js';
 
 // keep this list short; it is shown once after an update
 const WHATS_NEW = [
-  'Faster, clearer Google sign-in',
-  'Winning History Predictions: only the past predictions that won',
-  'Straight charts history now shows only winning charts',
-  'New app icon',
-  'Update alerts inside the app',
+  'Live results: watch the numbers come in during the draw',
+  'Likes, follows and shares now reach the player instantly',
+  'Challenge friends with your post and share your leaderboard rank',
+  'Invite friends to the Voting Poll',
+  'New Sharer, Promoter and Ambassador badges',
 ];
 
 const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
