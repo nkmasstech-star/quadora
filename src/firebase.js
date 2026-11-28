@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, signInWithCredential, GoogleAuthProvider, signOut } from 'firebase/auth';
 
-const app = initializeApp({
+export const app = initializeApp({
   apiKey: 'AIzaSyB-F6_5oWWZK4v6n5krWUBNSQvIMMBHk5g', authDomain: 'qspot4d.firebaseapp.com', projectId: 'qspot4d',
   storageBucket: 'qspot4d.firebasestorage.app', messagingSenderId: '1012098386722', appId: '1:1012098386722:web:a7bbf88c78f2611e84f37b',
 });

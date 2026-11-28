@@ -21,6 +21,17 @@ service cloud.firestore {
         && request.resource.data.followers == 0;
       allow update: if signedIn() && ((request.auth.uid == uid && onlyChanges(['name', 'avatar']) && request.resource.data.name.size() <= 25)
         || (request.auth.uid == uid && onlyChanges(['shares']) && request.resource.data.shares == resource.data.get('shares', 0) + 1)
+        // profile photo: owner sets one (3 times in total, link to our Storage bucket) or goes back to the sticker
+        || (request.auth.uid == uid && onlyChanges(['photo', 'photoEdits', 'photoReports'])
+            && request.resource.data.photoEdits == resource.data.get('photoEdits', 0) + 1 && request.resource.data.photoEdits <= 3
+            && request.resource.data.photo.matches('^https://firebasestorage[.]googleapis[.]com/v0/b/qspot4d[.]firebasestorage[.]app/o/avatars%2F' + uid + '[.]jpg.*')
+            && request.resource.data.get('photoReports', 0) == 0)
+        || (request.auth.uid == uid && onlyChanges(['photo']) && request.resource.data.photo == '')
+        // photo report: +1 together with photoReports/{reporter} (once per reporter)
+        || (request.auth.uid != uid && onlyChanges(['photoReports']) && request.resource.data.photoReports == resource.data.get('photoReports', 0) + 1
+            && !exists(/databases/$(database)/documents/users/$(uid)/photoReports/$(request.auth.uid))
+            && existsAfter(/databases/$(database)/documents/users/$(uid)/photoReports/$(request.auth.uid)))
+        || (isAdmin() && onlyChanges(['photo', 'photoReports']) && request.resource.data.photo == '' && request.resource.data.photoReports == 0)
         // invite: the new player names their inviter once...
         || (request.auth.uid == uid && onlyChanges(['refBy']) && !('refBy' in resource.data) && request.resource.data.refBy is string && request.resource.data.refBy != uid)
         // ...and adds 1 to the inviter's count, together with refs/{newPlayer} (once)
@@ -33,6 +44,10 @@ service cloud.firestore {
       match /following/{tid} { allow read, write: if signedIn() && request.auth.uid == uid; }
       // notifications: another signed-in player adds one item in their own name (id type_theirUid_post, never edited by them);
       // only the owner reads them, marks them read or deletes them
+      match /photoReports/{rid} {
+        allow create: if signedIn() && rid == request.auth.uid && rid != uid;
+        allow read, delete: if isAdmin();
+      }
       match /gfollow/{gid} { allow read, write: if signedIn() && request.auth.uid == uid; }
       match /refs/{rid} {
         allow read: if signedIn() && request.auth.uid == uid;

@@ -778,6 +778,24 @@ const MONTHS = [
   ["Blue-grey tick", "Tanda biru kelabu", "蓝灰勾", "ப்ளூ-கிரே டிக்", "ធីកខៀវប្រផេះ"],
   ["New badges: Leaders medals and invite ticks", "Lencana baharu: pingat pendahulu dan tanda jemputan", "新徽章：领先者奖牌和邀请勾", "புதிய பேட்ஜ்கள்: லீடர்ஸ் மெடல், இன்வைட் டிக்", "ផ្លាកថ្មី៖ មេដាយអ្នកនាំមុខ និងធីកអញ្ជើញ"],
   ["Change profile picture", "Tukar gambar profil", "更换头像", "ப்ரொஃபைல் படத்தை மாற்று", "ប្ដូររូបប្រវត្តិរូប"],
+  // v1.3 profile photo
+  ["Profile photo updated", "Foto profil dikemas kini", "头像已更新", "ப்ரொஃபைல் படம் மாறிடுச்சு", "បានធ្វើបច្ចុប្បន្នភាពរូបប្រវត្តិរូប"],
+  ["Uploading…", "Memuat naik…", "上传中…", "அப்லோட் ஆகுது…", "កំពុងផ្ទុកឡើង…"],
+  ["Upload from gallery", "Muat naik dari galeri", "从相册上传", "கேலரியில் இருந்து அப்லோட்", "ផ្ទុកឡើងពីវិចិត្រសាល"],
+  ["Any size. We crop and shrink it for you. Changes left: {n} of {m}", "Sebarang saiz. Kami potong dan kecilkan untuk anda. Baki perubahan: {n} daripada {m}", "任何大小都可以，我们会自动裁剪和压缩。剩余更换次数：{n}/{m}", "எந்த சைஸும் ஓகே. நாங்களே crop பண்ணி சின்னதாக்குவோம். மீதி மாற்றங்கள்: {m}-ல் {n}", "ទំហំណាក៏បាន។ យើងកាត់ និងបង្រួមឱ្យ។ ការប្ដូរនៅសល់៖ {n} ក្នុង {m}"],
+  ["Choose a sticker", "Pilih pelekat", "选择贴纸", "ஸ்டிக்கர் தேர்வு", "ជ្រើសស្ទីគ័រ"],
+  ["Photo removed", "Foto dibuang", "照片已移除", "படம் நீக்கப்பட்டது", "បានដករូប"],
+  ["Remove photo, use my sticker", "Buang foto, guna pelekat saya", "移除照片，使用贴纸", "படத்தை நீக்கி ஸ்டிக்கர் வை", "ដករូប ប្រើស្ទីគ័រ"],
+  ["Use a photo you are allowed to share. Photos reported by players are hidden.", "Guna foto yang anda dibenarkan kongsi. Foto yang dilaporkan pemain akan disembunyikan.", "请使用你有权分享的照片。被玩家举报的照片会被隐藏。", "ஷேர் பண்ண உரிமை உள்ள படத்தை மட்டும் வையுங்க. பிளேயர்கள் ரிப்போர்ட் பண்ணின படம் மறைக்கப்படும்.", "ប្រើរូបដែលអ្នកមានសិទ្ធិចែករំលែក។ រូបដែលត្រូវបានរាយការណ៍នឹងត្រូវលាក់។"],
+  ["Report this profile photo as inappropriate?", "Laporkan foto profil ini sebagai tidak sesuai?", "举报此头像不当？", "இந்த ப்ரொஃபைல் படம் தவறானதுன்னு ரிப்போர்ட் பண்ணவா?", "រាយការណ៍រូបនេះថាមិនសមរម្យ?"],
+  ["Thanks. Photo reported.", "Terima kasih. Foto dilaporkan.", "谢谢，已举报。", "நன்றி. படம் ரிப்போர்ட் ஆனது.", "អរគុណ។ បានរាយការណ៍រូប។"],
+  ["Report photo", "Laporkan foto", "举报照片", "படத்தை ரிப்போர்ட் பண்ணு", "រាយការណ៍រូប"],
+  ["You have used all 3 photo changes.", "Anda telah guna kesemua 3 perubahan foto.", "你已用完3次换照片机会。", "3 போட்டோ மாற்றங்களும் முடிஞ்சிடுச்சு.", "អ្នកបានប្រើការប្ដូររូបទាំង 3 ហើយ។"],
+  ["This picture could not be used. Try another one.", "Gambar ini tidak boleh digunakan. Cuba yang lain.", "这张图片无法使用，请换一张。", "இந்த படத்தை பயன்படுத்த முடியல. வேற படம் ட்ரை பண்ணுங்க.", "មិនអាចប្រើរូបនេះបាន។ សាករូបផ្សេង។"],
+  ["Upload failed. Check your internet and try again.", "Muat naik gagal. Semak internet dan cuba lagi.", "上传失败，请检查网络后重试。", "அப்லோட் ஆகல. இன்டர்நெட்டை பார்த்து மறுபடி ட்ரை பண்ணுங்க.", "ផ្ទុកឡើងបរាជ័យ។ ពិនិត្យអ៊ីនធឺណិត ហើយសាកម្ដងទៀត។"],
+  ["Could not remove. Check your internet.", "Gagal membuang. Semak internet anda.", "无法移除，请检查网络。", "நீக்க முடியல. இன்டர்நெட்டை பாருங்க.", "មិនអាចដកបាន។ ពិនិត្យអ៊ីនធឺណិត។"],
+  ["You already reported this photo.", "Anda sudah melaporkan foto ini.", "你已举报过这张照片。", "இந்த படத்தை ஏற்கனவே ரிப்போர்ட் பண்ணிட்டீங்க.", "អ្នកបានរាយការណ៍រូបនេះរួចហើយ។"],
+  ["Please log in again.", "Sila log masuk semula.", "请重新登录。", "மறுபடி லாக்இன் பண்ணுங்க.", "សូមចូលគណនីម្ដងទៀត។"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };

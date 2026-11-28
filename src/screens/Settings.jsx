@@ -11,6 +11,7 @@ import { Avatar } from '../avatars.jsx';
 import { AvatarPicker, NameSheet } from './Profile.jsx';
 import { setAvatar } from '../data/account.js';
 import { AVATAR_EDITS } from '../config.js';
+import { setPhoto, removePhoto, photoOf, photoChangesLeft, PHOTO_MAX_CHANGES } from '../data/photo.js';
 
 const THEMES = [
   { id: 'light', name: 'Light', bg: '#F3F5FA', line: '#D9DFEC', gold: '#E3A82A' },
@@ -20,7 +21,15 @@ const THEMES = [
 ];
 
 export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDelete, onRefresh, toast, onUser }) {
-  const [edit, setEdit] = useState(null); // avatar | name
+  const [edit, setEdit] = useState(null); // pic | avatar | name
+  const [busy, setBusy] = useState(false);
+  const pickFile = async (e) => {
+    const f = e.currentTarget.files && e.currentTarget.files[0]; e.currentTarget.value = '';
+    if (!f) return;
+    setBusy(true); const r = await setPhoto(user.uid, f); setBusy(false);
+    if (r.error) { toast(t(r.error)); return; }
+    setEdit(null); toast(t('Profile photo updated'));
+  };
   const [confirmDel, setConfirmDel] = useState(false);
   const [notif, setN] = useState(notifOn());
   const [blkOpen, setBlkOpen] = useState(false);
@@ -31,11 +40,26 @@ export function Settings({ user, theme, setTheme, setLang, data, onLogOut, onDel
       <BackBar title={t('Settings')} />
 
       {user && <div class="rows" style="margin-top:14px">
-        <div class="row" style="gap:12px"><Avatar id={user.avatar} size={44} ring /><span style="flex:1;font-weight:700">{user.name}</span></div>
-        <button class="row" onClick={() => setEdit('avatar')}><span style="flex:1;text-align:left">{t('Change profile picture')}</span><IconChevron /></button>
+        <div class="row" style="gap:12px"><Avatar id={user.avatar} uid={user.uid} size={44} ring /><span style="flex:1;font-weight:700">{user.name}</span></div>
+        <button class="row" onClick={() => setEdit('pic')}><span style="flex:1;text-align:left">{t('Change profile picture')}</span><IconChevron /></button>
         <button class="row" onClick={() => setEdit('name')}><span style="flex:1;text-align:left">{t('Edit name')}</span><IconChevron /></button>
       </div>}
-      {edit === 'avatar' && <AvatarPicker current={user.avatar} left={AVATAR_EDITS - (user.avatarEdits || 0)} onClose={() => setEdit(null)} onPick={(a) => { const r = setAvatar(a); if (r.error) { toast(t(r.error)); return; } onUser(r.user); setEdit(null); toast(t('Saved')); }} />}
+      {edit === 'pic' && (
+        <Sheet title={t('Change profile picture')} onClose={() => !busy && setEdit(null)}>
+          <label class={photoChangesLeft(user.uid) > 0 && !busy ? 'gtype' : 'gtype off'}>
+            <span class="gt-ic">🖼️</span>
+            <span><b>{busy ? t('Uploading…') : t('Upload from gallery')}</b><small>{t('Any size. We crop and shrink it for you. Changes left: {n} of {m}', { n: Math.max(0, photoChangesLeft(user.uid)), m: PHOTO_MAX_CHANGES })}</small></span>
+            <input type="file" accept="image/*" style="display:none" disabled={busy || photoChangesLeft(user.uid) <= 0} onChange={pickFile} />
+          </label>
+          <button class="gtype" disabled={busy} onClick={() => setEdit('avatar')}>
+            <span class="gt-ic">😀</span>
+            <span><b>{t('Choose a sticker')}</b><small>{t('Avatar changes left: {n}', { n: AVATAR_EDITS - (user.avatarEdits || 0) })}</small></span>
+          </button>
+          {photoOf(user.uid) && <button class="btn text danger" disabled={busy} onClick={async () => { const r = await removePhoto(user.uid); if (r.error) toast(t(r.error)); else { setEdit(null); toast(t('Photo removed')); } }}>{t('Remove photo, use my sticker')}</button>}
+          <div class="meta" style="font-size:12px;line-height:1.45;margin-top:8px">{t('Use a photo you are allowed to share. Photos reported by players are hidden.')}</div>
+        </Sheet>
+      )}
+      {edit === 'avatar' && <AvatarPicker current={user.avatar} left={AVATAR_EDITS - (user.avatarEdits || 0)} onClose={() => setEdit(null)} onPick={(a) => { const r = setAvatar(a); if (r.error) { toast(t(r.error)); return; } onUser(r.user); if (photoOf(user.uid)) removePhoto(user.uid); setEdit(null); toast(t('Saved')); }} />}
       {edit === 'name' && <NameSheet user={user} toast={toast} onClose={() => setEdit(null)} onDone={(nu) => { onUser(nu); setEdit(null); }} />}
 
       <div class="rows" style="margin-top:14px">

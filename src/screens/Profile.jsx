@@ -12,6 +12,7 @@ import { userPosts, winStats, followersOf, followingOf, followingCount, toggleFo
 import { PostCard, Composer, Fab } from './Community.jsx';
 import { shareText } from '../data/share.js';
 import { Tick } from '../Tick.jsx';
+import { photoOf, reportPhoto } from '../data/photo.js';
 
 export function AvatarPicker({ current, onPick, onClose, left }) {
   const [th, setTh] = useState(Math.floor(current / 100) % 10);
@@ -112,7 +113,7 @@ export function Profile({ user, uid, data, toast, onUser }) {
 
       <div class="pf-wrap pf-compact">
         <div class="pfc-top">
-          <Avatar id={u.avatar} size={64} ring />
+          <Avatar id={u.avatar} uid={id} size={64} ring />
           <div class="pfc-info">
             <div class="pfc-name"><span>{u.name}</span><Tick uid={id} size={18} own={own} me={user} toast={toast} tap /></div>
             <div class="pfc-stats">
@@ -122,6 +123,7 @@ export function Profile({ user, uid, data, toast, onUser }) {
             </div>
           </div>
         </div>
+        {!own && photoOf(id) && <button class="link-btn" style="align-self:flex-end;margin:-4px 0 -4px" onClick={async () => { if (!confirm(t('Report this profile photo as inappropriate?'))) return; const r = await reportPhoto(user, id); toast(r.error ? t(r.error) : t('Thanks. Photo reported.')); refresh(); }}>⚑ {t('Report photo')}</button>}
         {!own && <button class={following ? 'btn ghost pfc-follow' : 'btn pfc-follow'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
       {own && <Fab label={t('Place your prediction')} onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))} />}

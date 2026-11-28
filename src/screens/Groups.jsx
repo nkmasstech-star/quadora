@@ -129,7 +129,7 @@ function RankCard({ g, posts, game, date, results, me, title }) {
         return (
           <div key={x.post.id + i} class={won ? 'rank-row won' : 'rank-row'}>
             <span class="rank-pos">{won ? (MEDAL[i] || i + 1) : '–'}</span>
-            <Avatar id={u.avatar} size={32} />
+            <Avatar id={u.avatar} uid={u.uid} size={32} />
             <span style="flex:1;min-width:0"><b>{u.name}</b> <Tick uid={x.uid} size={13} /><small>{x.pick.sets.join(' ')} · {t(x.pick.format)}</small></span>
             <span class="rank-prize">{won ? x.hits.map((h) => t(h.prize)).join(', ') : t('No match')}</span>
           </div>
@@ -163,7 +163,7 @@ function MembersSheet({ me, g, onClose }) {
       <div class="meta" style="margin-bottom:8px">{t('Players you follow. Others can join with the group code.')}</div>
       {cand.length === 0 && <div class="empty">{t('Follow players in Feeds to add them here, or share the group code.')}</div>}
       {cand.map((uid) => { const u = userInfo(uid, me); return (
-        <div key={uid} class="mrow"><Avatar id={u.avatar} size={36} /><b style="flex:1">{u.name}</b><button class="chip-btn small on" disabled={g.members.length >= GROUP_MAX} onClick={() => { addMember(me, g, uid); onClose(); }}>{t('Add')}</button></div>
+        <div key={uid} class="mrow"><Avatar id={u.avatar} uid={u.uid} size={36} /><b style="flex:1">{u.name}</b><button class="chip-btn small on" disabled={g.members.length >= GROUP_MAX} onClick={() => { addMember(me, g, uid); onClose(); }}>{t('Add')}</button></div>
       ); })}
     </Sheet>
   );
@@ -219,7 +219,7 @@ export function GroupPage({ me, gid, data, toast }) {
         {pub && <div class="meta" style="margin:0 4px 8px;font-size:12px">{t('Public group: anyone can join. Members cannot be removed.')}</div>}
         {g.members.map((uid) => { const u = userInfo(uid, me); return (
           <div key={uid} class="mrow">
-            <button class="plain-btn" onClick={() => go(uid === me.uid ? '/profile' : `/user/${uid}`)}><Avatar id={u.avatar} size={38} /></button>
+            <button class="plain-btn" onClick={() => go(uid === me.uid ? '/profile' : `/user/${uid}`)}><Avatar id={u.avatar} uid={u.uid} size={38} /></button>
             <span style="flex:1;min-width:0"><b>{u.name}</b> <Tick uid={uid} size={13} />{uid === g.owner && <small class="pill gold" style="margin-left:6px">{t('Admin')}</small>}</span>
             {admin && !pub && uid !== me.uid && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Remove {n} from the group? Their posts and ranks leave the group too.', { n: u.name }))) removeMember(g, uid); }}>{t('Remove')}</button>}
           </div>

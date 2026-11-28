@@ -76,7 +76,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
     <div class="post feed">
       {p.gid && !hideGroup && <button class="post-group" onClick={() => go(`/group/${p.gid}`)}><span aria-hidden="true">👥</span><b>{p.gname || t('Group')}</b><span class="meta">· {t('Public group')}</span></button>}
       <div class="post-top">
-        <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)} aria-label={u.name}><Avatar id={u.avatar} size={44} /></button>
+        <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)} aria-label={u.name}><Avatar id={u.avatar} uid={u.uid} size={44} /></button>
         <span style="flex:1;min-width:0">
           <button class="plain-btn name-btn" onClick={() => go(mine ? '/profile' : `/user/${p.uid}`)}>{u.name}</button><ShareBadge uid={p.uid} />
           <span class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">{fmtShort(p.day)}{p.edited ? ` · ${t('Edited')}` : ''}</span>
@@ -202,7 +202,7 @@ function Leaderboard({ results, me, toast }) {
           return (
             <button key={r.uid} class={me && r.uid === me.uid ? 'board-row me' : 'board-row'} onClick={() => go(me && r.uid === me.uid ? '/profile' : `/user/${r.uid}`)}>
               <span class={`board-rank r${i + 1}`}>{i + 1}</span>
-              <Avatar id={u.avatar} size={38} />
+              <Avatar id={u.avatar} uid={u.uid} size={38} />
               <span class="board-name"><b>{u.name} <ShareBadge uid={r.uid} /></b><small>{t('{w} wins of {n} posts', { w: r.won, n: r.resolved })}</small></span>
               <span class="board-pct">{r.pct}%</span>
             </button>

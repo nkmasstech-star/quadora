@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['firestore.rules', 'tools/live_results.mjs']
+    paths: ['firestore.rules', 'storage.rules', 'tools/deploy_rules.mjs']
 permissions:
   contents: read
 jobs:

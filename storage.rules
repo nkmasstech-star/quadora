@@ -1,0 +1,15 @@
+rules_version = '2';
+// Profile photos only: avatars/{uid}.jpg. Anyone can view; only the owner writes their own file,
+// a JPEG under 100 KB (the app squeezes every picture below that before upload).
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /avatars/{file} {
+      allow read: if true;
+      allow write: if request.auth != null && file == request.auth.uid + '.jpg'
+        && request.resource.size < 100 * 1024
+        && request.resource.contentType == 'image/jpeg';
+      allow delete: if request.auth != null && file == request.auth.uid + '.jpg';
+    }
+    match /{all=**} { allow read, write: if false; }
+  }
+}
