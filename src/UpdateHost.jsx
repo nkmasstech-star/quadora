@@ -15,7 +15,7 @@ const WHATS_NEW = [
   'Likes, follows and shares now reach the player instantly',
   'Groups: public or private, call challenges and see who wins',
   'Swipe between Feeds, Groups, Following and Leaders',
-  'Invite friends and earn a Silver, Gold or Platinum tick',
+  'New badges: Leaders medals and invite ticks',
 ];
 
 const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };

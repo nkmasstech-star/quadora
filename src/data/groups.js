@@ -26,7 +26,7 @@ export function startGroups(uid) {
   if (import.meta.env.DEV && location.search.includes('gdemo')) {
     C.pubGroups = [{ id: 'PUB777', name: 'Magnum Masters', icon: 8, type: 'public', owner: 'u3', members: ['u3', 'u2', 'u4'], created: 3 }, { id: 'PUB888', name: 'Toto Kings', icon: 11, type: 'public', owner: 'u2', members: ['u2'], created: 2 }];
     C.groups = [{ id: 'ABC123', name: 'Lucky Friends', icon: 0, type: 'private', owner: uid, members: [uid, 'u2', 'u3', 'u4'], created: 1 }];
-    C.users.u2 = { name: 'Kumar', avatar: 105, refs: 4 }; C.users.u3 = { name: 'Mei Ling', avatar: 212, refs: 11 }; C.users.u4 = { name: 'Aisha', avatar: 330, refs: 1 };
+    C.users.u2 = { name: 'Kumar', avatar: 105, refs: 4 }; C.users.u3 = { name: 'Mei Ling', avatar: 212, refs: 11 }; window.__medalDemo = { u2: 'diamond', [uid]: 'gold' }; C.users.u4 = { name: 'Aisha', avatar: 330, refs: 1 };
     C.users[uid] = { ...(C.users[uid] || {}), refs: 6 };
     C.gchal.ABC123 = [{ id: 'magnum_2026-12-02', by: 'u2', byName: 'Kumar', game: 'magnum', forDate: '2026-12-02', at: 2 }, { id: 'magnum_2026-11-25', by: uid, byName: 'Nehru', game: 'magnum', forDate: '2026-11-25', at: 1 }];
     const mk = (u, sets, f, d) => ({ id: `d${u}${d}`, uid: u, day: d, at: Date.parse(d) - 5e6, edited: false, up: 2, reports: 0, picks: [{ game: 'magnum', format: f, sets, forDate: d }] });

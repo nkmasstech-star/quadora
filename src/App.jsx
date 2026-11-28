@@ -30,7 +30,7 @@ import { Agree } from './screens/Agree.jsx';
 import { Legal } from './screens/Legal.jsx';
 import { Locked } from './ui.jsx';
 import { currentUser, logOut, deleteAccount, googleSignIn } from './data/account.js';
-import { startPosts, startUser, stopUser } from './data/cloud.js';
+import { C, startPosts, startUser, stopUser } from './data/cloud.js';
 import { auth } from './firebase.js';
 import { countOpen, shouldAskRating, rateLater, rateNow } from './data/rate.js';
 import { Logo } from './icons.jsx';
@@ -70,6 +70,7 @@ const TABS = [
 export function App() {
   const route = useRoute();
   const [data, setData] = useState({ status: 'loading', results: null, predictions: null, demo: false });
+  if (data.results) C.results = data.results; // for the Leaders medals next to names
   const [toast, setToast] = useState('');
   const [user, setUserState] = useState(() => {
     if (import.meta.env.DEV && new URLSearchParams(location.search).has('asuser') && !currentUser()) { googleSignIn({ name: 'Nehru', email: 'nehru@test.com', dob: null }); store.set('qd_guest', '1'); }

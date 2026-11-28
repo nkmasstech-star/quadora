@@ -903,3 +903,19 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .tk-row.on { border-color: var(--gold); background: var(--surface-2); }
 .tk-row b { display: block; font-size: 14.5px; } .tk-row small { display: block; font-size: 12px; opacity: .7; }
 .btn.ghost.on { border-color: var(--gold); color: var(--gold-text); }
+/* compact profile card + badge sheet */
+.pf-compact { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; border-radius: 22px; }
+.pfc-top { display: flex; align-items: center; gap: 12px; }
+.pf-compact .pf-av { margin: 0; flex: none; }
+.pfc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pf-compact .pf-name { font-size: 19px; justify-content: flex-start; flex-wrap: wrap; }
+.pfc-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.pfc-stats b { color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 15px; }
+.pf-compact .pf-btns .btn, .pf-compact .pfc-follow { min-height: 40px; height: 40px; padding: 6px 10px; font-size: 13.5px; }
+.bi-h { font-weight: 800; font-size: 14.5px; margin-bottom: 4px; }
+.bi-p { font-size: 12.5px; line-height: 1.45; margin-bottom: 10px; }
+.bi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.bi-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bi-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--border); text-align: center; }
+.bi-cell.on { border: 2px solid var(--gold); background: var(--surface-2); }
+.bi-cell b { font-size: 13px; } .bi-cell small { font-size: 11px; opacity: .7; }

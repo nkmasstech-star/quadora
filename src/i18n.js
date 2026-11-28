@@ -762,6 +762,21 @@ const MONTHS = [
   ["Invite friends and earn a Silver, Gold or Platinum tick", "Jemput rakan dan dapatkan tanda Perak, Emas atau Platinum", "邀请好友，获得银、金或白金认证", "நண்பர்களை அழைத்து சில்வர், கோல்ட், பிளாட்டினம் டிக் பெறுங்கள்", "អញ្ជើញមិត្ត ហើយទទួលធីក ប្រាក់ មាស ឬផ្លាទីន"],
   ["Groups: public or private, call challenges and see who wins", "Kumpulan: awam atau peribadi, buat cabaran dan lihat siapa menang", "群组：公开或私密，发起挑战看谁赢", "குரூப்ஸ்: பப்ளிக் அல்லது பிரைவேட், சவால் விட்டு யார் ஜெயிக்கிறாங்கன்னு பாருங்க", "ក្រុម៖ សាធារណៈ ឬឯកជន ហៅការប្រកួត ហើយមើលអ្នកឈ្នះ"],
   ["Swipe between Feeds, Groups, Following and Leaders", "Leret antara Suapan, Kumpulan, Diikuti dan Pendahulu", "左右滑动切换动态、群组、关注和领先者", "Feeds, Groups, Following, Leaders இடையே ஸ்வைப் பண்ணுங்க", "អូសរវាង Feeds ក្រុម តាមដាន និងអ្នកនាំមុខ"],
+  // v1.3 medals
+  ["Badges", "Lencana", "徽章", "பேட்ஜ்கள்", "ផ្លាក"],
+  ["Leaders medal", "Pingat pendahulu", "领先者奖牌", "லீடர்ஸ் மெடல்", "មេដាយអ្នកនាំមុខ"],
+  ["Be in the top 5 on the Leaders board. Kept until the next week or month is finished.", "Berada dalam 5 teratas di papan Pendahulu. Kekal sehingga minggu atau bulan seterusnya tamat.", "进入领先者榜前5名。保留到下一周或下一月结束。", "Leaders board-ல top 5-ல இருங்க. அடுத்த வாரம் அல்லது மாசம் முடியும் வரை இருக்கும்.", "ស្ថិតក្នុង 5 ដំបូងលើតារាងអ្នកនាំមុខ។ រក្សាទុករហូតដល់សប្ដាហ៍ ឬខែបន្ទាប់បញ្ចប់។"],
+  ["Diamond", "Berlian", "钻石", "டைமண்ட்", "ពេជ្រ"],
+  ["Weekly top 5", "5 teratas mingguan", "每周前5", "வாராந்திர top 5", "5 ដំបូងប្រចាំសប្ដាហ៍"],
+  ["Monthly top 5", "5 teratas bulanan", "每月前5", "மாதாந்திர top 5", "5 ដំបូងប្រចាំខែ"],
+  ["All-time top 5", "5 teratas sepanjang masa", "总榜前5", "எல்லா கால top 5", "5 ដំបូងគ្រប់ពេល"],
+  ["Silver medal", "Pingat perak", "银牌", "சில்வர் மெடல்", "មេដាយប្រាក់"],
+  ["Gold medal", "Pingat emas", "金牌", "கோல்ட் மெடல்", "មេដាយមាស"],
+  ["Diamond medal", "Pingat berlian", "钻石奖牌", "டைமண்ட் மெடல்", "មេដាយពេជ្រ"],
+  ["Invite tick", "Tanda jemputan", "邀请勾", "இன்வைட் டிக்", "ធីកអញ្ជើញ"],
+  ["Share your invite link. When friends install Q Spot from it and log in, you get a tick next to your name.", "Kongsi pautan jemputan anda. Apabila rakan memasang Q Spot daripadanya dan log masuk, anda dapat tanda di sebelah nama.", "分享你的邀请链接。好友通过它安装 Q Spot 并登录后，你的名字旁会出现勾。", "உங்கள் இன்வைட் லிங்கை ஷேர் பண்ணுங்க. அதுல இருந்து நண்பர்கள் Q Spot இன்ஸ்டால் பண்ணி லாக்இன் பண்ணா உங்கள் பெயர் பக்கத்தில் டிக் வரும்.", "ចែករំលែកតំណអញ្ជើញ។ ពេលមិត្តដំឡើង Q Spot ពីវា ហើយចូលគណនី អ្នកទទួលធីកនៅក្បែរឈ្មោះ។"],
+  ["Blue-grey tick", "Tanda biru kelabu", "蓝灰勾", "ப்ளூ-கிரே டிக்", "ធីកខៀវប្រផេះ"],
+  ["New badges: Leaders medals and invite ticks", "Lencana baharu: pingat pendahulu dan tanda jemputan", "新徽章：领先者奖牌和邀请勾", "புதிய பேட்ஜ்கள்: லீடர்ஸ் மெடல், இன்வைட் டிக்", "ផ្លាកថ្មី៖ មេដាយអ្នកនាំមុខ និងធីកអញ្ជើញ"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };

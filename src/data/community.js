@@ -137,9 +137,12 @@ export const BOARD_PERIODS = { week: { days: 7, min: 2 }, month: { days: 30, min
 export function leaderboard(period, results, me) {
   const cfg = BOARD_PERIODS[period] || BOARD_PERIODS.week;
   const from = cfg.days ? Date.now() - cfg.days * 864e5 : 0;
+  return rankRange(from, Infinity, cfg.min, results, me).slice(0, 10);
+}
+function rankRange(from, to, min, results, me) {
   const by = {};
   allPosts().forEach((p) => {
-    if (p.at < from) return;
+    if (p.at < from || p.at >= to) return;
     if (me && blockedOf(me.uid).includes(p.uid)) return;
     const e = evalPost(p, results);
     if (!e.resolved) return;
@@ -149,6 +152,26 @@ export function leaderboard(period, results, me) {
   return Object.values(by)
     .filter((s) => s.resolved >= cfg.min && s.won > 0)
     .map((s) => ({ ...s, pct: Math.round((s.won / s.resolved) * 100) }))
-    .sort((a, b) => b.won / b.resolved - a.won / a.resolved || b.won - a.won || b.resolved - a.resolved)
-    .slice(0, 10);
+    .sort((a, b) => b.won / b.resolved - a.won / a.resolved || b.won - a.won || b.resolved - a.resolved);
+}
+
+// ---------- Leaders medals: top 5 of the last finished week (silver), last finished month (gold) and all time up to
+// the start of this month (diamond). Each is kept until the next week / month is finished. Times in Malaysia (UTC+8). ----------
+const MYT = 8 * 3600e3;
+let medalCache = { key: '', map: {} };
+export function medalMap(results) {
+  const now = Date.now(); const d = new Date(now + MYT);
+  const dayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - MYT;
+  const weekStart = dayStart - ((d.getUTCDay() + 6) % 7) * 864e5; // Monday
+  const monthStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) - MYT;
+  const prevMonth = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1) - MYT;
+  const key = `${weekStart}|${C.posts.length}|${results && results.updated}`;
+  if (medalCache.key === key) return medalCache.map;
+  const map = {};
+  const give = (rows, kind) => rows.slice(0, 5).forEach((r) => { if (!map[r.uid]) map[r.uid] = kind; });
+  give(rankRange(0, monthStart, BOARD_PERIODS.all.min, results), 'diamond');
+  give(rankRange(prevMonth, monthStart, BOARD_PERIODS.month.min, results), 'gold');
+  give(rankRange(weekStart - 7 * 864e5, weekStart, BOARD_PERIODS.week.min, results), 'silver');
+  medalCache = { key, map };
+  return map;
 }

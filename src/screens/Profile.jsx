@@ -110,22 +110,22 @@ export function Profile({ user, uid, data, toast, onUser }) {
         ? <AppBar title={t('Profile')} tagline={t('Your page')} go={go} right={<button class="icon-btn" aria-label={t('Settings')} onClick={() => go('/settings')}><IconGear /></button>} />
         : <BackBar title={t('Player')} />}
 
-      <div class="pf-wrap">
-        <div class="pf-cover" />
-        <div class="pf-main">
-          <button class="plain-btn pf-av" disabled={!own} onClick={() => own && setPicker(true)} aria-label={t('Change avatar')}><Avatar id={u.avatar} size={88} ring /></button>
-          <div class="pf-name">{u.name}<Tick uid={id} size={20} own={own} me={user} toast={toast} tap /></div>
-          <div class="pf-stats">
-            <div><b>{st.posts}</b><span>{t('Posts')}</span></div>
-            <div><b>{followersOf(id, user.uid)}</b><span>{t('Followers')}</span></div>
-            <div><b>{id === user.uid ? followingCount(id) : '—'}</b><span>{t('Following')}</span></div>
-            <div><b>{st.pct == null ? '—' : `${st.pct}%`}</b><span>{t('Winning')}</span></div>
+      <div class="pf-wrap pf-compact">
+        <div class="pfc-top">
+          <button class="plain-btn pf-av" disabled={!own} onClick={() => own && setPicker(true)} aria-label={t('Change avatar')}><Avatar id={u.avatar} size={58} ring /></button>
+          <div class="pfc-info">
+            <div class="pf-name">{u.name}<Tick uid={id} size={18} own={own} me={user} toast={toast} tap /></div>
+            <div class="pfc-stats">
+              <span><b>{st.posts}</b> {t('Posts')}</span>
+              <span><b>{followersOf(id, user.uid)}</b> {t('Followers')}</span>
+              {id === user.uid && <span><b>{followingCount(id)}</b> {t('Following')}</span>}
+              <span title={st.pct == null ? t('Winning % shows after 4 checked posts. Checked: {n}', { n: st.resolved }) : ''}><b>{st.pct == null ? '—' : `${st.pct}%`}</b> {t('Winning')}</span>
+            </div>
           </div>
-          {st.pct == null && <div class="meta" style="font-size:12px;text-align:center">{t('Winning % shows after 4 checked posts. Checked: {n}', { n: st.resolved })}</div>}
-          {own
-            ? <div class="pf-btns"><button class="btn ghost" onClick={() => setNameOpen(true)}>{t('Edit profile')}</button><button class="btn" onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))}>{t('Place your prediction')}</button></div>
-            : <button class={following ? 'btn ghost' : 'btn'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
         </div>
+        {own
+          ? <div class="pf-btns"><button class="btn ghost" onClick={() => setNameOpen(true)}>{t('Edit profile')}</button><button class="btn" onClick={() => (postedToday(user.uid) ? toast(t('You have already posted today. See your post below.')) : setComposer(true))}>{t('Place your prediction')}</button></div>
+          : <button class={following ? 'btn ghost pfc-follow' : 'btn pfc-follow'} onClick={() => { const was = following; toggleFollow(user.uid, id); if (!was) addInbox(id, { type: 'follow', from: user.name, fromUid: user.uid }); refresh(); }}>{following ? t('Following') : t('Follow')}</button>}
       </div>
 
       <div class="tabs" role="tablist" style="margin-top:14px">
