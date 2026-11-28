@@ -831,6 +831,8 @@ const MONTHS = [
   ["Say something (optional)", "Tulis sesuatu (pilihan)", "说点什么（可选）", "ஏதாவது சொல்லுங்க (விருப்பம்)", "និយាយអ្វីមួយ (ស្រេចចិត្ត)"],
   ["Why these numbers? A dream, a date, a pattern…", "Kenapa nombor ini? Mimpi, tarikh, corak…", "为什么选这些号码？梦、日期、规律…", "ஏன் இந்த நம்பர்கள்? கனவு, தேதி, pattern…", "ហេតុអ្វីលេខទាំងនេះ? សុបិន កាលបរិច្ឆេទ លំនាំ…"],
   ["New accounts can add text 24 hours after joining.", "Akaun baharu boleh tambah teks 24 jam selepas mendaftar.", "新账号注册24小时后才能添加文字。", "புது account சேர்ந்து 24 மணி நேரத்துக்கு அப்புறம் தான் text போடலாம்.", "គណនីថ្មីអាចបន្ថែមអត្ថបទបាន 24 ម៉ោងក្រោយចុះឈ្មោះ។"],
+  ["Comments and replies on posts, plus a short text with your numbers", "Komen dan balasan pada hantaran, serta teks pendek bersama nombor anda", "帖子可评论和回复，发布号码时还能写几句话", "போஸ்ட்டுக்கு கமெண்ட்ஸ், ரிப்ளை, உங்கள் நம்பர்களோட ஒரு சின்ன text", "មតិ និងការឆ្លើយតបលើប្រកាស ព្រមទាំងអត្ថបទខ្លីជាមួយលេខរបស់អ្នក"],
+  ["Set your own profile photo from the gallery", "Tetapkan foto profil anda sendiri dari galeri", "可从相册设置自己的头像", "கேலரியில் இருந்து உங்கள் சொந்த ப்ரொஃபைல் படம் வைக்கலாம்", "កំណត់រូបប្រវត្តិរូបផ្ទាល់ខ្លួនពីវិចិត្រសាល"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };

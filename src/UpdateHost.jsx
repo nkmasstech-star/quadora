@@ -12,10 +12,11 @@ import { PLAY_URL } from './config.js';
 // keep this list short; it is shown once after an update
 const WHATS_NEW = [
   'Live results: watch the numbers come in during the draw',
-  'Likes, follows and shares now reach the player instantly',
   'Groups: public or private, call challenges and see who wins',
-  'Swipe between Feeds, Groups, Following and Leaders',
+  'Comments and replies on posts, plus a short text with your numbers',
+  'Set your own profile photo from the gallery',
   'New badges: Leaders medals and invite ticks',
+  'Swipe between Feeds, Groups, Following and Leaders',
 ];
 
 const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
