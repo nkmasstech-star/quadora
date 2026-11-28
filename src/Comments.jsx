@@ -14,8 +14,12 @@ import { COMMENT_MAX } from './data/textguard.js';
 const ago = (ms) => { const m = Math.floor((Date.now() - ms) / 60000); if (m < 1) return t('now'); if (m < 60) return `${m}m`; const h = Math.floor(m / 60); if (h < 24) return `${h}h`; return `${Math.floor(h / 24)}d`; };
 
 function Item({ c, post, me, onReply, toast, small }) {
+  const [menu, setMenu] = useState(false);
   const u = userInfo(c.uid, me);
   const mine = c.uid === me.uid;
+  const canDel = canDeleteComment(me, post, c);
+  const report = async () => { setMenu(false); if (!confirm(t('Report this comment to the admin?'))) return; const r = await reportComment(me, post, c); toast(r.error ? t(r.error) : t('Thanks. Comment reported.')); };
+  const del = async () => { setMenu(false); if (!confirm(t('Delete this comment?'))) return; const r = await deleteComment(post, c); if (r.error) toast(t(r.error)); };
   return (
     <div class={small ? 'cm-item reply' : 'cm-item'}>
       <button class="plain-btn" onClick={() => go(mine ? '/profile' : `/user/${c.uid}`)}><Avatar id={u.avatar} uid={c.uid} size={small ? 28 : 34} /></button>
@@ -24,10 +28,15 @@ function Item({ c, post, me, onReply, toast, small }) {
         <div class="cm-acts">
           <span>{ago(c.at)}</span>
           <button class="link-btn" onClick={() => onReply(c)}>{t('Reply')}</button>
-          {!mine && <button class="link-btn" onClick={async () => { if (!confirm(t('Report this comment?'))) return; const r = await reportComment(me, post, c); toast(r.error ? t(r.error) : t('Thanks. Comment reported.')); }}>{t('Report')}</button>}
-          {canDeleteComment(me, post, c) && <button class="link-btn danger" onClick={async () => { if (!confirm(t('Delete this comment?'))) return; const r = await deleteComment(post, c); if (r.error) toast(t(r.error)); }}>{t('Delete')}</button>}
         </div>
       </div>
+      {(!mine || canDel) && <button class="cm-more" aria-label={t('More')} onClick={() => setMenu(!menu)}>⋮</button>}
+      {menu && (
+        <div class="cm-menu" role="menu">
+          {!mine && <button role="menuitem" onClick={report}>⚑ {t('Report to admin')}</button>}
+          {canDel && <button role="menuitem" class="danger" onClick={del}>🗑 {t('Delete')}</button>}
+        </div>
+      )}
     </div>
   );
 }

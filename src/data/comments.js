@@ -16,7 +16,7 @@ const subs = {};
 export function watchComments(pid) {
   if (import.meta.env.DEV && location.search.includes('cdemo')) {
     C.users.u2 = C.users.u2 || { name: 'Kumar', avatar: 105 }; C.users.u3 = C.users.u3 || { name: 'Mei Ling', avatar: 212, refs: 11 };
-    C.comments[pid] = [{ id: 'a', uid: 'u2', text: 'Nice pick! I also like 4821 for Saturday.', at: Date.now() - 3600e3, parent: '', reports: 0 }, { id: 'b', uid: 'u3', text: 'Same here, good luck both 🍀', at: Date.now() - 1800e3, parent: 'a', reports: 0 }, { id: 'c', uid: 'u2', text: '@Mei Ling thanks!', at: Date.now() - 600e3, parent: 'a', reports: 0 }];
+    C.comments[pid] = [{ id: 'a', uid: 'u2', text: 'Nice pick! I also like 4821 for Saturday.', at: Date.now() - 3600e3, parent: '', reports: 0 }, { id: 'b', uid: 'u3', text: 'Same here, good luck both 🍀', at: Date.now() - 1800e3, parent: 'a', reports: 0 }, { id: 'c', uid: 'u2', text: '@Mei Ling thanks!', at: Date.now() - 600e3, parent: 'a', reports: 0 }]; setTimeout(fire, 50);
     return () => {};
   }
   if (subs[pid]) return () => {};

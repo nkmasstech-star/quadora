@@ -825,6 +825,9 @@ const MONTHS = [
   ["You already reported this comment.", "Anda sudah melaporkan komen ini.", "你已举报过这条评论。", "இந்த கமெண்ட்டை ஏற்கனவே ரிப்போர்ட் பண்ணிட்டீங்க.", "អ្នកបានរាយការណ៍មតិនេះរួចហើយ។"],
   ["{n} commented on your post", "{n} mengulas hantaran anda", "{n} 评论了你的帖子", "{n} உங்கள் போஸ்ட்டுக்கு கமெண்ட் பண்ணார்", "{n} បានបញ្ចេញមតិលើប្រកាសរបស់អ្នក"],
   ["{n} replied to your comment", "{n} membalas komen anda", "{n} 回复了你的评论", "{n} உங்கள் கமெண்ட்டுக்கு ரிப்ளை பண்ணார்", "{n} បានឆ្លើយតបមតិរបស់អ្នក"],
+  ["Report this comment to the admin?", "Laporkan komen ini kepada admin?", "向管理员举报这条评论？", "இந்த கமெண்ட்டை அட்மினுக்கு ரிப்போர்ட் பண்ணவா?", "រាយការណ៍មតិនេះទៅអ្នកគ្រប់គ្រង?"],
+  ["Report to admin", "Laporkan kepada admin", "举报给管理员", "அட்மினுக்கு ரிப்போர்ட்", "រាយការណ៍ទៅអ្នកគ្រប់គ្រង"],
+  ["More", "Lagi", "更多", "மேலும்", "ច្រើនទៀត"],
 ];
 
 const IDX = { en: 0, ms: 1, zh: 2, ta: 3, km: 4 };
