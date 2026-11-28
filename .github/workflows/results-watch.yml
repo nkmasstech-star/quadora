@@ -38,6 +38,8 @@ jobs:
             node tools/push_queue.mjs || true
             # Leaders board + medals for the app, at most once an hour
             if [ $(( $(date +%s) - ${LEAD_AT:-0} )) -ge 3600 ]; then node tools/leaders.mjs || true; LEAD_AT=$(date +%s); fi
+            # reported comments: one push to the admin phone a day, around 9:30 AM India time
+            if [ "$(date -u +%H)" = "04" ] && [ "${DIGEST_DAY:-}" != "$(date -u +%F)" ]; then node tools/modq_digest.mjs || true; DIGEST_DAY=$(date -u +%F); fi
             if [ -n "$(git status --porcelain public/data tools/notified.json)" ]; then
               git add public/data tools/notified.json
               git commit -q -m "Auto: results/predictions (watch)"

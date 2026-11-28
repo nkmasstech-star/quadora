@@ -37,6 +37,12 @@ async function listenTaps() {
   } catch (e) { /* optional */ }
 }
 
+// admin phone: daily summary of reported comments (topic "admin")
+export async function subscribeAdmin() {
+  if (!Capacitor.isNativePlatform()) return;
+  try { const { FirebaseMessaging } = await import('@capacitor-firebase/messaging'); await FirebaseMessaging.subscribeToTopic({ topic: 'admin' }); } catch (e) { /* optional */ }
+}
+
 export function initPush() {
   listenTaps();
   setTimeout(sync, 4000); // after the splash, so the permission prompt does not fight it

@@ -11,7 +11,7 @@ const SOCIAL = {
   like: ['❤️', '{n} liked your post'],
   share: ['↗️', '{n} shared your post'],
   follow: ['👤', '{n} started following you'],
-  challenge: ['⚔️', '{n} called a group challenge'], group: ['👥', '{n} added you to a group'],
+  challenge: ['⚔️', '{n} called a group challenge'], group: ['👥', '{n} added you to a group'], comment: ['💬', '{n} commented on your post'], reply: ['↩️', '{n} replied to your comment'],
 };
 const ANN = { results: '🔔', predictions: '✨', update: '⬆️' };
 

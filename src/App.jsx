@@ -1,3 +1,4 @@
+import { subscribeAdmin } from './push.js';
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -153,6 +154,7 @@ export function App() {
     if (!user) { stopUser(); stopGroups(); return; }
     startUser(user.uid);
     startGroups(user.uid);
+    if (user.email === 'nkmasstech@gmail.com') subscribeAdmin();
     // invite link: credit the inviter once, and offer the group they shared
     readReferrer().then(() => setTimeout(() => { applyReferral(user); const p = pendingRef(); if (p && p.g) setInvite(p.g); }, 3000));
     // the phone remembers the player; if the server sign-in was lost, ask to log in again so posting keeps working

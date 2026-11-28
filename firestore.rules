@@ -5,6 +5,20 @@ service cloud.firestore {
     function isAdmin() { return signedIn() && request.auth.token.email == 'nkmasstech@gmail.com'; }
     function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
     function stepsBy1(f) { return request.resource.data[f] - resource.data[f] in [-1, 1]; }
+    // comment text check (same list as src/data/textguard.js): no phone numbers, links, contact or payment asks, bad words
+    function okText(t) {
+      let s = t.lower();
+      return !s.matches('(?s).*(http|www[.]|[.]com|[.]net|[.]org|[.]in/|[.]my/|wa[.]me|t[.]me|bit[.]ly|whatsapp|whats app|watsapp|wtsapp|telegram|tele gram|wechat|line id|signal app|imo app|dm me|pm me|inbox me|msg me|message me|contact me|call me|my number|join my group|join group link|sure number|sure no|confirm number|fix number|fixed number|100%|guarantee|guaranteed|gpay|g pay|phonepe|paytm|upi|bank account|deposit|touch n go|tng ewallet|duitnow|hubungi|pasti menang|nombor pasti|nombor tepat|wasap|微信|电报|包中|联系我|私聊|加我|நிச்சயம் நம்பர்|உறுதி நம்பர்|கால் பண்ணுங்க|வாட்ஸ்அப்|டெலிகிராம்|fuck|f[*]ck|bitch|bastard|asshole|motherfucker|pukimak|babi|bodoh|sial|lancau|puki|他妈的|傻逼|操你|ommala|otha|thevidiya|punda|sunni|oombu|தேவிடியா|ஓத்தா|புண்ட).*')
+        && !s.matches('(?s).*([0-9]{1,3}[ .-]){2,}[0-9]{3,}.*')
+        && !s.matches('(?s).*[0-9]{5,6}[ .-]?[0-9]{4,6}.*')
+        && !s.matches('(?s).*([0-9]{1,3}[ .-]){4,}[0-9]{1,3}.*')
+        && !s.matches('(?s).*[0-9]{7,}.*')
+        && !s.matches('(?s).*[+] ?[0-9].*');
+    }
+    function canComment(uid) {
+      let u = get(/databases/$(database)/documents/users/$(uid)).data;
+      return u.get('created', 0) < request.time.toMillis() - 86400000 && u.get('commentBanUntil', 0) < request.time.toMillis();
+    }
 
     // manual results typed on the admin page: everyone reads, only the owner writes
     match /pub/{doc} {
@@ -18,7 +32,8 @@ service cloud.firestore {
       allow create: if signedIn() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['name', 'avatar', 'followers', 'created'])
         && request.resource.data.name is string && request.resource.data.name.size() <= 25
-        && request.resource.data.followers == 0;
+        && request.resource.data.followers == 0
+        && (!('created' in request.resource.data) || (request.resource.data.created > request.time.toMillis() - 600000 && request.resource.data.created < request.time.toMillis() + 600000));
       allow update: if signedIn() && ((request.auth.uid == uid && onlyChanges(['name', 'avatar']) && request.resource.data.name.size() <= 25)
         || (request.auth.uid == uid && onlyChanges(['shares']) && request.resource.data.shares == resource.data.get('shares', 0) + 1)
         // profile photo: owner sets one (3 times in total, link to our Storage bucket) or goes back to the sticker
@@ -32,6 +47,15 @@ service cloud.firestore {
             && !exists(/databases/$(database)/documents/users/$(uid)/photoReports/$(request.auth.uid))
             && existsAfter(/databases/$(database)/documents/users/$(uid)/photoReports/$(request.auth.uid)))
         || (isAdmin() && onlyChanges(['photo', 'photoReports']) && request.resource.data.photo == '' && request.resource.data.photoReports == 0)
+        // comment counters: one comment per 10 s, 30 a day (written together with the comment)
+        || (request.auth.uid == uid && onlyChanges(['lastCommentAt', 'cDay', 'cCount'])
+            && request.resource.data.lastCommentAt == request.time
+            && (!('lastCommentAt' in resource.data) || request.time > resource.data.lastCommentAt + duration.value(10, 's'))
+            && request.resource.data.cDay == int(request.time.toMillis() / 86400000)
+            && ((resource.data.get('cDay', 0) == request.resource.data.cDay && request.resource.data.cCount == resource.data.get('cCount', 0) + 1 && request.resource.data.cCount <= 30)
+              || (resource.data.get('cDay', 0) != request.resource.data.cDay && request.resource.data.cCount == 1)))
+        // admin: mute from comments, strikes
+        || (isAdmin() && onlyChanges(['commentBanUntil', 'strikes']))
         // invite: the new player names their inviter once...
         || (request.auth.uid == uid && onlyChanges(['refBy']) && !('refBy' in resource.data) && request.resource.data.refBy is string && request.resource.data.refBy != uid)
         // ...and adds 1 to the inviter's count, together with refs/{newPlayer} (once)
@@ -60,7 +84,7 @@ service cloud.firestore {
         allow update: if signedIn() && request.auth.uid == uid && onlyChanges(['read']);
         allow create: if signedIn() && request.auth.uid != uid
           && request.resource.data.keys().hasOnly(['type', 'from', 'fromUid', 'postId', 'at', 'read'])
-          && request.resource.data.type in ['like', 'share', 'follow', 'challenge', 'group']
+          && request.resource.data.type in ['like', 'share', 'follow', 'challenge', 'group', 'comment', 'reply']
           && request.resource.data.fromUid == request.auth.uid
           && nid.matches('^[a-z]+_' + request.auth.uid + '_[A-Za-z0-9]+$')
           && request.resource.data.from is string && request.resource.data.from.size() <= 25
@@ -77,9 +101,29 @@ service cloud.firestore {
         && (!('gid' in request.resource.data) || request.auth.uid in get(/databases/$(database)/documents/groups/$(request.resource.data.gid)).data.members);
       allow update: if signedIn() && ((resource.data.uid == request.auth.uid && onlyChanges(['picks', 'edited']))
         || (onlyChanges(['up']) && stepsBy1('up'))
+        || (onlyChanges(['comments']) && request.resource.data.comments >= 0 && request.resource.data.comments - resource.data.get('comments', 0) >= -50 && request.resource.data.comments - resource.data.get('comments', 0) <= 1)
         || (onlyChanges(['reports']) && request.resource.data.reports == resource.data.reports + 1)
         || (isAdmin() && onlyChanges(['reports']) && request.resource.data.reports == 0));
       allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      // comments and replies
+      match /comments/{cid} {
+        allow read: if true;
+        allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid', 'text', 'at', 'parent', 'reports'])
+          && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+          && request.resource.data.parent is string && request.resource.data.reports == 0
+          && okText(request.resource.data.text) && canComment(request.auth.uid)
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.lastCommentAt == request.time;
+        allow update: if signedIn() && onlyChanges(['reports']) && request.resource.data.reports == resource.data.reports + 1
+          && !exists(/databases/$(database)/documents/posts/$(pid)/comments/$(cid)/reports/$(request.auth.uid))
+          && existsAfter(/databases/$(database)/documents/posts/$(pid)/comments/$(cid)/reports/$(request.auth.uid));
+        allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin()
+          || get(/databases/$(database)/documents/posts/$(pid)).data.uid == request.auth.uid);
+        match /reports/{rid} {
+          allow create: if signedIn() && rid == request.auth.uid;
+          allow read: if isAdmin();
+        }
+      }
       // one report per player per post (create only, never edited)
       match /reports/{uid} {
         allow create: if signedIn() && request.auth.uid == uid;
@@ -117,6 +161,12 @@ service cloud.firestore {
         allow delete: if signedIn() && (resource.data.by == request.auth.uid
           || get(/databases/$(database)/documents/groups/$(gid)).data.owner == request.auth.uid);
       }
+    }
+
+    // moderation queue: reported comments (written with the report), handled on the admin page
+    match /modq/{qid} {
+      allow create, update: if signedIn() && request.resource.data.keys().hasOnly(['postId', 'cid', 'uid', 'text', 'at']);
+      allow read, delete: if isAdmin();
     }
 
     // poll: totals are public; a player adds one vote per game per draw, together with the 4 counters

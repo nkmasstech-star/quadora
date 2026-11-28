@@ -7,6 +7,7 @@ import { addInbox } from '../data/inbox.js';
 import { shareText } from '../data/share.js';
 import { C, loadMorePosts, loadUserPosts } from '../data/cloud.js';
 import { Tick } from '../Tick.jsx';
+import { CommentsSheet } from '../Comments.jsx';
 import { GroupsTab } from './Groups.jsx';
 import { AD_FEED_EVERY } from '../config.js';
 import { t } from '../i18n.js';
@@ -69,6 +70,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
     if (ok && me && !mine) addInbox(p.uid, { type: 'share', from: me.name, fromUid: me.uid, postId: p.id });
   };
   const [rep, setRep] = useState(false);
+  const [cmt, setCmt] = useState(false);
   const [menu, setMenu] = useState(null);
   const editable = mine && canEdit(p, me.uid);
   const deletable = mine && canDelete(p, me.uid);
@@ -99,6 +101,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
 
       <div class="post-foot">
         <button class={liked ? 'act on' : 'act'} aria-pressed={liked} aria-label={t('Like')} onClick={guard(() => { const was = !!myLikes()[p.id]; toggleLike(p.id, me.uid); if (!was && !mine) addInbox(p.uid, { type: 'like', from: me.name, fromUid: me.uid, postId: p.id }); })}><IconHeart on={liked} /><span>{likeCount(p)}</span></button>
+        <button class="act" aria-label={t('Comments')} onClick={guard(() => setCmt(true))}><span aria-hidden="true" class="cm-ic">💬</span><span>{p.comments || 0}</span></button>
         <button class="act" aria-label={t('Share')} onClick={share}><IconShare /><span>{t('Share')}</span></button>
         <button class={saved ? 'act on' : 'act'} aria-pressed={saved} aria-label={t('Save')} onClick={guard(() => toggleSave(me.uid, p.id))}><IconBookmark on={saved} /><span>{saved ? t('Saved') : t('Save')}</span></button>
       </div>
@@ -109,6 +112,7 @@ export function PostCard({ p, me, results, stats, onChange, toast, onEdit, hideA
           {deletable && <button class="chip-btn small danger" onClick={() => { if (confirm(t('Delete this post?'))) { deletePost(p.id); onChange(); toast(t('Post deleted')); } }}>{t('Delete')}</button>}
         </div>
       )}
+      {cmt && me && <CommentsSheet post={p} me={me} toast={toast} onClose={() => setCmt(false)} />}
       {rep && <ReportSheet p={p} me={me} onClose={() => setRep(false)} onChange={onChange} toast={toast} />}
     </div>
   );

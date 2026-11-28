@@ -100,8 +100,41 @@ async function card(d, mode) {
   return el;
 }
 
+// reported comments (moderation queue modq): delete comment, mute the writer 7 days (+1 strike; 3 strikes = 365 days), or keep
+async function commentCard(q) {
+  const x = q.data(); const el = document.createElement('div'); el.className = 'box';
+  const name = await nameOf(x.uid);
+  let reports = '?'; let gone = false;
+  try { const c = await getDoc(doc(db, 'posts', x.postId, 'comments', x.cid)); if (c.exists()) reports = c.data().reports || 0; else gone = true; } catch (e) { /* ignore */ }
+  el.innerHTML = `<div class="meta">${esc(name)} · ${new Date(x.at).toLocaleString()} · reports: ${reports}${gone ? ' · (already deleted)' : ''}</div>
+    <div style="margin:8px 0;font-size:16px">${esc(x.text)}</div>
+    <div class="btns"><button class="r" data-a="del">Delete comment</button><button class="r" data-a="mute">Delete + mute 7 days</button><button class="g" data-a="keep">Keep</button></div>`;
+  el.querySelectorAll('button').forEach((b) => b.onclick = async () => {
+    b.disabled = true;
+    try {
+      if (b.dataset.a !== 'keep' && !gone) { await deleteDoc(doc(db, 'posts', x.postId, 'comments', x.cid)); }
+      if (b.dataset.a === 'mute') {
+        const u = await getDoc(doc(db, 'users', x.uid)); const strikes = ((u.exists() && u.data().strikes) || 0) + 1;
+        await updateDoc(doc(db, 'users', x.uid), { strikes, commentBanUntil: Date.now() + (strikes >= 3 ? 365 : 7) * 864e5 });
+      }
+      await deleteDoc(q.ref);
+      el.innerHTML = '<div class="meta">Done.</div>';
+    } catch (e) { el.insertAdjacentHTML('beforeend', '<div class="err">' + esc(e.message) + '</div>'); b.disabled = false; }
+  });
+  return el;
+}
+
 async function show(mode) {
   const list = $('#list');
+  if (mode === 'comments') {
+    list.innerHTML = '<div class="meta">Loading…</div>';
+    try {
+      const snap = await getDocs(query(collection(db, 'modq'), orderBy('at', 'desc'), limit(50)));
+      list.innerHTML = snap.empty ? '<div class="box">No reported comments. 👍</div>' : '';
+      for (const q of snap.docs) list.appendChild(await commentCard(q));
+    } catch (e) { list.innerHTML = '<div class="box err">' + esc(e.message) + '</div>'; }
+    return;
+  }
   list.innerHTML = '<div class="meta">Loading…</div>';
   try {
     const q = mode === 'reported'
@@ -115,10 +148,12 @@ async function show(mode) {
 
 function main(u) {
   root.innerHTML = `<div class="sub">Signed in: ${esc(u.email)} · <a href="#" id="out" style="color:#E8B94A">sign out</a></div>
-    <div class="tabs"><button id="t1">Reported</button><button id="t2" class="g">Latest posts</button></div><div id="list"></div>`;
+    <div class="tabs"><button id="t1">Reported posts</button><button id="t3" class="g">Reported comments</button><button id="t2" class="g">Latest posts</button></div><div id="list"></div>`;
   $('#out').onclick = (e) => { e.preventDefault(); signOut(auth); };
-  $('#t1').onclick = () => { $('#t1').className = ''; $('#t2').className = 'g'; show('reported'); };
-  $('#t2').onclick = () => { $('#t2').className = ''; $('#t1').className = 'g'; show('latest'); };
+  const pick = (id, mode) => { ['#t1', '#t2', '#t3'].forEach((k) => { $(k).className = k === id ? '' : 'g'; }); show(mode); };
+  $('#t1').onclick = () => pick('#t1', 'reported');
+  $('#t2').onclick = () => pick('#t2', 'latest');
+  $('#t3').onclick = () => pick('#t3', 'comments');
   show('reported');
 }
 

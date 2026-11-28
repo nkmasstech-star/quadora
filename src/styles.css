@@ -929,3 +929,21 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .av-photo { border-radius: 50%; object-fit: cover; flex: none; display: inline-block; background: var(--surface-2); }
 .gtype.off { opacity: .5; pointer-events: none; }
 label.gtype { cursor: pointer; }
+/* comments */
+.cm-ic { font-size: 17px; line-height: 1; }
+.cm-list { max-height: 55vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
+.cm-item { display: flex; gap: 8px; margin: 10px 0; }
+.cm-item.reply { margin-left: 42px; }
+.cm-body { flex: 1; min-width: 0; }
+.cm-bubble { display: inline-block; max-width: 100%; padding: 8px 12px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.cm-bubble b { font-size: 13px; margin-right: 2px; }
+.cm-text { display: block; margin-top: 2px; white-space: pre-wrap; }
+.cm-acts { display: flex; gap: 12px; align-items: center; font-size: 12px; opacity: .8; margin: 4px 0 0 8px; }
+.cm-acts .link-btn { margin: 0; font-size: 12px; font-weight: 700; }
+.link-btn.danger { color: #E5484D; }
+.cm-compose { position: sticky; bottom: 0; background: var(--bg); padding-top: 10px; border-top: 1px solid var(--border); margin-top: 6px; }
+.cm-row { display: flex; gap: 8px; align-items: flex-end; }
+.cm-input { flex: 1; min-height: 44px; max-height: 120px; resize: none; padding: 11px 12px; font: inherit; }
+.cm-send { width: auto; padding: 0 16px; height: 44px; flex: none; }
+.cm-replying { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; opacity: .85; }
+.cm-rule { font-size: 11.5px; margin-top: 6px; }
